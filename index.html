@@ -120,8 +120,9 @@
   .tabs.nav-bar{
     border-bottom:none;
     align-items:center;
-    gap:14px;
+    gap:10px 14px;
     margin-bottom:18px;
+    flex-wrap:wrap;
   }
   .back-btn{
     font-family:'IBM Plex Sans', sans-serif;
@@ -156,6 +157,43 @@
     font-size:14px;
     color:var(--ink);
   }
+  .promo-banner{
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    border-radius:var(--radius);
+    padding:12px 16px;
+    margin-bottom:18px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .promo-line{
+    font-size:12.5px;
+    color:var(--teal-deep);
+    line-height:1.5;
+  }
+  .promo-line a{
+    color:var(--teal-deep);
+    font-weight:600;
+    text-decoration:none;
+    border-bottom:1px solid #9cd3cc;
+  }
+  .promo-line a:hover{border-bottom-color:var(--teal-deep);}
+  .product-link{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--teal-deep);
+    text-decoration:none;
+    white-space:normal;
+    border-bottom:1px solid transparent;
+    transition:border-color .15s;
+  }
+  .product-link:hover{border-bottom-color:var(--teal-deep);}
+  .product-link svg{flex-shrink:0;}
 
   /* ---------- home page ---------- */
   .home-grid{
@@ -889,6 +927,8 @@ const SHEETS = [
   {
     id:"naica5x",
     name:"naica 5X Multiplex ddPCR Mix",
+    productUrl:"https://www.bio-rad.com/en-us/sku/12025253-naica-5x-multiplex-ddpcr-mix-1-x-0-75-ml?ID=12025253",
+    productName:"naica\u00ae 5X Multiplex ddPCR Mix",
     hasAssays:true,
     allowIndividualTubes:true,
     bufferAFactor:5,
@@ -913,6 +953,8 @@ const SHEETS = [
   {
     id:"naica10x",
     name:"naica 10X Multiplex ddPCR Mix",
+    productUrl:"https://www.bio-rad.com/en-us/sku/12025255-naica-10x-multiplex-ddpcr-mix-1-x-0-375-ml?ID=12025255",
+    productName:"naica\u00ae 10X Multiplex ddPCR Mix",
     hasAssays:true,
     allowIndividualTubes:true,
     bufferAFactor:10,
@@ -937,6 +979,8 @@ const SHEETS = [
   {
     id:"naicaEvaGreen5x",
     name:"naica 5X ddPCR Mix",
+    productUrl:"https://www.bio-rad.com/en-us/sku/12025257-naica-5x-ddpcr-mix-2-x-0-75-ml?ID=12025257",
+    productName:"naica\u00ae 5X ddPCR Mix",
     hasAssays:false,
     allowIndividualTubes:true,
     sampleLabel:"DNA",
@@ -955,6 +999,8 @@ const SHEETS = [
   {
     id:"naicaEvaGreen10x",
     name:"naica 10X ddPCR Mix",
+    productUrl:"https://www.bio-rad.com/en-us/sku/12025258-naica-10x-ddpcr-mix-2-x-0-375-ml?ID=12025258",
+    productName:"naica\u00ae 10X ddPCR Mix",
     hasAssays:false,
     allowIndividualTubes:true,
     sampleLabel:"DNA",
@@ -973,6 +1019,8 @@ const SHEETS = [
   {
     id:"evagreen",
     name:"QX700 ddPCR EvaGreen Supermix",
+    productUrl:"https://www.bio-rad.com/en-us/product/qx700-ddpcr-evagreen-supermix?ID=5cd1b941-75a3-6c82-672a-5af6768ecdbf",
+    productName:"QX700\u2122 ddPCR\u2122 EvaGreen\u00ae Supermix",
     hasAssays:false,
     allowIndividualTubes:true,
     sampleLabel:"DNA",
@@ -1019,6 +1067,8 @@ const SHEETS = [
   {
     id:"probes",
     name:"QX700 ddPCR Supermix for Probes",
+    productUrl:"https://www.bio-rad.com/en-us/product/qx700-ddpcr-supermix-for-probes?ID=f61e2c2b-e2a7-38f8-4400-2cc22ea36ccb",
+    productName:"QX700\u2122 ddPCR\u2122 Supermix for Probes",
     hasAssays:true,
     allowIndividualTubes:true,
     sampleLabel:"DNA",
@@ -1046,6 +1096,8 @@ const SHEETS = [
   {
     id:"rdq",
     name:"QX700 ddPCR RDQ Supermix",
+    productUrl:"https://www.bio-rad.com/en-us/product/qx700ddpcrrdq-supermix?ID=N3D44215",
+    productName:"QX700\u2122 ddPCR\u2122 RDQ Supermix",
     hasAssays:true,
     allowIndividualTubes:true,
     sampleLabel:"DNA",
@@ -1074,6 +1126,8 @@ const SHEETS = [
   {
     id:"onestep",
     name:"QX700 One-Step RT-ddPCR Kit for Probes",
+    productUrl:"https://www.bio-rad.com/en-us/product/qx700-one-step-rt-ddpcr-kit-for-probes?ID=3db6466c-287a-2c03-7290-7bcc5368e42c",
+    productName:"QX700\u2122 One-Step RT-ddPCR Kit for Probes",
     hasAssays:true,
     allowIndividualTubes:true,
     sampleLabel:"RNA",
@@ -1374,6 +1428,18 @@ function renderTabs(){
     });
     select.onchange = (e)=>{ activeTab = e.target.value; renderAll(); };
     el.appendChild(select);
+
+    const activeSheet = SHEETS.find(s=>s.id===activeTab);
+    if(activeSheet && activeSheet.productUrl){
+      const link = document.createElement("a");
+      link.className = "product-link";
+      link.href = activeSheet.productUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      const displayName = activeSheet.productName || activeSheet.name;
+      link.innerHTML = `Order more at Bio-Rad.com: &quot;${displayName}&quot; <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+      el.appendChild(link);
+    }
   } else if(currentView === "primerPrep"){
     const label = document.createElement("div");
     label.className = "nav-current-label";
@@ -1980,6 +2046,10 @@ function renderPrimerPrepContent(){
 
   const el = document.getElementById("tabContent");
   el.innerHTML = `
+    <div class="promo-banner">
+      <div class="promo-line">Skip the hassle \u2014 order predesigned 20X assays at Bio-Rad.com: <a href="https://www.bio-rad.com/digital-assays" target="_blank" rel="noopener noreferrer">&quot;Bio-Rad Droplet Digital PCR Assays | Home&quot;</a></div>
+      <div class="promo-line">Have your primer/probe sequences? Order custom 20X assays at Bio-Rad.com: <a href="https://www.bio-rad.com/digital-assays/custom-assay-builder" target="_blank" rel="noopener noreferrer">&quot;Bio-Rad Droplet Digital PCR Assays | Custom Assay Builder&quot;</a></div>
+    </div>
     <div class="grid">
       <div class="panel" id="prepInputsPanel"></div>
       <div>
@@ -2116,15 +2186,13 @@ function renderAll(){
    PLACEHOLDER (dummy / coming-soon modules)
    ============================================================ */
 const LEARNING_RESOURCES = [
-  { title:"ddPCR Applications Guide", tag:"Guide", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf" },
-  { title:"Bio-Rad Academy | ddPCR", tag:"Training", url:"https://academy.bio-rad.com/collections/digital-pcr" },
-  { title:"Rare Mutation Detection | Best Practices Guidelines", tag:"Best Practices", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6628.pdf" },
+  { title:"ddPCR Applications Guide", tag:"Learn about ddPCR, Primer/Probe design, and aplications such as Mutation Detection, Gene Expression, CNV Analysis and more.", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf" },
+  { title:"Bio-Rad Academy | ddPCR", tag:"Free online courses led by Bio-Rad Life Science Research application scientists.", url:"https://academy.bio-rad.com/collections/digital-pcr" },
+  { title:"Rare Mutation Detection | Best Practices Guidelines", tag:"Learn the best practices for detecting rare mutations and sequences.", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6628.pdf" },
 ];
 
 const SUPPORT_CONTACTS = [
   { role:"Tech Support", name:"Bio-Rad Technical Support", email:"support@bio-rad.com", phone:"1-800-4-BIORAD", initials:"TS" },
-  { role:"Field Application Scientist", name:"John Smith, PhD", email:"john_smith@bio-rad.com", phone:"1-800-555-5555", initials:"JS" },
-  { role:"Account Executive", name:"Jane Doe", email:"jane_doe@bio-rad.com", phone:"1-800-777-7777", initials:"JD" },
 ];
 
 function renderPlaceholderContent(){
@@ -2178,7 +2246,7 @@ function renderSupportPlaceholder(){
   `;
 }
 
-const FEEDBACK_FORM_URL = "https://forms.office.com/r/ddpcr-webapps-feedback";
+const FEEDBACK_FORM_URL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=6-sK7_Aqo0e4rlZl-KYtEVica9tD3v9Muw4PsUs7zH9UQU5aNFZEV1ZLUExFNUpSV09VTkxaOVhZWS4u";
 
 function renderFeedbackPlaceholder(){
   const el = document.getElementById("tabContent");
@@ -2196,7 +2264,6 @@ function renderFeedbackPlaceholder(){
           <div class="resource-tag">Bugs · Issues · Suggestions</div>
         </div>
       </a>
-      <div class="info-note" style="margin-top:14px;">This is a placeholder link (${FEEDBACK_FORM_URL}) \u2014 swap in the real feedback form URL once it's set up.</div>
     </div>
   `;
 }
@@ -2393,6 +2460,8 @@ function renderPlatemapContent(){
       <button class="btn danger" id="pmClearAllBtn">Clear All</button>
       <button class="btn primary" id="pmExportBtn">Export CSV</button>
     </div>
+    <div class="info-note" style="margin-top:-10px;">Import your labeled plate directly into the QX700 System Control Software. <br>
+	In the Digital Experiments tab select "Get Sample from file" under Sample Settings and select your labeled .csv file.</div>
     <div class="summary-bar" id="pmSummaryBar"></div>
     <div class="main-grid">
       <div class="chips-row" id="pmChipsRow"></div>
