@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QX700 ddPCR WebApps &amp; Calculators</title>
+<title>FAS QX700 ddPCR WebApps &amp; Calculators - Beta Build</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -179,6 +179,10 @@
     border-bottom:1px solid #9cd3cc;
   }
   .promo-line a:hover{border-bottom-color:var(--teal-deep);}
+  .product-link-row{
+    flex-basis:100%;
+    margin-top:2px;
+  }
   .product-link{
     display:inline-flex;
     align-items:center;
@@ -194,6 +198,29 @@
   }
   .product-link:hover{border-bottom-color:var(--teal-deep);}
   .product-link svg{flex-shrink:0;}
+  .default-toggle-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    background:#fafcfb;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 12px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:.15s;
+  }
+  .default-toggle-btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .default-toggle-btn svg{flex-shrink:0;}
+  .default-toggle-btn.is-default{
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border-color:#bfe2dd;
+  }
 
   /* ---------- home page ---------- */
   .home-grid{
@@ -991,6 +1018,44 @@
     padding-top:14px;
     border-top:1px solid var(--line);
   }
+
+  /* ---------- primer prep: advanced assay setup ---------- */
+  .extra-entry{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 12px 4px;
+    margin-bottom:10px;
+    background:#fafcfb;
+  }
+  .extra-entry-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:8px;
+  }
+  .extra-entry-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--teal-deep);
+  }
+  .extra-add-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:6px;
+  }
+  .extra-limit-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .advanced-hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin:-10px 0 14px;
+    line-height:1.5;
+  }
 </style>
 </head>
 <body>
@@ -1004,10 +1069,10 @@
       </svg>
       <div>
         <p class="eyebrow">Bench Calculator</p>
-        <h1>QX700 ddPCR WebApps & Calculators</h1>
+        <h1>FAS QX700 ddPCR WebApps & Calculators - Beta Build</h1>
       </div>
     </div>
-    <div class="version-badge">v1.03</div>
+    <div class="version-badge">v1.04</div>
   </header>
 
   <div class="tabs" id="tabs"></div>
@@ -1038,10 +1103,13 @@ const SHEETS = [
     sampleLabel:"DNA",
     hasBufferB:true,
     dnaDigestNote:true,
+    enzymeVariable:true,
+    enzymeRatio:0.03,
+    digestNotValidatedNote:true,
     sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
-    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null,
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
       assayStocks:{
@@ -1064,10 +1132,13 @@ const SHEETS = [
     sampleLabel:"DNA",
     hasBufferB:true,
     dnaDigestNote:true,
+    enzymeVariable:true,
+    enzymeRatio:0.03,
+    digestNotValidatedNote:true,
     sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
-    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null,
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
       assayStocks:{
@@ -1090,10 +1161,13 @@ const SHEETS = [
     hasBufferB:true,
     hasDextran:true,
     dnaDigestNote:true,
+    enzymeVariable:true,
+    enzymeRatio:0.03,
+    digestNotValidatedNote:true,
     sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
-    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null,
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
       individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
     components: naicaEvaGreenComponents(5),
     protocol: naicaEvaGreenProtocol(),
@@ -1110,10 +1184,13 @@ const SHEETS = [
     hasBufferB:true,
     hasDextran:true,
     dnaDigestNote:true,
+    enzymeVariable:true,
+    enzymeRatio:0.03,
+    digestNotValidatedNote:true,
     sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
-    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null,
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
       individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
     components: naicaEvaGreenComponents(10),
     protocol: naicaEvaGreenProtocol(),
@@ -1393,8 +1470,11 @@ function naicaComponents(bufferFactor){
         rows.push({label:`20X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
       });
     }
+    const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
+    const enzyme = state.digest ? enzymeVol : 0;
     const sample = sampleVolume;
-    const water = rv - (bufferA + bufferB + assaySum + sample);
+    const water = rv - (bufferA + bufferB + assaySum + enzyme + sample);
+    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
     rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
     rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
     return rows;
@@ -1403,6 +1483,7 @@ function naicaComponents(bufferFactor){
 function naicaProtocol(){
   return [
     "Specify reaction volume (standard is 5 µL), DNA volume, number of reactions, and which assay channels you're running.",
+    "Toggle Restriction Digest on if performing an in-reaction digest (not validated by Bio-Rad for naica supermixes).",
     "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
     "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
     "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
@@ -1438,7 +1519,10 @@ function naicaEvaGreenComponents(bufferFactor){
       primerSum = primer;
       rows.push({label:"Primer Mix", finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
     }
-    const water = rv - (bufferA + bufferB + evaGreen + dextran + primerSum + sample);
+    const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
+    const enzyme = state.digest ? enzymeVol : 0;
+    const water = rv - (bufferA + bufferB + evaGreen + dextran + primerSum + enzyme + sample);
+    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
     rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
     rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
     return rows;
@@ -1447,6 +1531,7 @@ function naicaEvaGreenComponents(bufferFactor){
 function naicaEvaGreenProtocol(){
   return [
     "Specify reaction volume (standard is 5 µL), DNA volume, and number of reactions.",
+    "Toggle Restriction Digest on if performing an in-reaction digest (not validated by Bio-Rad for naica supermixes).",
     "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
     "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
     "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
@@ -1472,11 +1557,48 @@ const primerPrepState = {
   dilutionFactor:20,
   totalMixVolume:100,
   probe:{ targetFwd:900, targetRev:900, targetProbe:250, stockFwd:100, stockRev:100, stockProbe:100 },
-  evagreen:{ targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 }
+  evagreen:{ targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+  advancedMode:false,
+  extras:[] // {id, kind:"fwd"|"rev"|"probe", targetNM, stockUM} — user-added primers/probes beyond the base set
 };
+let primerPrepExtraIdCounter = 1;
+
+function extraKindBaseLabel(kind){
+  return kind === "fwd" ? "Forward Primer" : kind === "rev" ? "Reverse Primer" : "Probe";
+}
+function extraLabel(kind, number){
+  return `${extraKindBaseLabel(kind)} ${number}`;
+}
+function addPrimerPrepExtra(kind){
+  const st = primerPrepState;
+  if(st.extras.length >= 10) return;
+  const targetNM = kind === "probe" ? 250 : (st.chemistry === "probe" ? 900 : 250);
+  st.extras.push({ id:"extra"+(primerPrepExtraIdCounter++), kind, targetNM, stockUM:100 });
+  renderAll();
+}
+function removePrimerPrepExtra(id){
+  primerPrepState.extras = primerPrepState.extras.filter(e=>e.id!==id);
+  renderAll();
+}
+
+/* ---------- default supermix preference (localStorage) ---------- */
+const DEFAULT_SHEET_STORAGE_KEY = "ddpcr_defaultSheet";
+
+function getDefaultSheetId(){
+  try{
+    const v = localStorage.getItem(DEFAULT_SHEET_STORAGE_KEY);
+    return (v && SHEETS.some(s=>s.id===v)) ? v : null;
+  }catch(e){ return null; }
+}
+function setDefaultSheetId(id){
+  try{ localStorage.setItem(DEFAULT_SHEET_STORAGE_KEY, id); }catch(e){}
+}
+function clearDefaultSheetId(){
+  try{ localStorage.removeItem(DEFAULT_SHEET_STORAGE_KEY); }catch(e){}
+}
 
 let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "dataAnalysis101" | "placeholder"
-let activeTab = SHEETS[0].id; // which mastermix sheet is selected, when currentView === "mastermix"
+let activeTab = getDefaultSheetId() || SHEETS[0].id; // which mastermix sheet is selected, when currentView === "mastermix"
 let placeholderKind = null; // "learning" | "support" | "feedback" — which dummy module is showing
 const PLACEHOLDER_META = {
   learning:{ title:"ddPCR Learning Resources", desc:"Links to useful resources about ddPCR." },
@@ -1486,7 +1608,12 @@ const PLACEHOLDER_META = {
 
 function goHome(){ currentView = "home"; renderAll(); }
 function goToPrimerPrep(){ currentView = "primerPrep"; renderAll(); }
-function goToMastermix(sheetId){ currentView = "mastermix"; if(sheetId) activeTab = sheetId; renderAll(); }
+function goToMastermix(sheetId){
+  currentView = "mastermix";
+  if(sheetId){ activeTab = sheetId; }
+  else { activeTab = getDefaultSheetId() || activeTab; }
+  renderAll();
+}
 function goToPlatemap(){ currentView = "platemap"; renderAll(); }
 function goToDataAnalysis101(){ currentView = "dataAnalysis101"; renderAll(); }
 function goToPlaceholder(kind){ placeholderKind = kind; currentView = "placeholder"; renderAll(); }
@@ -1532,8 +1659,27 @@ function renderTabs(){
     select.onchange = (e)=>{ activeTab = e.target.value; renderAll(); };
     el.appendChild(select);
 
+    const isDefaultSheet = getDefaultSheetId() === activeTab;
+    const defaultBtn = document.createElement("button");
+    defaultBtn.type = "button";
+    defaultBtn.className = "default-toggle-btn" + (isDefaultSheet ? " is-default" : "");
+    const starIcon = isDefaultSheet
+      ? `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none"><path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.58L12 17.77l-5.9 3.1 1.13-6.58-4.78-4.66 6.6-.96L12 2.5z"/></svg>`
+      : `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.58L12 17.77l-5.9 3.1 1.13-6.58-4.78-4.66 6.6-.96L12 2.5z"/></svg>`;
+    defaultBtn.innerHTML = starIcon + (isDefaultSheet ? " Default supermix" : " Set as default");
+    defaultBtn.title = isDefaultSheet
+      ? "This is your default supermix — click to unset it."
+      : "Open straight to this supermix next time, from the home page.";
+    defaultBtn.onclick = ()=>{
+      if(isDefaultSheet){ clearDefaultSheetId(); } else { setDefaultSheetId(activeTab); }
+      renderAll();
+    };
+    el.appendChild(defaultBtn);
+
     const activeSheet = SHEETS.find(s=>s.id===activeTab);
     if(activeSheet && activeSheet.productUrl){
+      const linkRow = document.createElement("div");
+      linkRow.className = "product-link-row";
       const link = document.createElement("a");
       link.className = "product-link";
       link.href = activeSheet.productUrl;
@@ -1541,7 +1687,8 @@ function renderTabs(){
       link.rel = "noopener noreferrer";
       const displayName = activeSheet.productName || activeSheet.name;
       link.innerHTML = `Order more at Bio-Rad.com: &quot;${displayName}&quot; <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
-      el.appendChild(link);
+      linkRow.appendChild(link);
+      el.appendChild(linkRow);
     }
   } else if(currentView === "primerPrep"){
     const label = document.createElement("div");
@@ -1603,7 +1750,12 @@ function renderHomeContent(){
           <circle cx="31.5" cy="36" r="1.4" fill="#0e7c76"/>
         </svg>
         <div class="home-card-title">QX700 Mastermix Calculator</div>
-        <div class="home-card-desc">Pick a ddPCR mastermix chemistry and calculate aliquot volumes for your reactions.</div>
+        <div class="home-card-desc">Pick a ddPCR mastermix chemistry and calculate aliquot volumes for your reactions.${(()=>{
+          const defId = getDefaultSheetId();
+          if(!defId) return "";
+          const defSheet = SHEETS.find(s=>s.id===defId);
+          return defSheet ? `<br><span style="color:var(--teal-deep);font-weight:600;">Opens to your default: ${defSheet.name}</span>` : "";
+        })()}</div>
       </button>
       <button class="home-card" id="homeCardPlatemap">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
@@ -1853,15 +2005,24 @@ function renderInputs(sheet, s){
 
   if("digest" in s){
     panel.appendChild(toggleField("Restriction digest", s.digest, v=>{ s.digest=v; renderAll(); }));
+    if(sheet.digestNotValidatedNote){
+      const naicaNote = document.createElement("div");
+      naicaNote.className = "info-note";
+      naicaNote.textContent = "In-reaction digest has not been validated with naica supermixes.";
+      panel.appendChild(naicaNote);
+    }
     if(s.digest && sheet.enzymeVariable){
       const maxVol = round4(sheet.enzymeRatio * s.reactionVolume);
       const displayVol = s.enzymeVolume ?? maxVol;
+      const enzymeHint = sheet.digestNotValidatedNote
+        ? `Defaults to ${fmt(maxVol)} µL of diluted enzyme per ${fmt(s.reactionVolume)} µL reaction (0.15 µL per 5 µL reaction, scaled proportionally to your reaction volume).`
+        : `Up to ${fmt(maxVol)} µL of diluted enzyme per ${fmt(s.reactionVolume)} µL reaction \u2014 target 0.5\u20131.25 units of enzyme per 5 µL reaction, scaled to your reaction volume.`;
       panel.appendChild(numField(
         "Restriction enzyme volume",
         "µL",
         displayVol,
         v=>{ s.enzymeVolume=v; renderAll(); },
-        `Up to ${fmt(maxVol)} µL of diluted enzyme per ${fmt(s.reactionVolume)} µL reaction \u2014 target 0.5\u20131.25 units of enzyme per 5 µL reaction, scaled to your reaction volume.`,
+        enzymeHint,
         maxVol
       ));
       if(displayVol > maxVol){
@@ -2098,28 +2259,37 @@ function computePrimerPrep(){
   const X = st.dilutionFactor;
   const vol = st.totalMixVolume;
   const cfg = st.chemistry === "probe" ? st.probe : st.evagreen;
-  const components = st.chemistry === "probe"
-    ? [
-        {label:"Forward Primer", targetKey:"targetFwd", stockKey:"stockFwd"},
-        {label:"Reverse Primer", targetKey:"targetRev", stockKey:"stockRev"},
-        {label:"Probe",          targetKey:"targetProbe", stockKey:"stockProbe"},
-      ]
-    : [
-        {label:"Forward Primer", targetKey:"targetFwd", stockKey:"stockFwd"},
-        {label:"Reverse Primer", targetKey:"targetRev", stockKey:"stockRev"},
-      ];
-  const rows = components.map(c=>{
-    const finalNM = cfg[c.targetKey];
+  const baseByKind = {
+    fwd:   {label:"Forward Primer", targetKey:"targetFwd",   stockKey:"stockFwd"},
+    rev:   {label:"Reverse Primer", targetKey:"targetRev",   stockKey:"stockRev"},
+    probe: {label:"Probe",          targetKey:"targetProbe", stockKey:"stockProbe"},
+  };
+  const kindOrder = st.chemistry === "probe" ? ["fwd","rev","probe"] : ["fwd","rev"];
+
+  function rowFor(label, finalNM, stock_uM, extraId){
     const target20X_uM = (finalNM * X) / 1000;
-    const stock_uM = cfg[c.stockKey];
     const volNeeded = stock_uM > 0 ? (target20X_uM * vol) / stock_uM : NaN;
     const insufficient = !isFinite(volNeeded) || volNeeded > vol;
-    return {label:c.label, finalNM, target20X_uM, stock_uM, volNeeded, insufficient};
+    const row = {label, finalNM, target20X_uM, stock_uM, volNeeded, insufficient};
+    if(extraId) row.extraId = extraId;
+    return row;
+  }
+
+  const allRows = [];
+  kindOrder.forEach(kind=>{
+    const c = baseByKind[kind];
+    allRows.push(rowFor(c.label, cfg[c.targetKey], cfg[c.stockKey]));
+    if(st.advancedMode){
+      st.extras.filter(ex=>ex.kind===kind).forEach((ex, idx)=>{
+        allRows.push(rowFor(extraLabel(kind, idx+2), ex.targetNM, ex.stockUM, ex.id));
+      });
+    }
   });
-  const totalComponentVol = rows.reduce((a,r)=>a + (isFinite(r.volNeeded) ? r.volNeeded : 0), 0);
+
+  const totalComponentVol = allRows.reduce((a,r)=>a + (isFinite(r.volNeeded) ? r.volNeeded : 0), 0);
   const diluent = vol - totalComponentVol;
-  const hasError = rows.some(r=>r.insufficient) || diluent < -0.0001;
-  return {rows, diluent, vol, hasError};
+  const hasError = allRows.some(r=>r.insufficient) || diluent < -0.0001;
+  return {rows:allRows, diluent, vol, hasError};
 }
 
 function segmentedControl(labelText, options, value, onChange){
@@ -2252,6 +2422,74 @@ function renderPrimerPrepInputs(){
   panel.appendChild(numField("Reverse primer stock", "µM", cfg.stockRev, v=>{ cfg.stockRev=v; renderAll(); }));
   if(st.chemistry==="probe"){
     panel.appendChild(numField("Probe stock", "µM", cfg.stockProbe, v=>{ cfg.stockProbe=v; renderAll(); }));
+  }
+
+  renderPrimerPrepExtras(panel);
+}
+
+function renderPrimerPrepExtras(panel){
+  const st = primerPrepState;
+
+  const h = document.createElement("h2");
+  h.style.marginTop = "18px";
+  h.textContent = "Advanced Assay Setup";
+  panel.appendChild(h);
+
+  panel.appendChild(toggleField("Add extra primers or probes", st.advancedMode, v=>{ st.advancedMode=v; renderAll(); }));
+
+  const hint = document.createElement("div");
+  hint.className = "advanced-hint";
+  hint.textContent = "For SNP genotyping (e.g. a shared primer pair with separate FAM and HEX probes), nested PCR, or any assay that needs more than one primer or probe in the mix.";
+  panel.appendChild(hint);
+
+  if(!st.advancedMode) return;
+
+  const kindOrder = ["fwd","rev","probe"];
+  kindOrder.forEach(kind=>{
+    st.extras.filter(ex=>ex.kind===kind).forEach((ex, idx)=>{
+      const label = extraLabel(kind, idx+2);
+
+      const entry = document.createElement("div");
+      entry.className = "extra-entry";
+
+      const header = document.createElement("div");
+      header.className = "extra-entry-header";
+      const title = document.createElement("div");
+      title.className = "extra-entry-title";
+      title.textContent = label;
+      header.appendChild(title);
+      const rmBtn = document.createElement("button");
+      rmBtn.type = "button";
+      rmBtn.className = "btn small danger";
+      rmBtn.textContent = "Remove";
+      rmBtn.onclick = ()=> removePrimerPrepExtra(ex.id);
+      header.appendChild(rmBtn);
+      entry.appendChild(header);
+
+      entry.appendChild(numField(`${label}, final`, "nM", ex.targetNM, v=>{ ex.targetNM=v; renderAll(); }));
+      entry.appendChild(numField(`${label} stock`, "µM", ex.stockUM, v=>{ ex.stockUM=v; renderAll(); }));
+
+      panel.appendChild(entry);
+    });
+  });
+
+  if(st.extras.length < 10){
+    const addRow = document.createElement("div");
+    addRow.className = "extra-add-row";
+    [["fwd","+ Forward Primer"],["rev","+ Reverse Primer"],["probe","+ Probe"]].forEach(([kind,label])=>{
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn small ghost";
+      btn.textContent = label;
+      btn.onclick = ()=> addPrimerPrepExtra(kind);
+      addRow.appendChild(btn);
+    });
+    panel.appendChild(addRow);
+  } else {
+    const note = document.createElement("div");
+    note.className = "extra-limit-note";
+    note.textContent = "Maximum of 10 additional entries reached.";
+    panel.appendChild(note);
   }
 }
 
