@@ -2416,7 +2416,6 @@ function personalContactCardHtml(type, contact){
       <div class="profile-contact">${contact.email ? pmEscapeHtml(contact.email) : "—"}<br>${contact.phone ? pmEscapeHtml(contact.phone) : "—"}</div>
       <div class="profile-card-actions">
         <button data-edit-key="${type.key}">Edit</button>
-        <button data-copycard-key="${type.key}">Copy link</button>
         <button class="danger" data-remove-key="${type.key}">Remove</button>
       </div>
     </div>
@@ -2433,14 +2432,21 @@ function personalSetupPanelHtml(type){
   `;
 }
 
-function buildContactLink(type, name, email, phone){
-  if(!name || !name.trim()) return "";
+// Builds one link carrying every currently-saved personal contact (FAS/AE/AM).
+// Optionally pass draftKey/draftContact to include unsaved in-progress form values for that one type.
+function buildMergedLink(draftKey, draftContact){
   const base = window.location.origin + window.location.pathname;
   const params = new URLSearchParams();
-  params.set(type.urlPrefix + "Name", name.trim());
-  if(email && email.trim()) params.set(type.urlPrefix + "Email", email.trim());
-  if(phone && phone.trim()) params.set(type.urlPrefix + "Phone", phone.trim());
-  return base + "?" + params.toString();
+  let any = false;
+  PERSONAL_CONTACT_TYPES.forEach(type=>{
+    const contact = (type.key === draftKey) ? draftContact : getPersonalContact(type.key);
+    if(!contact || !contact.name || !contact.name.trim()) return;
+    any = true;
+    params.set(type.urlPrefix + "Name", contact.name.trim());
+    if(contact.email && contact.email.trim()) params.set(type.urlPrefix + "Email", contact.email.trim());
+    if(contact.phone && contact.phone.trim()) params.set(type.urlPrefix + "Phone", contact.phone.trim());
+  });
+  return any ? base + "?" + params.toString() : "";
 }
 
 function personalFormHtml(type, contact){
@@ -2461,35 +2467,12 @@ function personalFormHtml(type, contact){
           <input type="text" id="fasFieldPhone_${type.key}" value="${contact ? pmEscapeAttr(contact.phone) : ""}">
         </div>
       </div>
-      <div class="link-preview-row">
-        <label>Shareable link</label>
-        <div class="link-copy-row">
-          <input type="text" id="fasFieldLink_${type.key}" readonly disabled placeholder="Fill in a name to generate a link">
-          <button class="btn small" id="fasCopyLinkBtn_${type.key}" disabled data-copylink-key="${type.key}">Copy</button>
-        </div>
-        <span class="hint">Send this link to a customer \u2014 opening it saves this ${type.role.toLowerCase()}'s info in their browser automatically.</span>
-      </div>
       <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">
         <button class="btn primary small" data-save-key="${type.key}">Save</button>
         <button class="btn ghost small" data-cancel-key="${type.key}">Cancel</button>
       </div>
     </div>
   `;
-}
-
-function updateLinkPreview(typeKey){
-  const type = PERSONAL_CONTACT_TYPES.find(t=>t.key===typeKey);
-  const nameEl = document.getElementById("fasFieldName_"+typeKey);
-  const emailEl = document.getElementById("fasFieldEmail_"+typeKey);
-  const phoneEl = document.getElementById("fasFieldPhone_"+typeKey);
-  const linkEl = document.getElementById("fasFieldLink_"+typeKey);
-  const copyBtn = document.getElementById("fasCopyLinkBtn_"+typeKey);
-  if(!nameEl || !linkEl) return;
-  const link = buildContactLink(type, nameEl.value, emailEl.value, phoneEl.value);
-  linkEl.value = link;
-  linkEl.disabled = !link;
-  linkEl.placeholder = link ? "" : "Fill in a name to generate a link";
-  if(copyBtn) copyBtn.disabled = !link;
 }
 
 function copyTextToClipboard(text, btnEl){
@@ -2533,10 +2516,23 @@ function renderSupportPlaceholder(){
     return contact ? personalContactCardHtml(type, contact) : "";
   }).join("");
 
+  const mergedLink = buildMergedLink();
+  const mergedLinkHtml = mergedLink ? `
+    <div class="link-preview-row" style="border-top:none;padding-top:0;margin-top:0;margin-bottom:18px;">
+      <label>Shareable link (all saved roles above)</label>
+      <div class="link-copy-row">
+        <input type="text" id="mergedLinkField" readonly value="${pmEscapeAttr(mergedLink)}">
+        <button class="btn small" id="mergedLinkCopyBtn">Copy</button>
+      </div>
+      <span class="hint">Sending this one link saves every role filled in below \u2014 opening it on a customer's device stores all of it in their browser at once.</span>
+    </div>
+  ` : "";
+
   el.innerHTML = `
     <div class="editor-panel" style="max-width:760px;margin:0 auto;">
       <h2>ddPCR Support</h2>
       <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.support.desc}</div>
+      ${mergedLinkHtml}
       ${topSections}
       <div class="profile-grid">
         ${personalCards}
@@ -2553,6 +2549,9 @@ function renderSupportPlaceholder(){
     </div>
   `;
 
+  if(mergedLink){
+    document.getElementById("mergedLinkCopyBtn").onclick = (e)=> copyTextToClipboard(mergedLink, e.target);
+  }
   el.querySelectorAll("[data-add-key]").forEach(btn=>{
     btn.onclick = ()=>{ personalFormOpenKey = btn.dataset.addKey; renderAll(); };
   });
@@ -2587,29 +2586,6 @@ function renderSupportPlaceholder(){
       renderAll();
     };
   });
-  el.querySelectorAll("[data-copylink-key]").forEach(btn=>{
-    btn.onclick = ()=>{
-      const linkEl = document.getElementById("fasFieldLink_"+btn.dataset.copylinkKey);
-      if(linkEl && linkEl.value) copyTextToClipboard(linkEl.value, btn);
-    };
-  });
-  el.querySelectorAll("[data-copycard-key]").forEach(btn=>{
-    btn.onclick = ()=>{
-      const key = btn.dataset.copycardKey;
-      const type = PERSONAL_CONTACT_TYPES.find(t=>t.key===key);
-      const contact = getPersonalContact(key);
-      if(!contact) return;
-      const link = buildContactLink(type, contact.name, contact.email, contact.phone);
-      copyTextToClipboard(link, btn);
-    };
-  });
-  if(personalFormOpenKey){
-    ["Name","Email","Phone"].forEach(field=>{
-      const input = document.getElementById("fasField"+field+"_"+personalFormOpenKey);
-      if(input) input.oninput = ()=> updateLinkPreview(personalFormOpenKey);
-    });
-    updateLinkPreview(personalFormOpenKey);
-  }
 }
 
 
