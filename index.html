@@ -384,10 +384,10 @@
   /* ---------- support profile cards (dummy) ---------- */
   .profile-grid{
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:repeat(2, 1fr);
     gap:16px;
   }
-  @media (max-width:700px){
+  @media (max-width:560px){
     .profile-grid{grid-template-columns:1fr;}
   }
   .profile-card{
@@ -429,6 +429,12 @@
     font-size:11.5px;
     color:var(--ink-soft);
     line-height:1.7;
+  }
+  .profile-desc{
+    font-size:11px;
+    color:var(--ink-soft);
+    line-height:1.45;
+    margin:6px 0 10px;
   }
   .profile-card.personal{
     border-color:var(--teal);
@@ -2251,13 +2257,18 @@ const LEARNING_RESOURCES = [
 ];
 
 const SUPPORT_CONTACTS = [
-  { role:"Tech Support", name:"Bio-Rad Technical Support", email:"support@bio-rad.com", phone:"1-800-4-BIORAD", initials:"TS" },
+  { role:"Tech Support", name:"Bio-Rad Technical Support", email:"support@bio-rad.com", phone:"1-800-4-BIORAD", initials:"TS",
+    desc:"Instrument troubleshooting — won't power on, won't connect, error codes, and other technical issues." },
 ];
 
-/* ---------- personal FAS / Account Executive contacts: URL param capture + localStorage ---------- */
+/* ---------- personal FAS / Account Executive / Account Manager contacts: URL param capture + localStorage ---------- */
 const PERSONAL_CONTACT_TYPES = [
-  { key:"fas", urlPrefix:"fas", role:"Field Application Scientist", badge:"Your FAS", addLabel:"Add my FAS's contact info" },
-  { key:"ae",  urlPrefix:"ae",  role:"Account Executive",           badge:"Your Account Exec", addLabel:"Add my Account Exec's contact info" },
+  { key:"fas", urlPrefix:"fas", role:"Field Application Scientist", badge:"Your FAS", addLabel:"Add my FAS's contact info",
+    desc:"General ddPCR help — primer/probe design advice, experimental setup, and data analysis support." },
+  { key:"ae",  urlPrefix:"ae",  role:"Account Executive",           badge:"Your Account Exec", addLabel:"Add my Account Exec's contact info",
+    desc:"Quotes on reagents, consumables, and instruments." },
+  { key:"am",  urlPrefix:"am",  role:"Account Manager",             badge:"Your Account Manager", addLabel:"Add my Account Manager's contact info",
+    desc:"Quotes on reagents, consumables, and instruments." },
 ];
 let personalFormOpenKey = null; // which contact type's form is open ("fas" | "ae" | null)
 
@@ -2362,6 +2373,7 @@ function personalContactCardHtml(type, contact){
       <span class="profile-card-badge">${type.badge}</span>
       <div class="profile-avatar">${contact.initials}</div>
       <div class="profile-role">${pmEscapeHtml(contact.role)}</div>
+      <div class="profile-desc">${pmEscapeHtml(type.desc)}</div>
       <div class="profile-name">${pmEscapeHtml(contact.name)}</div>
       <div class="profile-contact">${contact.email ? pmEscapeHtml(contact.email) : "—"}<br>${contact.phone ? pmEscapeHtml(contact.phone) : "—"}</div>
       <div class="profile-card-actions">
@@ -2375,6 +2387,7 @@ function personalContactCardHtml(type, contact){
 function personalSetupPanelHtml(type){
   return `
     <div class="fas-setup-panel">
+      <p><strong>${type.role}</strong> — ${type.desc}</p>
       <p>If your ${type.role.toLowerCase()} sent you a personalized link, opening it will save their info here automatically. You can also add it yourself.</p>
       <button class="btn small" data-add-key="${type.key}">${type.addLabel}</button>
     </div>
@@ -2433,6 +2446,7 @@ function renderSupportPlaceholder(){
           <div class="profile-card">
             <div class="profile-avatar">${c.initials}</div>
             <div class="profile-role">${c.role}</div>
+            <div class="profile-desc">${c.desc || ""}</div>
             <div class="profile-name">${c.name}</div>
             <div class="profile-contact">${c.email}<br>${c.phone}</div>
           </div>
