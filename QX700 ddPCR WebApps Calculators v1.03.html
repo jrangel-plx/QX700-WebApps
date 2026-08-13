@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QX700 ddPCR WebApps &amp; Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #eef2f0;
+    --panel: #ffffff;
+    --ink: #10201d;
+    --ink-soft: #4b5f5a;
+    --line: #d6e0dc;
+    --teal: #0e7c76;
+    --teal-deep: #085a56;
+    --teal-wash: #e3f2f0;
+    --amber: #c98a1e;
+    --amber-wash: #fbf1de;
+    --red: #c0392b;
+    --red-wash: #fbe9e7;
+    --blue: #2e6da4;
+    --blue-wash: #e6eef5;
+    --grey-wash: #eef0ef;
+    --radius: 10px;
+    --da-pink: #d1428f;
+    --da-neg: #98a29c;
+    --da-rain: #c98a1e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:980px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .brand-mark{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .droplet-logo{width:34px;height:34px;flex-shrink:0;}
+  h1{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:22px;
+    letter-spacing:0.2px;
+    margin:0;
+    color:var(--ink);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin:0 0 2px;
+  }
+  .source-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    text-align:right;
+  }
+  .version-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:500;
+    color:var(--ink-soft);
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px 11px;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+
+  /* ---------- tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    border-bottom:2px solid var(--line);
+    margin-bottom:20px;
+    overflow-x:auto;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    padding:10px 16px 12px;
+    cursor:pointer;
+    white-space:nowrap;
+    border-bottom:2px solid transparent;
+    margin-bottom:-2px;
+    transition:color .15s;
+  }
+  .tab-btn:hover{color:var(--teal-deep);}
+  .tab-btn.active{
+    color:var(--teal-deep);
+    border-bottom-color:var(--teal);
+  }
+
+  /* ---------- nav (back button / sheet dropdown) ---------- */
+  .tabs.nav-bar{
+    border-bottom:none;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .back-btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    border-radius:7px;
+    padding:8px 14px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s;
+  }
+  .back-btn:hover{background:#d3e9e6;}
+  .sheet-select{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--ink);
+    background:#fafcfb;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 12px;
+    cursor:pointer;
+    flex:1;
+    max-width:420px;
+  }
+  .nav-current-label{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+  }
+
+  /* ---------- home page ---------- */
+  .home-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+    max-width:1080px;
+    margin:20px auto 0;
+  }
+  @media (max-width:860px){
+    .home-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:560px){
+    .home-grid{grid-template-columns:1fr;}
+  }
+  .home-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px 26px;
+    text-align:left;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s, box-shadow .15s, transform .15s;
+  }
+  .home-card:hover{
+    border-color:var(--teal);
+    box-shadow:0 6px 18px rgba(14,124,118,0.12);
+    transform:translateY(-2px);
+  }
+  .home-card-icon{width:48px;height:48px;margin-bottom:14px;}
+  .home-card-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--ink);
+    margin-bottom:8px;
+  }
+  .home-card-desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .home-card-badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    font-weight:600;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:var(--grey-wash);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px 9px;
+    margin-bottom:10px;
+  }
+
+  /* ---------- Data Analysis 101 ---------- */
+  .da-intro-panel p{
+    margin:0 0 10px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .da-intro-panel p:last-child{margin-bottom:0;}
+  .da-legend{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+  .da-legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);}
+  .da-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .da-legend-line{width:16px;height:0;border-top:2px dashed var(--da-pink);flex-shrink:0;}
+  .da-feature{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1fr 1.3fr;
+    gap:20px;
+    align-items:center;
+  }
+  @media (max-width:760px){
+    .da-feature{grid-template-columns:1fr;}
+  }
+  .da-feature-text h3{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:14.5px;
+    color:var(--teal-deep);
+    margin:0 0 8px;
+  }
+  .da-feature-text p{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin:0;
+  }
+  .da-feature-plot{
+    background:#fbfdfc;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px;
+  }
+  .da-row-label{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:11px;
+    letter-spacing:0.8px;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:20px 2px 8px;
+  }
+  .da-row-label:first-of-type{margin-top:20px;}
+  .da-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  .da-grid.cols-2{grid-template-columns:repeat(2, 1fr);}
+  @media (max-width:900px){
+    .da-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:600px){
+    .da-grid{grid-template-columns:1fr;}
+  }
+  .da-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+    min-width:0;
+  }
+  .da-card-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--ink);
+    margin-bottom:8px;
+  }
+  .da-card-plot{
+    background:#fbfdfc;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px;
+    margin-bottom:10px;
+  }
+  .da-card-desc{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.55;
+  }
+
+  /* ---------- learning resources list ---------- */
+  .resource-list{display:flex;flex-direction:column;gap:10px;}
+  .resource-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:14px 16px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .resource-item:hover{
+    border-color:var(--teal);
+    box-shadow:0 3px 10px rgba(14,124,118,0.1);
+  }
+  .resource-icon{width:20px;height:20px;flex-shrink:0;}
+  .resource-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  .resource-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+
+  /* ---------- support profile cards (dummy) ---------- */
+  .profile-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  @media (max-width:700px){
+    .profile-grid{grid-template-columns:1fr;}
+  }
+  .profile-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 16px;
+    text-align:center;
+  }
+  .profile-avatar{
+    width:52px;height:52px;
+    border-radius:50%;
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 12px;
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--teal-deep);
+  }
+  .profile-role{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.8px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin-bottom:4px;
+  }
+  .profile-name{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+  .profile-contact{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.7;
+  }
+
+  /* ---------- layout ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 18px 20px;
+  }
+  .panel h2{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin:0 0 14px;
+    font-weight:600;
+  }
+
+  /* ---------- inputs ---------- */
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .field input[type=text], .field select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:9px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:#fafcfb;
+    outline:none;
+  }
+  .field select{font-family:'IBM Plex Sans', sans-serif;cursor:pointer;}
+  .field input:focus, .field select:focus{border-color:var(--teal);}
+  .field .hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:4px;
+    display:block;
+  }
+  .num-input{
+    display:flex;
+    align-items:center;
+    border:1px solid var(--line);
+    border-radius:7px;
+    overflow:hidden;
+    background:#fafcfb;
+  }
+  .num-input input{
+    flex:1;
+    border:none;
+    background:none;
+    padding:9px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    color:var(--ink);
+    width:100%;
+    outline:none;
+  }
+  .num-input .unit{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    padding-right:10px;
+  }
+  .num-input:focus-within{border-color:var(--teal);}
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:9px 0;
+  }
+  .toggle-row label{font-size:12.5px;font-weight:600;color:var(--ink);}
+  .switch{
+    position:relative;width:38px;height:21px;flex-shrink:0;
+  }
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{
+    position:absolute;cursor:pointer;inset:0;
+    background:#c9d3cf;border-radius:999px;transition:.15s;
+  }
+  .slider:before{
+    content:"";position:absolute;height:15px;width:15px;left:3px;top:3px;
+    background:white;border-radius:50%;transition:.15s;
+    box-shadow:0 1px 2px rgba(0,0,0,.25);
+  }
+  input:checked + .slider{background:var(--teal);}
+  input:checked + .slider:before{transform:translateX(17px);}
+
+  .assay-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:2px 10px;
+  }
+  .assay-item{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 0;
+  }
+  .assay-item input[type=checkbox]{
+    width:15px;height:15px;accent-color:var(--teal);cursor:pointer;
+  }
+  .assay-item label{font-size:12.5px;color:var(--ink);cursor:pointer;}
+  .assay-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .assay-item.locked{opacity:0.4;}
+  .assay-item.locked label{cursor:not-allowed;}
+  .assay-item.locked input[type=checkbox]{cursor:not-allowed;}
+  .assay-limit-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#f2f6f5;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 10px;
+    margin-bottom:8px;
+  }
+  .assay-limit-note.at-limit{
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border-color:#bfe2dd;
+    font-weight:600;
+  }
+  .mass-status{
+    font-size:11.5px;
+    border-radius:6px;
+    padding:7px 10px;
+    margin:-8px 0 16px;
+    line-height:1.4;
+  }
+  .mass-status.ok{
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+  }
+  .mass-status.warn{
+    color:#8a5a12;
+    background:#fbf1de;
+    border:1px solid #ecd6a6;
+  }
+  .mass-status.error{
+    color:var(--red);
+    background:var(--red-wash);
+    border:1px solid #eec4bd;
+  }
+  .info-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#f2f6f5;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    margin-bottom:16px;
+    line-height:1.4;
+  }
+  .segmented{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:7px;
+    overflow:hidden;
+  }
+  .segmented-btn{
+    flex:1;
+    border:none;
+    background:#fafcfb;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    padding:9px 8px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .segmented-btn + .segmented-btn{
+    border-left:1px solid var(--line);
+  }
+  .segmented-btn:hover{color:var(--teal-deep);}
+  .segmented-btn.active{
+    background:var(--teal);
+    color:#ffffff;
+  }
+
+  /* ---------- results ---------- */
+  .aliquot-banner{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    border-radius:var(--radius);
+    padding:14px 18px;
+    margin-bottom:16px;
+  }
+  .aliquot-banner.error{
+    background:var(--red-wash);
+    border-color:#eec4bd;
+  }
+  .gauge-svg{width:46px;height:58px;flex-shrink:0;}
+  .aliquot-text .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:26px;
+    font-weight:600;
+    color:var(--teal-deep);
+    line-height:1;
+  }
+  .aliquot-banner.error .aliquot-text .num{color:var(--red);}
+  .aliquot-text .label{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+  .aliquot-text .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  thead th{
+    text-align:left;
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.6px;
+    color:var(--ink-soft);
+    padding:0 8px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  thead th.num, td.num{text-align:right;}
+  tbody td{
+    padding:8px 8px;
+    border-bottom:1px solid #eef1f0;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink);
+  }
+  tbody td.label-cell{font-family:'IBM Plex Sans', sans-serif;font-weight:500;}
+  tbody tr.total-row td{
+    border-top:1.5px solid var(--ink);
+    border-bottom:none;
+    font-weight:600;
+    padding-top:10px;
+  }
+  tbody tr.error-row td{color:var(--red);background:var(--red-wash);}
+  .bar-track{
+    width:64px;height:6px;background:#e3e9e7;border-radius:4px;overflow:hidden;
+    display:inline-block;vertical-align:middle;margin-right:8px;
+  }
+  .bar-fill{height:100%;background:var(--teal);border-radius:4px;}
+
+  .warning{
+    margin-top:12px;
+    font-size:12px;
+    color:var(--red);
+    background:var(--red-wash);
+    border:1px solid #eec4bd;
+    border-radius:7px;
+    padding:9px 12px;
+    display:none;
+  }
+  .warning.show{display:block;}
+
+  /* ---------- protocol ---------- */
+  .protocol{
+    margin-top:18px;
+  }
+  .protocol ol{
+    margin:0;
+    padding-left:20px;
+    font-size:12.5px;
+    color:var(--ink);
+    line-height:1.55;
+  }
+  .protocol li{margin-bottom:6px;}
+  .protocol li::marker{color:var(--teal-deep);font-weight:600;}
+  .notes-panel p{
+    margin:0;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+
+  footer{
+    margin-top:26px;
+    font-size:11px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+
+  /* ---------- platemap labeler ---------- */
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    border-radius:8px;
+    padding:9px 16px;
+    cursor:pointer;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--ink);
+    transition:.15s;
+  }
+  .btn:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .btn.primary:hover{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .btn.ghost{background:none;}
+  .btn.small{padding:6px 11px;font-size:12px;}
+  .btn.danger{color:var(--red);}
+  .btn.danger:hover{border-color:var(--red);}
+
+  .summary-bar{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 18px;
+    margin-bottom:18px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    flex-wrap:wrap;
+  }
+  .summary-bar strong{color:var(--ink);font-family:'IBM Plex Mono', monospace;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;}
+  .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+
+  .main-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+
+  .chips-row{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  @media (max-width:700px){
+    .chips-row{grid-template-columns:1fr;}
+  }
+  .chip-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    min-width:0;
+  }
+  .chip-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .chip-title{font-family:'IBM Plex Sans Condensed', sans-serif;font-weight:600;font-size:14px;color:var(--teal-deep);}
+  .chip-subtitle{font-family:'IBM Plex Mono', monospace;font-size:10px;color:var(--ink-soft);}
+  .col-headers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;}
+  .col-headers span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .well-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:repeat(8, auto);
+    grid-auto-flow:column;
+    gap:2px;
+  }
+  .well{
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:var(--grey-wash);
+    padding:5px 7px;
+    cursor:pointer;
+    text-align:left;
+    font-family:inherit;
+    transition:.1s;
+    min-height:40px;
+    position:relative;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .well:hover{border-color:var(--teal);}
+  .well.selected{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-wash);}
+  .well-chamber{font-family:'IBM Plex Mono', monospace;font-size:10px;color:var(--ink-soft);font-weight:600;}
+  .well-name{
+    font-size:11px;
+    font-weight:600;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin-top:2px;
+  }
+  .well.type-Unknown{background:var(--blue-wash);}
+  .well.type-Known{background:var(--teal-wash);}
+  .well.type-PositiveControl{background:#e4f3e6;}
+  .well.type-NegativeControl{background:var(--red-wash);}
+
+  .chip-actions{display:flex;gap:6px;margin-bottom:10px;}
+
+  .editor-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+  }
+  .editor-panel h2{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:13px;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin:0 0 4px;
+  }
+  .editor-sub{font-size:11.5px;color:var(--ink-soft);margin-bottom:16px;}
+  .editor-fields-row{
+    display:grid;
+    grid-template-columns:1.6fr 1fr 1.6fr 1fr;
+    gap:14px;
+    align-items:start;
+  }
+  @media (max-width:800px){
+    .editor-fields-row{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:480px){
+    .editor-fields-row{grid-template-columns:1fr;}
+  }
+  .empty-state{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    text-align:center;
+    padding:30px 10px;
+    line-height:1.6;
+  }
+  .editor-footer-actions{
+    display:flex;
+    gap:8px;
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand-mark">
+      <svg class="droplet-logo" viewBox="0 0 40 40" fill="none">
+        <path d="M20 4C20 4 8 19 8 27a12 12 0 0 0 24 0C32 19 20 4 20 4Z" fill="#0e7c76"/>
+        <ellipse cx="16" cy="24" rx="3" ry="4" fill="#e3f2f0" opacity="0.55"/>
+      </svg>
+      <div>
+        <p class="eyebrow">Bench Calculator</p>
+        <h1>QX700 ddPCR WebApps & Calculators</h1>
+      </div>
+    </div>
+    <div class="version-badge">v1.03</div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="tabContent"></div>
+
+  <footer>These are unofficial apps, always double-check calculations. Please leave a feedback form if you encounter any issues/bugs or have a request.</footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA MODEL — one config object per sheet in the workbook
+   ============================================================ */
+
+const ASSAY_COLORS = {
+  FAM:"#3aa0a0", HEX:"#c98a1e", ROX:"#c0392b",
+  "Atto590":"#8e5fb0", Cy5:"#2e6da4", "Cy5.5":"#4a7c59", "Atto550":"#d17a3d"
+};
+
+const SHEETS = [
+  {
+    id:"naica5x",
+    name:"naica 5X Multiplex ddPCR Mix",
+    hasAssays:true,
+    allowIndividualTubes:true,
+    bufferAFactor:5,
+    sampleLabel:"DNA",
+    hasBufferB:true,
+    dnaDigestNote:true,
+    sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
+    sampleFinalConcDisplay:"Variable",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null,
+      assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
+      individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayStocks:{
+        FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
+        "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
+        "Cy5.5":{fwd:100,rev:100,probe:100}, "Atto550":{fwd:100,rev:100,probe:100}
+      } },
+    components: naicaComponents(5),
+    protocol: naicaProtocol(),
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"naica10x",
+    name:"naica 10X Multiplex ddPCR Mix",
+    hasAssays:true,
+    allowIndividualTubes:true,
+    bufferAFactor:10,
+    sampleLabel:"DNA",
+    hasBufferB:true,
+    dnaDigestNote:true,
+    sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
+    sampleFinalConcDisplay:"Variable",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null,
+      assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
+      individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayStocks:{
+        FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
+        "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
+        "Cy5.5":{fwd:100,rev:100,probe:100}, "Atto550":{fwd:100,rev:100,probe:100}
+      } },
+    components: naicaComponents(10),
+    protocol: naicaProtocol(),
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"naicaEvaGreen5x",
+    name:"naica 5X ddPCR Mix",
+    hasAssays:false,
+    allowIndividualTubes:true,
+    sampleLabel:"DNA",
+    hasBufferB:true,
+    hasDextran:true,
+    dnaDigestNote:true,
+    sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
+    sampleFinalConcDisplay:"Variable",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null,
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+    components: naicaEvaGreenComponents(5),
+    protocol: naicaEvaGreenProtocol(),
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"naicaEvaGreen10x",
+    name:"naica 10X ddPCR Mix",
+    hasAssays:false,
+    allowIndividualTubes:true,
+    sampleLabel:"DNA",
+    hasBufferB:true,
+    hasDextran:true,
+    dnaDigestNote:true,
+    sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
+    sampleFinalConcDisplay:"Variable",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null,
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+    components: naicaEvaGreenComponents(10),
+    protocol: naicaEvaGreenProtocol(),
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"evagreen",
+    name:"QX700 ddPCR EvaGreen Supermix",
+    hasAssays:false,
+    allowIndividualTubes:true,
+    sampleLabel:"DNA",
+    enzymeVariable:true,
+    enzymeRatio:0.2,
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:25 },
+    sampleFinalConcDisplay:"*Up to 25ng",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+    components(state){
+      const {reactionVolume:rv, sampleVolume} = state;
+      const supermix = rv/5;
+      const enzyme   = state.digest ? (state.enzymeVolume ?? round4(rv*0.2)) : 0;
+      const sample   = sampleVolume;
+      const rows = [
+        {label:"QX700 EvaGreen ddPCR Supermix", finalConc:"1X", perRxn:supermix, inMastermix:true},
+      ];
+      let primerSum;
+      if(state.individualTubes){
+        const tubes = individualTubeRowsSingle(state, rv);
+        rows.push(...tubes.rows);
+        primerSum = tubes.sum;
+      } else {
+        const primer = rv/20;
+        primerSum = primer;
+        rows.push({label:"20X Primer Mix", finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
+      }
+      const water = rv - (supermix + primerSum + enzyme + sample);
+      rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+      rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
+      rows.push({label:"RNase-/DNase-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
+      return rows;
+    },
+    protocol:[
+      "Specify reaction volume (standard is 5 µL; up to 6 µL for overage), DNA volume, and number of reactions.",
+      "Toggle Restriction Digest on if performing an in-reaction digest.",
+      "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
+      "Vortex thoroughly for 15–30 s at max speed, then centrifuge briefly (30–60 s).",
+      "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
+      "Add DNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading."
+    ],
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"probes",
+    name:"QX700 ddPCR Supermix for Probes",
+    hasAssays:true,
+    allowIndividualTubes:true,
+    sampleLabel:"DNA",
+    enzymeVariable:true,
+    enzymeRatio:0.05,
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:82.5 },
+    sampleFinalConcDisplay:"*Up to 82.5ng",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
+      assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
+      individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayStocks:{
+        FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
+        "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
+        "Cy5.5":{fwd:100,rev:100,probe:100}, "Atto550":{fwd:100,rev:100,probe:100}
+      } },
+    components: probeMixComponents({
+      bufferFactor:5,
+      supermixLabel:"QX700 Supermix for Probes",
+      enzymeRatio:0.05,
+      enzymeVariable:true
+    }),
+    protocol: qxProbeProtocol(),
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"rdq",
+    name:"QX700 ddPCR RDQ Supermix",
+    hasAssays:true,
+    allowIndividualTubes:true,
+    sampleLabel:"DNA",
+    maxAssays:4,
+    enzymeVariable:true,
+    enzymeRatio:0.2,
+    sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:85 },
+    sampleFinalConcDisplay:"*Up to 85ng",
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
+      assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
+      individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayStocks:{
+        FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
+        "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
+        "Cy5.5":{fwd:100,rev:100,probe:100}, "Atto550":{fwd:100,rev:100,probe:100}
+      } },
+    components: probeMixComponents({
+      bufferFactor:5,
+      supermixLabel:"QX700 ddPCR Supermix for Residual DNA Quantification",
+      enzymeRatio:0.2,
+      enzymeVariable:true
+    }),
+    protocol: qxProbeProtocol(),
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+  },
+  {
+    id:"onestep",
+    name:"QX700 One-Step RT-ddPCR Kit for Probes",
+    hasAssays:true,
+    allowIndividualTubes:true,
+    sampleLabel:"RNA",
+    sampleMassRange:{ unit:"ng", min:0.00025, digestThreshold:null, max:500 },
+    defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, sampleConcentration:null,
+      assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
+      individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayStocks:{
+        FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
+        "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
+        "Cy5.5":{fwd:100,rev:100,probe:100}, "Atto550":{fwd:100,rev:100,probe:100}
+      } },
+    components(state){
+      const {reactionVolume:rv, sampleVolume, assays} = state;
+      const supermix = rv/10;
+      const enzymeMix = rv/10;
+      const rows = [
+        {label:"QX700 One-Step Supermix", finalConc:"1X", perRxn:supermix, inMastermix:true},
+        {label:"QX700 One-Step Enzyme Mix", finalConc:"1X", perRxn:enzymeMix, inMastermix:true},
+      ];
+      let assaySum = 0;
+      if(state.individualTubes){
+        const tubes = individualTubeRows(state, rv);
+        rows.push(...tubes.rows);
+        assaySum += tubes.assaySum;
+      } else {
+        Object.keys(assays).forEach(name=>{
+          const v = assays[name] ? rv/20 : 0;
+          assaySum += v;
+          rows.push({label:`20X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+        });
+      }
+      const sample = sampleVolume;
+      const water = rv - (supermix + enzymeMix + assaySum + sample);
+      rows.push({label:"Total RNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
+      rows.push({label:"RNase-/DNase-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
+      return rows;
+    },
+    protocol:[
+      "Specify reaction volume (standard is 5 µL), RNA volume, number of reactions, and which assay channels you're running.",
+      "Combine every mastermix component (everything except RNA) in a microcentrifuge tube.",
+      "Vortex thoroughly for 15–30 s at max speed, then centrifuge briefly (30–60 s).",
+      "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
+      "Add RNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading.",
+      "Note: final primer/probe concentrations are 900 nM (fwd), 900 nM (rev), 250 nM (probe); RNA input up to 500 ng per reaction."
+    ],
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration."
+  },
+];
+
+function qxProbeProtocol(){
+  return [
+    "Specify reaction volume (standard is 5 µL), DNA volume, number of reactions, and which assay channels you're running.",
+    "Toggle Restriction Digest on if performing an in-reaction digest.",
+    "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
+    "Vortex thoroughly for 15–30 s at max speed, then centrifuge briefly (30–60 s).",
+    "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
+    "Add DNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading."
+  ];
+}
+
+function individualTubeRows(state, rv, opts){
+  opts = opts || {};
+  const includeProbe = opts.includeProbe !== false;
+  const targetFwd = state.targetFwd ?? 900;
+  const targetRev = state.targetRev ?? 900;
+  const targetProbe = state.targetProbe ?? 250;
+  const tubeVol = (targetNM, stockUM)=>{
+    const stock = (stockUM > 0) ? stockUM : 0.0001;
+    return round4((targetNM * rv) / (stock * 1000));
+  };
+  const rows = [];
+  let assaySum = 0;
+  Object.keys(state.assays).forEach(name=>{
+    if(!state.assays[name]) return;
+    const stock = (state.assayStocks && state.assayStocks[name]) || {fwd:100, rev:100, probe:100};
+    const fwdVol = tubeVol(targetFwd, stock.fwd);
+    const revVol = tubeVol(targetRev, stock.rev);
+    assaySum += fwdVol + revVol;
+    rows.push({label:`${name} Forward Primer`, finalConc:`${fmt(targetFwd,0)} nM`, perRxn:fwdVol, inMastermix:true, assay:name});
+    rows.push({label:`${name} Reverse Primer`, finalConc:`${fmt(targetRev,0)} nM`, perRxn:revVol, inMastermix:true, assay:name});
+    if(includeProbe){
+      const probeVol = tubeVol(targetProbe, stock.probe);
+      assaySum += probeVol;
+      rows.push({label:`${name} Probe`, finalConc:`${fmt(targetProbe,0)} nM`, perRxn:probeVol, inMastermix:true, assay:name});
+    }
+  });
+  return {rows, assaySum};
+}
+
+function individualTubeRowsSingle(state, rv){
+  const targetFwd = state.targetFwd ?? 250;
+  const targetRev = state.targetRev ?? 250;
+  const stockFwd = state.stockFwd ?? 100;
+  const stockRev = state.stockRev ?? 100;
+  const tubeVol = (targetNM, stockUM)=>{
+    const stock = (stockUM > 0) ? stockUM : 0.0001;
+    return round4((targetNM * rv) / (stock * 1000));
+  };
+  const fwdVol = tubeVol(targetFwd, stockFwd);
+  const revVol = tubeVol(targetRev, stockRev);
+  return {
+    rows:[
+      {label:"Forward Primer", finalConc:`${fmt(targetFwd,0)} nM`, perRxn:fwdVol, inMastermix:true},
+      {label:"Reverse Primer", finalConc:`${fmt(targetRev,0)} nM`, perRxn:revVol, inMastermix:true},
+    ],
+    sum: fwdVol + revVol
+  };
+}
+
+function probeMixComponents(opts){
+  return function(state){
+    const {reactionVolume:rv, sampleVolume, assays} = state;
+    const supermix = rv/opts.bufferFactor;
+    const rows = [
+      {label:opts.supermixLabel, finalConc:"1X", perRxn:supermix, inMastermix:true},
+    ];
+    let assaySum = 0;
+    if(state.individualTubes){
+      const tubes = individualTubeRows(state, rv);
+      rows.push(...tubes.rows);
+      assaySum += tubes.assaySum;
+    } else {
+      Object.keys(assays).forEach(name=>{
+        const v = assays[name] ? rv/20 : 0;
+        assaySum += v;
+        rows.push({label:`20X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+      });
+    }
+    const enzymeVol = opts.enzymeVariable ? (state.enzymeVolume ?? round4(rv*opts.enzymeRatio)) : round4(rv*opts.enzymeRatio);
+    const enzyme = state.digest ? enzymeVol : 0;
+    const sample = sampleVolume;
+    const water = rv - (supermix + assaySum + enzyme + sample);
+    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+    rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
+    rows.push({label:"RNase-/DNase-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
+    return rows;
+  };
+}
+
+function naicaComponents(bufferFactor){
+  return function(state){
+    const {reactionVolume:rv, sampleVolume, assays} = state;
+    const bufferA = rv/bufferFactor;
+    const bufferBPct = state.bufferBPercent ?? 4;
+    const bufferB = round4(rv * (bufferBPct/100));
+    const rows = [
+      {label:`naica ${bufferFactor}X Multiplex Supermix, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
+      {label:`naica ${bufferFactor}X Multiplex Supermix, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
+    ];
+    let assaySum = 0;
+    if(state.individualTubes){
+      const tubes = individualTubeRows(state, rv);
+      rows.push(...tubes.rows);
+      assaySum += tubes.assaySum;
+    } else {
+      Object.keys(assays).forEach(name=>{
+        const v = assays[name] ? rv/20 : 0;
+        assaySum += v;
+        rows.push({label:`20X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+      });
+    }
+    const sample = sampleVolume;
+    const water = rv - (bufferA + bufferB + assaySum + sample);
+    rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
+    rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
+    return rows;
+  };
+}
+function naicaProtocol(){
+  return [
+    "Specify reaction volume (standard is 5 µL), DNA volume, number of reactions, and which assay channels you're running.",
+    "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
+    "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
+    "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
+    "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
+    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
+    "Primer/probe volumes assume a 20X working stock at 900 nM/250 nM final \u2014 the product insert doesn't specify an exact value (it gives a broader 0.125\u20131 \u00b5M typical range), so this is our recommended default. Adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay is validated at a different concentration."
+  ];
+}
+
+function naicaEvaGreenComponents(bufferFactor){
+  return function(state){
+    const {reactionVolume:rv, sampleVolume} = state;
+    const bufferA = rv/bufferFactor;
+    const bufferBPct = state.bufferBPercent ?? 4;
+    const bufferB = round4(rv * (bufferBPct/100));
+    const evaGreen = round4(rv * 0.075);
+    const dextranDefault = round4(rv * 0.04);
+    const dextran = state.includeDextran ? (state.dextranVolume ?? dextranDefault) : 0;
+    const sample = sampleVolume;
+    const rows = [
+      {label:`naica ${bufferFactor}X PCR MIX, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
+      {label:`naica ${bufferFactor}X PCR MIX, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
+      {label:"EvaGreen, 20X", finalConc:"1.5X", perRxn:evaGreen, inMastermix:true},
+      {label:"Dextran Alexa Fluor 647 (reference dye)", finalConc: state.includeDextran ? "7.4 µg/mL" : "—", perRxn:dextran, inMastermix:true},
+    ];
+    let primerSum;
+    if(state.individualTubes){
+      const tubes = individualTubeRowsSingle(state, rv);
+      rows.push(...tubes.rows);
+      primerSum = tubes.sum;
+    } else {
+      const primer = rv/20;
+      primerSum = primer;
+      rows.push({label:"Primer Mix", finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
+    }
+    const water = rv - (bufferA + bufferB + evaGreen + dextran + primerSum + sample);
+    rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
+    rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
+    return rows;
+  };
+}
+function naicaEvaGreenProtocol(){
+  return [
+    "Specify reaction volume (standard is 5 µL), DNA volume, and number of reactions.",
+    "Combine every mastermix component (everything except DNA) in a microcentrifuge tube.",
+    "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
+    "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
+    "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
+    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
+    "Dextran Alexa Fluor 647 is an optional reference dye, used as a backup for droplet detection in the Red/Infra-Red channel if EvaGreen's basal Blue-channel fluorescence isn't sufficient. Turn it off or set its volume to 0 to exclude it.",
+    "Primer volumes assume a 20X working stock at 250 nM final \u2014 the product insert gives a broader 0.125\u20131 \u00b5M typical range, so this is our recommended default. Adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay is validated at a different concentration."
+  ];
+}
+
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {};
+SHEETS.forEach(sheet=>{
+  state[sheet.id] = JSON.parse(JSON.stringify(sheet.defaults));
+  if(sheet.hasAssays) state[sheet.id].assays = {...sheet.defaults.assays};
+});
+
+const primerPrepState = {
+  chemistry:"probe",
+  dilutionFactor:20,
+  totalMixVolume:100,
+  probe:{ targetFwd:900, targetRev:900, targetProbe:250, stockFwd:100, stockRev:100, stockProbe:100 },
+  evagreen:{ targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 }
+};
+
+let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "dataAnalysis101" | "placeholder"
+let activeTab = SHEETS[0].id; // which mastermix sheet is selected, when currentView === "mastermix"
+let placeholderKind = null; // "learning" | "support" | "feedback" — which dummy module is showing
+const PLACEHOLDER_META = {
+  learning:{ title:"ddPCR Learning Resources", desc:"Links to useful resources about ddPCR." },
+  support:{ title:"ddPCR Support", desc:"Contact tech support, your local FAS, or Sales Rep for help." },
+  feedback:{ title:"Feedback / Suggestions", desc:"Report bugs, request features, or share any other feedback on these apps." },
+};
+
+function goHome(){ currentView = "home"; renderAll(); }
+function goToPrimerPrep(){ currentView = "primerPrep"; renderAll(); }
+function goToMastermix(sheetId){ currentView = "mastermix"; if(sheetId) activeTab = sheetId; renderAll(); }
+function goToPlatemap(){ currentView = "platemap"; renderAll(); }
+function goToDataAnalysis101(){ currentView = "dataAnalysis101"; renderAll(); }
+function goToPlaceholder(kind){ placeholderKind = kind; currentView = "placeholder"; renderAll(); }
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function round4(n){
+  return Math.round(n * 10000) / 10000;
+}
+
+function fmt(n, d=2){
+  if(!isFinite(n)) return "—";
+  const r = Math.round(n*100)/100;
+  return r.toFixed(d).replace(/\.00$/,"").replace(/(\.\d)0$/,"$1");
+}
+
+function renderTabs(){
+  const el = document.getElementById("tabs");
+  el.innerHTML = "";
+  if(currentView === "home"){
+    el.className = "tabs";
+    return;
+  }
+  el.className = "tabs nav-bar";
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "back-btn";
+  backBtn.innerHTML = "&larr; Home";
+  backBtn.onclick = goHome;
+  el.appendChild(backBtn);
+
+  if(currentView === "mastermix"){
+    const select = document.createElement("select");
+    select.className = "sheet-select";
+    SHEETS.forEach(sheet=>{
+      const opt = document.createElement("option");
+      opt.value = sheet.id;
+      opt.textContent = sheet.name;
+      if(sheet.id === activeTab) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = (e)=>{ activeTab = e.target.value; renderAll(); };
+    el.appendChild(select);
+  } else if(currentView === "primerPrep"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = "20X Primer/Probe Mix Calculator";
+    el.appendChild(label);
+  } else if(currentView === "platemap"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = "RDG16 Platemap Labeler";
+    el.appendChild(label);
+  } else if(currentView === "dataAnalysis101"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = "ddPCR Data Analysis 101";
+    el.appendChild(label);
+  } else if(currentView === "placeholder"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = PLACEHOLDER_META[placeholderKind].title;
+    el.appendChild(label);
+  }
+}
+
+function renderHomeContent(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="home-grid">
+      <button class="home-card" id="homeCardPrep">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <g transform="scale(1,-1) translate(0,-48)">
+          <!-- long template strand -->
+          <line x1="6" y1="14" x2="42" y2="14" stroke="#0e7c76" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="10" y1="14" x2="10" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15" y1="14" x2="15" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <line x1="20" y1="14" x2="20" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <line x1="25" y1="14" x2="25" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <line x1="30" y1="14" x2="30" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <line x1="35" y1="14" x2="35" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <!-- short annealed primer -->
+          <line x1="14" y1="27" x2="31" y2="27" stroke="#c98a1e" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="15" y1="20" x2="15" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="20" y1="20" x2="20" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="25" y1="20" x2="25" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+          <line x1="30" y1="20" x2="30" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="home-card-title">20X Primer/Probe Mix Calculator</div>
+        <div class="home-card-desc">Design a custom 20X primer, probe, or primer/probe working stock from your own oligo concentrations.</div>
+      </button>
+      <button class="home-card" id="homeCardMastermix">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <rect x="8" y="6" width="32" height="36" rx="4" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <path d="M12 16.5h9M16.5 12v9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M27 16.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M12 27l9 9M21 27l-9 9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="31.5" cy="27" r="1.4" fill="#0e7c76"/>
+          <path d="M27 31.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="31.5" cy="36" r="1.4" fill="#0e7c76"/>
+        </svg>
+        <div class="home-card-title">QX700 Mastermix Calculator</div>
+        <div class="home-card-desc">Pick a ddPCR mastermix chemistry and calculate aliquot volumes for your reactions.</div>
+      </button>
+      <button class="home-card" id="homeCardPlatemap">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <rect x="4.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <rect x="18.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <rect x="32.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <circle cx="7.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="15" r="1.4" fill="#0e7c76"/>
+          <circle cx="7.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="24" r="1.4" fill="#0e7c76"/>
+          <circle cx="7.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="33" r="1.4" fill="#0e7c76"/>
+          <circle cx="21.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="15" r="1.4" fill="#0e7c76"/>
+          <circle cx="21.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="24" r="1.4" fill="#0e7c76"/>
+          <circle cx="21.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="33" r="1.4" fill="#0e7c76"/>
+          <circle cx="35.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="15" r="1.4" fill="#0e7c76"/>
+          <circle cx="35.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="24" r="1.4" fill="#0e7c76"/>
+          <circle cx="35.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="33" r="1.4" fill="#0e7c76"/>
+        </svg>
+        <div class="home-card-title">RDG16 Platemap Labeler</div>
+        <div class="home-card-desc">Label sample names, types, context, and dilutions across a 48-well (3× RDG16) plate, then export the CSV template.</div>
+      </button>
+      <button class="home-card" id="homeCardDataAnalysis">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M10 8v32h30" stroke="#0e7c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="26" x2="40" y2="26" stroke="#c98a6a" stroke-width="1.6" stroke-dasharray="3,3"/>
+          <circle cx="15" cy="33" r="2.1" fill="#9aa7a2"/>
+          <circle cx="19.5" cy="30.5" r="2.1" fill="#9aa7a2"/>
+          <circle cx="23" cy="34" r="2.1" fill="#9aa7a2"/>
+          <circle cx="27.5" cy="31.5" r="2.1" fill="#9aa7a2"/>
+          <circle cx="17" cy="15" r="2.1" fill="#0e7c76"/>
+          <circle cx="24" cy="12.5" r="2.1" fill="#0e7c76"/>
+          <circle cx="30.5" cy="16.5" r="2.1" fill="#0e7c76"/>
+          <circle cx="35.5" cy="13" r="2.1" fill="#0e7c76"/>
+        </svg>
+        <div class="home-card-title">ddPCR Data Analysis 101</div>
+        <div class="home-card-desc">See what clean separation, low/mid/high concentration, rain, and contamination actually look like on an amplitude plot.</div>
+      </button>
+      <button class="home-card" id="homeCardLearning">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M24 13c-3-2.2-8-3.2-14-3.2v25c6 0 11 1 14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M24 13c3-2.2 8-3.2 14-3.2v25c-6 0-11 1-14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M24 13v28" stroke="#0e7c76" stroke-width="2"/>
+        </svg>
+        <div class="home-card-title">ddPCR Learning Resources</div>
+        <div class="home-card-desc">Links to useful resources about ddPCR.</div>
+      </button>
+      <button class="home-card" id="homeCardSupport">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M12 26v-4a12 12 0 0 1 24 0v4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="9" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <rect x="33" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+          <path d="M39 34v2a6 6 0 0 1-6 6h-4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <div class="home-card-title">ddPCR Support</div>
+        <div class="home-card-desc">Contact tech support, your local FAS, or Sales Rep for help.</div>
+      </button>
+      <button class="home-card" id="homeCardFeedback">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M8 12h32v18H20l-8 7v-7H8V12Z" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M17 20.5l3.2 3.2 7-7" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="home-card-title">Feedback / Suggestions</div>
+        <div class="home-card-desc">Report bugs, request features, or share any other feedback on these apps.</div>
+      </button>
+    </div>
+  `;
+  document.getElementById("homeCardPrep").onclick = goToPrimerPrep;
+  document.getElementById("homeCardMastermix").onclick = ()=> goToMastermix();
+  document.getElementById("homeCardPlatemap").onclick = goToPlatemap;
+  document.getElementById("homeCardDataAnalysis").onclick = goToDataAnalysis101;
+  document.getElementById("homeCardLearning").onclick = ()=> goToPlaceholder("learning");
+  document.getElementById("homeCardSupport").onclick = ()=> goToPlaceholder("support");
+  document.getElementById("homeCardFeedback").onclick = ()=> goToPlaceholder("feedback");
+}
+
+function renderContent(){
+  if(currentView === "home"){
+    renderHomeContent();
+    return;
+  }
+  if(currentView === "primerPrep"){
+    renderPrimerPrepContent();
+    return;
+  }
+  if(currentView === "platemap"){
+    renderPlatemapContent();
+    return;
+  }
+  if(currentView === "dataAnalysis101"){
+    renderDataAnalysis101Content();
+    return;
+  }
+  if(currentView === "placeholder"){
+    renderPlaceholderContent();
+    return;
+  }
+  const sheet = SHEETS.find(s=>s.id===activeTab);
+  const s = state[sheet.id];
+  const rows = sheet.components(s);
+  rows.forEach(r=>{
+    if(r.isSample) r.finalConc = sampleFinalConcText(sheet, s);
+  });
+
+  const mastermixRows = rows.filter(r=>r.inMastermix);
+  const perRxnMastermixTotal = mastermixRows.reduce((a,r)=>a+r.perRxn,0);
+  const totalMastermix = perRxnMastermixTotal * s.numReactions;
+  const aliquotVolume = totalMastermix / s.numReactions; // per well, pre-sample
+  const waterRow = rows.find(r=>r.label.includes("Water"));
+  const isError = waterRow && waterRow.perRxn < -0.0001;
+
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="grid">
+      <div class="panel" id="inputsPanel"></div>
+
+      <div>
+        <div class="aliquot-banner ${isError?'error':''}">
+          ${gaugeSvg(s.reactionVolume>0? Math.min(aliquotVolume/s.reactionVolume,1):0, isError)}
+          <div class="aliquot-text">
+            <div class="num">${isError? '—' : fmt(aliquotVolume)+' µL'}</div>
+            <div class="label">Aliquot volume per well (mastermix only, before ${sheet.sampleLabel})</div>
+            <div class="sub">Total mastermix: ${isError? '—' : fmt(totalMastermix)+' µL'} across ${s.numReactions} reactions</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Per-well breakdown</h2>
+          ${componentsTable(rows, isError)}
+          <div class="warning ${isError?'show':''}">
+            DNA/RNA + mix components exceed the reaction volume — water volume is negative. Reduce sample volume, add more reaction volume, or trim assay count.
+          </div>
+        </div>
+        <div class="panel protocol">
+          <h2>Protocol</h2>
+          <ol>${sheet.protocol.map(p=>`<li>${p}</li>`).join("")}</ol>
+        </div>
+        ${sheet.notes ? `<div class="panel notes-panel">
+          <h2>Notes</h2>
+          <p>${sheet.notes}</p>
+        </div>` : ""}
+      </div>
+    </div>
+  `;
+  renderInputs(sheet, s);
+}
+
+function gaugeSvg(fraction, isError){
+  const f = Math.max(0, Math.min(1, fraction));
+  const fillH = 44 * f;
+  const y = 6 + (44 - fillH);
+  const color = isError ? "#c0392b" : "#0e7c76";
+  return `<svg class="gauge-svg" viewBox="0 0 40 58" fill="none">
+    <defs><clipPath id="clip-${activeTab}"><path d="M20 4C20 4 6 22 6 32a14 14 0 0 0 28 0C34 22 20 4 20 4Z"/></clipPath></defs>
+    <path d="M20 4C20 4 6 22 6 32a14 14 0 0 0 28 0C34 22 20 4 20 4Z" fill="#e3e9e7" stroke="#c9d3cf"/>
+    <rect x="0" y="${y}" width="40" height="${fillH}" fill="${color}" clip-path="url(#clip-${activeTab})" opacity="0.85"/>
+  </svg>`;
+}
+
+function componentsTable(rows, isError){
+  return `<table>
+    <thead><tr>
+      <th>COMPONENT</th><th>FINAL CONC.</th><th class="num">µL / RXN</th><th class="num">TOTAL µL</th>
+    </tr></thead>
+    <tbody>
+      ${rows.map(r=>{
+        const total = r.perRxn * state[activeTab].numReactions;
+        const isWater = r.label.includes("Water");
+        const errRow = isWater && isError;
+        const dot = r.assay ? `<span class="assay-dot" style="background:${ASSAY_COLORS[r.assay]}"></span> ` : "";
+        return `<tr class="${errRow?'error-row':''}">
+          <td class="label-cell">${dot}${r.label}${r.isSample? ' <span style="color:var(--ink-soft);font-weight:400;">(added after aliquoting)</span>':''}</td>
+          <td>${r.finalConc}</td>
+          <td class="num">${fmt(r.perRxn)}</td>
+          <td class="num">${fmt(total)}</td>
+        </tr>`;
+      }).join("")}
+      <tr class="total-row">
+        <td class="label-cell">Total reaction volume</td>
+        <td></td>
+        <td class="num">${fmt(rows.reduce((a,r)=>a+r.perRxn,0))}</td>
+        <td class="num">${fmt(rows.reduce((a,r)=>a+r.perRxn,0) * state[activeTab].numReactions)}</td>
+      </tr>
+    </tbody>
+  </table>`;
+}
+
+function renderInputs(sheet, s){
+  const panel = document.getElementById("inputsPanel");
+  panel.innerHTML = `<h2>Reaction Setup</h2>`;
+
+  panel.appendChild(numField("Reaction volume", "µL", s.reactionVolume, v=>{ s.reactionVolume=v; renderAll(); }, "Standard is 5 µL; up to 6 µL for overage."));
+  panel.appendChild(numField("Number of reactions", "wells", s.numReactions, v=>{ s.numReactions=v; renderAll(); }, "Add a few extra wells for pipetting overage."));
+
+  const sampleHint = `${sheet.sampleLabel} is added after aliquoting, not into the mastermix batch.`
+    + (sheet.sampleVolumeHint ? ` ${sheet.sampleVolumeHint}` : "");
+  panel.appendChild(numField(`${sheet.sampleLabel} volume`, "µL", s.sampleVolume, v=>{ s.sampleVolume=v; renderAll(); }, sampleHint));
+
+  if(sheet.sampleMassRange){
+    panel.appendChild(optionalNumField(`${sheet.sampleLabel} concentration`, "ng/µL", s.sampleConcentration, v=>{ s.sampleConcentration=v; renderAll(); }, "Optional — checks your input mass against the recommended range."));
+    if(s.sampleConcentration!=null && !isNaN(s.sampleConcentration)){
+      panel.appendChild(massStatusEl(sheet, s));
+    }
+    if(sheet.sampleMassRange.digestThreshold != null){
+      const thresholdNote = document.createElement("div");
+      thresholdNote.className = "info-note";
+      thresholdNote.textContent = `If total input mass exceeds ${formatMass(sheet.sampleMassRange.digestThreshold)} per reaction, we recommend enabling Restriction Digest below.`;
+      panel.appendChild(thresholdNote);
+    }
+  }
+
+  if(sheet.dnaDigestNote){
+    const note = document.createElement("div");
+    note.className = "info-note";
+    note.textContent = "Genomic DNA \u226510 kb should be fragmented by restriction digestion in a separate reaction before droplet generation. Not required for highly fragmented DNA (e.g. FFPE, cfDNA).";
+    panel.appendChild(note);
+  }
+
+  if(sheet.hasBufferB){
+    panel.appendChild(numField(
+      "Buffer B final concentration",
+      "%",
+      s.bufferBPercent,
+      v=>{ s.bufferBPercent=v; renderAll(); },
+      "Buffer B is supplied at 100% and diluted down \u2014 typical 4%, range 2\u20135%.",
+      5
+    ));
+    if(s.bufferBPercent > 5){
+      const warn = document.createElement("div");
+      warn.className = "mass-status warn";
+      warn.style.marginTop = "-8px";
+      warn.textContent = `${s.bufferBPercent}% exceeds the recommended max of 5% for Buffer B.`;
+      panel.appendChild(warn);
+    }
+  }
+
+  if(sheet.hasDextran){
+    panel.appendChild(toggleField("Include Dextran reference dye", s.includeDextran, v=>{ s.includeDextran=v; renderAll(); }));
+    if(s.includeDextran){
+      const dextranDefault = round4(s.reactionVolume * 0.04);
+      const dextranVal = s.dextranVolume ?? dextranDefault;
+      panel.appendChild(numField(
+        "Dextran Alexa Fluor 647 volume",
+        "µL",
+        dextranVal,
+        v=>{ s.dextranVolume=v; renderAll(); },
+        "Optional backup reference dye for Red/Infra-Red channel droplet detection. Defaults to the standard ratio (~0.04 µL per µL reaction)."
+      ));
+    }
+  }
+
+  if("digest" in s){
+    panel.appendChild(toggleField("Restriction digest", s.digest, v=>{ s.digest=v; renderAll(); }));
+    if(s.digest && sheet.enzymeVariable){
+      const maxVol = round4(sheet.enzymeRatio * s.reactionVolume);
+      const displayVol = s.enzymeVolume ?? maxVol;
+      panel.appendChild(numField(
+        "Restriction enzyme volume",
+        "µL",
+        displayVol,
+        v=>{ s.enzymeVolume=v; renderAll(); },
+        `Up to ${fmt(maxVol)} µL of diluted enzyme per ${fmt(s.reactionVolume)} µL reaction \u2014 target 0.5\u20131.25 units of enzyme per 5 µL reaction, scaled to your reaction volume.`,
+        maxVol
+      ));
+      if(displayVol > maxVol){
+        const warn = document.createElement("div");
+        warn.className = "mass-status warn";
+        warn.style.marginTop = "-8px";
+        warn.textContent = `${fmt(displayVol)} µL exceeds the recommended max of ${fmt(maxVol)} µL for a ${fmt(s.reactionVolume)} µL reaction \u2014 amounts above this haven't been validated by Bio-Rad.`;
+        panel.appendChild(warn);
+      }
+    }
+  }
+
+  if(sheet.hasAssays){
+    const h = document.createElement("h2");
+    h.style.marginTop = "18px";
+    h.textContent = "Assay channels";
+    panel.appendChild(h);
+
+    const checkedCount = Object.values(s.assays).filter(Boolean).length;
+
+    if(sheet.maxAssays){
+      const counter = document.createElement("div");
+      counter.className = "assay-limit-note" + (checkedCount>=sheet.maxAssays ? " at-limit" : "");
+      counter.textContent = `${checkedCount} of ${sheet.maxAssays} fluorophores selected \u2014 this mix supports up to ${sheet.maxAssays} channels.`;
+      panel.appendChild(counter);
+    }
+
+    const grid = document.createElement("div");
+    grid.className = "assay-grid";
+    Object.keys(s.assays).forEach(name=>{
+      const item = document.createElement("div");
+      const checked = s.assays[name];
+      const locked = sheet.maxAssays && !checked && checkedCount >= sheet.maxAssays;
+      item.className = "assay-item" + (locked ? " locked" : "");
+      const id = "assay-"+activeTab+"-"+name.replace(/[^a-zA-Z0-9]/g,"");
+      item.innerHTML = `<input type="checkbox" id="${id}" ${checked?'checked':''} ${locked?'disabled':''} data-field-key="${id}">
+        <span class="assay-dot" style="background:${ASSAY_COLORS[name]}"></span>
+        <label for="${id}">${name}</label>`;
+      item.querySelector("input").onchange = (e)=>{
+        if(e.target.checked && sheet.maxAssays){
+          const count = Object.values(s.assays).filter(Boolean).length;
+          if(count >= sheet.maxAssays){
+            e.target.checked = false;
+            return;
+          }
+        }
+        s.assays[name]=e.target.checked;
+        renderAll();
+      };
+      grid.appendChild(item);
+    });
+    panel.appendChild(grid);
+
+    if(sheet.allowIndividualTubes){
+      panel.appendChild(toggleField(
+        "Individual primer/probe tubes",
+        s.individualTubes,
+        v=>{ s.individualTubes=v; renderAll(); }
+      ));
+      const tubeNote = document.createElement("div");
+      tubeNote.className = "info-note";
+      tubeNote.style.marginTop = "-8px";
+      tubeNote.textContent = "Skip the pre-mixed 20X stock and pipette forward primer, reverse primer, and probe from separate tubes instead. Volumes are calculated from your own stock concentrations.";
+      panel.appendChild(tubeNote);
+
+      if(s.individualTubes){
+        const targetH = document.createElement("h2");
+        targetH.style.marginTop = "18px";
+        targetH.textContent = "Target final concentrations";
+        panel.appendChild(targetH);
+        panel.appendChild(numField("Forward primer, final", "nM", s.targetFwd, v=>{ s.targetFwd=v; renderAll(); }, "Suggested: 900 nM. Applies to every selected channel."));
+        panel.appendChild(numField("Reverse primer, final", "nM", s.targetRev, v=>{ s.targetRev=v; renderAll(); }, "Suggested: 900 nM. Applies to every selected channel."));
+        panel.appendChild(numField("Probe, final", "nM", s.targetProbe, v=>{ s.targetProbe=v; renderAll(); }, "Suggested: 250 nM. Applies to every selected channel."));
+
+        const stockH = document.createElement("h2");
+        stockH.style.marginTop = "18px";
+        stockH.textContent = "Tube stock concentrations";
+        panel.appendChild(stockH);
+
+        const checkedAssays = Object.keys(s.assays).filter(name=>s.assays[name]);
+        if(checkedAssays.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "info-note";
+          empty.textContent = "Select at least one assay channel above to enter its tube stock concentrations.";
+          panel.appendChild(empty);
+        } else {
+          checkedAssays.forEach(name=>{
+            if(!s.assayStocks[name]) s.assayStocks[name] = {fwd:100, rev:100, probe:100};
+            const stock = s.assayStocks[name];
+            const sub = document.createElement("div");
+            sub.style.display = "flex";
+            sub.style.alignItems = "center";
+            sub.style.gap = "6px";
+            sub.style.margin = "10px 0 4px";
+            sub.innerHTML = `<span class="assay-dot" style="background:${ASSAY_COLORS[name]}"></span><span style="font-size:12.5px;font-weight:600;color:var(--ink);">${name}</span>`;
+            panel.appendChild(sub);
+            panel.appendChild(numField(`${name} forward primer stock`, "µM", stock.fwd, v=>{ stock.fwd=v; renderAll(); }));
+            panel.appendChild(numField(`${name} reverse primer stock`, "µM", stock.rev, v=>{ stock.rev=v; renderAll(); }));
+            panel.appendChild(numField(`${name} probe stock`, "µM", stock.probe, v=>{ stock.probe=v; renderAll(); }));
+          });
+        }
+      }
+    }
+  } else if(sheet.allowIndividualTubes){
+    panel.appendChild(toggleField(
+      "Individual primer tubes",
+      s.individualTubes,
+      v=>{ s.individualTubes=v; renderAll(); }
+    ));
+    const tubeNote = document.createElement("div");
+    tubeNote.className = "info-note";
+    tubeNote.style.marginTop = "-8px";
+    tubeNote.textContent = "Skip the pre-mixed 20X primer stock and pipette forward and reverse primer from separate tubes instead. Volumes are calculated from your own stock concentrations.";
+    panel.appendChild(tubeNote);
+
+    if(s.individualTubes){
+      const targetH = document.createElement("h2");
+      targetH.style.marginTop = "18px";
+      targetH.textContent = "Target final concentrations";
+      panel.appendChild(targetH);
+      panel.appendChild(numField("Forward primer, final", "nM", s.targetFwd, v=>{ s.targetFwd=v; renderAll(); }, "Suggested: 250 nM (Bio-Rad's range is 100\u2013250 nM)."));
+      panel.appendChild(numField("Reverse primer, final", "nM", s.targetRev, v=>{ s.targetRev=v; renderAll(); }, "Suggested: 250 nM (Bio-Rad's range is 100\u2013250 nM)."));
+
+      const stockH = document.createElement("h2");
+      stockH.style.marginTop = "18px";
+      stockH.textContent = "Tube stock concentrations";
+      panel.appendChild(stockH);
+      panel.appendChild(numField("Forward primer stock", "µM", s.stockFwd, v=>{ s.stockFwd=v; renderAll(); }, "As ordered/resuspended (e.g. 100 µM standard oligo stock)."));
+      panel.appendChild(numField("Reverse primer stock", "µM", s.stockRev, v=>{ s.stockRev=v; renderAll(); }));
+    }
+  }
+}
+
+function formatMass(ng){
+  if(ng < 0.001) return `${fmt(ng*1e6,1)} fg`;
+  if(ng < 1) return `${fmt(ng*1000,1)} pg`;
+  return `${fmt(ng,2)} ng`;
+}
+
+function sampleFinalConcText(sheet, s){
+  if(s.sampleConcentration!=null && !isNaN(s.sampleConcentration)){
+    const mass = s.sampleVolume * s.sampleConcentration;
+    return formatMass(mass);
+  }
+  if(sheet.sampleFinalConcDisplay) return sheet.sampleFinalConcDisplay;
+  const range = sheet.sampleMassRange;
+  if(!range) return "Variable";
+  if(range.min!=null && range.max!=null) return `${formatMass(range.min)}–${formatMass(range.max)}`;
+  if(range.max!=null) return `Up to ${formatMass(range.max)}`;
+  if(range.min!=null) return `Variable (\u2265${formatMass(range.min)} typical)`;
+  return "Variable";
+}
+
+function massStatusEl(sheet, s){
+  const range = sheet.sampleMassRange;
+  const mass = s.sampleVolume * s.sampleConcentration; // ng
+  let msg, cls;
+  if(range.max!=null && mass > range.max){
+    msg = `${formatMass(mass)} exceeds the recommended max of ${formatMass(range.max)} per reaction — consider diluting your sample.`;
+    cls = "mass-status error";
+  } else if(range.digestThreshold!=null && mass > range.digestThreshold && !s.digest){
+    msg = `${formatMass(mass)} is above ${formatMass(range.digestThreshold)} — restriction digestion is recommended for this input. Consider enabling the digest toggle.`;
+    cls = "mass-status warn";
+  } else if(range.digestThreshold!=null && mass > range.digestThreshold && s.digest){
+    msg = `${formatMass(mass)} — digestion is enabled, appropriate for this input.`;
+    cls = "mass-status ok";
+  } else if(range.min!=null && mass < range.min){
+    msg = `${formatMass(mass)} is a very low input (below ~${formatMass(range.min)}) — just a heads-up that concentrations this low may be difficult to detect. This can still be intentional (e.g. rare-target work), so it's your call.`;
+    cls = "mass-status warn";
+  } else {
+    msg = `${formatMass(mass)} — within the recommended input range.`;
+    cls = "mass-status ok";
+  }
+  const div = document.createElement("div");
+  div.className = cls;
+  div.textContent = msg;
+  return div;
+}
+
+function optionalNumField(labelText, unit, value, onChange, hint){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  const displayVal = (value===null || value===undefined) ? "" : value;
+  wrap.innerHTML = `<label>${labelText}</label>
+    <div class="num-input">
+      <input type="text" inputmode="decimal" placeholder="optional" value="${displayVal}" data-field-key="${labelText}">
+      <span class="unit">${unit}</span>
+    </div>
+    ${hint ? `<span class="hint">${hint}</span>` : ""}`;
+  const inputEl = wrap.querySelector("input");
+  inputEl.onchange = (e)=>{
+    const raw = e.target.value;
+    if(raw === ""){ onChange(null); return; }
+    const v = parseFloat(raw);
+    onChange(isNaN(v) ? null : v);
+  };
+  return wrap;
+}
+
+function numField(labelText, unit, value, onChange, hint, max){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  wrap.innerHTML = `<label>${labelText}</label>
+    <div class="num-input">
+      <input type="text" inputmode="decimal" value="${value}" data-field-key="${labelText}">
+      <span class="unit">${unit}</span>
+    </div>
+    ${hint ? `<span class="hint">${hint}</span>` : ""}`;
+  const inputEl = wrap.querySelector("input");
+  inputEl.onchange = (e)=>{
+    const v = parseFloat(e.target.value);
+    onChange(isNaN(v) ? 0 : v);
+  };
+  return wrap;
+}
+
+function toggleField(labelText, value, onChange){
+  const wrap = document.createElement("div");
+  wrap.className = "toggle-row";
+  wrap.innerHTML = `<label>${labelText}</label>
+    <label class="switch">
+      <input type="checkbox" ${value?'checked':''} data-field-key="${labelText}">
+      <span class="slider"></span>
+    </label>`;
+  wrap.querySelector("input").onchange = (e)=> onChange(e.target.checked);
+  return wrap;
+}
+
+/* ============================================================
+   20X PRIMER/PROBE MIX PREP (home / pre-work page)
+   ============================================================ */
+function computePrimerPrep(){
+  const st = primerPrepState;
+  const X = st.dilutionFactor;
+  const vol = st.totalMixVolume;
+  const cfg = st.chemistry === "probe" ? st.probe : st.evagreen;
+  const components = st.chemistry === "probe"
+    ? [
+        {label:"Forward Primer", targetKey:"targetFwd", stockKey:"stockFwd"},
+        {label:"Reverse Primer", targetKey:"targetRev", stockKey:"stockRev"},
+        {label:"Probe",          targetKey:"targetProbe", stockKey:"stockProbe"},
+      ]
+    : [
+        {label:"Forward Primer", targetKey:"targetFwd", stockKey:"stockFwd"},
+        {label:"Reverse Primer", targetKey:"targetRev", stockKey:"stockRev"},
+      ];
+  const rows = components.map(c=>{
+    const finalNM = cfg[c.targetKey];
+    const target20X_uM = (finalNM * X) / 1000;
+    const stock_uM = cfg[c.stockKey];
+    const volNeeded = stock_uM > 0 ? (target20X_uM * vol) / stock_uM : NaN;
+    const insufficient = !isFinite(volNeeded) || volNeeded > vol;
+    return {label:c.label, finalNM, target20X_uM, stock_uM, volNeeded, insufficient};
+  });
+  const totalComponentVol = rows.reduce((a,r)=>a + (isFinite(r.volNeeded) ? r.volNeeded : 0), 0);
+  const diluent = vol - totalComponentVol;
+  const hasError = rows.some(r=>r.insufficient) || diluent < -0.0001;
+  return {rows, diluent, vol, hasError};
+}
+
+function segmentedControl(labelText, options, value, onChange){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  wrap.appendChild(label);
+  const row = document.createElement("div");
+  row.className = "segmented";
+  options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "segmented-btn" + (opt.value===value ? " active" : "");
+    btn.textContent = opt.label;
+    btn.onclick = ()=> onChange(opt.value);
+    row.appendChild(btn);
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+function renderPrimerPrepContent(){
+  const st = primerPrepState;
+  const cfg = st.chemistry === "probe" ? st.probe : st.evagreen;
+  const result = computePrimerPrep();
+
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="grid">
+      <div class="panel" id="prepInputsPanel"></div>
+      <div>
+        <div class="aliquot-banner ${result.hasError ? 'error' : ''}">
+          ${gaugeSvg(result.vol>0 ? Math.max(0, Math.min(result.diluent/result.vol,1)) : 0, result.hasError)}
+          <div class="aliquot-text">
+            <div class="num">${result.hasError ? '—' : fmt(result.vol) + ' µL'}</div>
+            <div class="label">Total ${st.dilutionFactor}X mix prepared, at a ${st.dilutionFactor}-fold dilution factor</div>
+            <div class="sub">Dilute 1 part mix into ${st.dilutionFactor} parts final reaction to hit your target concentrations.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Recipe</h2>
+          ${primerPrepTable(result, st.dilutionFactor)}
+          <div class="warning ${result.hasError ? 'show' : ''}">
+            One or more stocks aren't concentrated enough to reach the target ${st.dilutionFactor}X concentration in this volume. Use a more concentrated stock, lower the target concentration, or increase the total mix volume.
+          </div>
+        </div>
+        <div class="panel protocol">
+          <h2>Notes</h2>
+          <ol>
+            <li>${st.chemistry === "probe"
+                ? "Suggested defaults (18 µM / 18 µM / 5 µM at 20X) land on 900 nM / 900 nM / 250 nM final \u2014 typical hydrolysis-probe assay targets."
+                : "Suggested default (5 µM / 5 µM at 20X) lands on 250 nM / 250 nM final \u2014 a common EvaGreen dye-based target within Bio-Rad's 100\u2013250 nM range."}</li>
+            <li>Thaw and vortex all primer/probe stocks thoroughly before diluting.</li>
+            <li>Add each stock volume below, then bring to the total volume with nuclease-free water or TE buffer.</li>
+            <li>Vortex the finished mix and store per your primer/probe manufacturer's instructions (typically \u201320°C, protected from light for dye-labeled probes).</li>
+            <li>Use this mix as the "20X Primer Mix" (or "20X Primers/Probe Mix") input on the mastermix tabs.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  `;
+  renderPrimerPrepInputs();
+}
+
+function primerPrepTable(result, X){
+  const rows = result.rows.map(r=>{
+    const errCls = r.insufficient ? "error-row" : "";
+    return `<tr class="${errCls}">
+      <td class="label-cell">${r.label}</td>
+      <td>${fmt(r.stock_uM)} µM stock</td>
+      <td>${fmt(r.target20X_uM)} µM (${X}X)</td>
+      <td class="num">${isFinite(r.volNeeded) ? fmt(r.volNeeded) : '—'}</td>
+    </tr>`;
+  }).join("");
+  return `<table>
+    <thead><tr>
+      <th>COMPONENT</th><th>YOUR STOCK</th><th>TARGET IN ${X}X MIX</th><th class="num">VOLUME TO ADD (µL)</th>
+    </tr></thead>
+    <tbody>
+      ${rows}
+      <tr class="${result.diluent<0 ? 'error-row' : ''}">
+        <td class="label-cell">Nuclease-Free Water / TE Buffer</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="num">${fmt(result.diluent)}</td>
+      </tr>
+      <tr class="total-row">
+        <td class="label-cell">Total mix volume</td>
+        <td></td><td></td>
+        <td class="num">${fmt(result.vol)}</td>
+      </tr>
+    </tbody>
+  </table>`;
+}
+
+function renderPrimerPrepInputs(){
+  const st = primerPrepState;
+  const cfg = st.chemistry === "probe" ? st.probe : st.evagreen;
+  const panel = document.getElementById("prepInputsPanel");
+  panel.innerHTML = `<h2>Mix Setup</h2>`;
+
+  panel.appendChild(segmentedControl("Chemistry", [
+    {label:"Probe-based", value:"probe"},
+    {label:"EvaGreen (dye)", value:"evagreen"},
+  ], st.chemistry, v=>{ st.chemistry=v; renderAll(); }));
+
+  panel.appendChild(numField("Dilution factor (X)", "fold", st.dilutionFactor, v=>{ st.dilutionFactor=v; renderAll(); }, "How many-fold the mix will be diluted into the final reaction. Standard is 20X."));
+  panel.appendChild(numField("Total mix volume to prepare", "µL", st.totalMixVolume, v=>{ st.totalMixVolume=v; renderAll(); }, "How much of the 20X mix you want to make in total."));
+
+  const h = document.createElement("h2");
+  h.style.marginTop = "18px";
+  h.textContent = "Target Final Concentrations";
+  panel.appendChild(h);
+  panel.appendChild(numField("Forward primer, final", "nM", cfg.targetFwd, v=>{ cfg.targetFwd=v; renderAll(); }, st.chemistry==="probe" ? "Suggested: 900 nM." : "Suggested: 250 nM (Bio-Rad's range is 100\u2013250 nM)."));
+  panel.appendChild(numField("Reverse primer, final", "nM", cfg.targetRev, v=>{ cfg.targetRev=v; renderAll(); }, st.chemistry==="probe" ? "Suggested: 900 nM." : "Suggested: 250 nM (Bio-Rad's range is 100\u2013250 nM)."));
+  if(st.chemistry==="probe"){
+    panel.appendChild(numField("Probe, final", "nM", cfg.targetProbe, v=>{ cfg.targetProbe=v; renderAll(); }, "Suggested: 250 nM."));
+  }
+
+  const h2 = document.createElement("h2");
+  h2.style.marginTop = "18px";
+  h2.textContent = "Your Stock Concentrations";
+  panel.appendChild(h2);
+  panel.appendChild(numField("Forward primer stock", "µM", cfg.stockFwd, v=>{ cfg.stockFwd=v; renderAll(); }, "As ordered/resuspended (e.g. 100 µM standard oligo stock)."));
+  panel.appendChild(numField("Reverse primer stock", "µM", cfg.stockRev, v=>{ cfg.stockRev=v; renderAll(); }));
+  if(st.chemistry==="probe"){
+    panel.appendChild(numField("Probe stock", "µM", cfg.stockProbe, v=>{ cfg.stockProbe=v; renderAll(); }));
+  }
+}
+
+function saveFocus(){
+  const ae = document.activeElement;
+  if(ae && ae.dataset && ae.dataset.fieldKey){
+    return {
+      key: ae.dataset.fieldKey,
+      selStart: (typeof ae.selectionStart === "number") ? ae.selectionStart : null,
+      selEnd: (typeof ae.selectionEnd === "number") ? ae.selectionEnd : null,
+    };
+  }
+  return null;
+}
+
+function restoreFocus(saved){
+  if(!saved) return;
+  const escaped = saved.key.replace(/"/g, '\\"');
+  const el = document.querySelector(`[data-field-key="${escaped}"]`);
+  if(!el) return;
+  el.focus();
+  if(saved.selStart != null && el.setSelectionRange){
+    try { el.setSelectionRange(saved.selStart, saved.selEnd); } catch(e){}
+  }
+}
+
+function renderAll(){
+  const saved = saveFocus();
+  renderTabs();
+  renderContent();
+  restoreFocus(saved);
+}
+
+/* ============================================================
+   PLACEHOLDER (dummy / coming-soon modules)
+   ============================================================ */
+const LEARNING_RESOURCES = [
+  { title:"ddPCR Applications Guide", tag:"Guide", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf" },
+  { title:"Bio-Rad Academy | ddPCR", tag:"Training", url:"https://academy.bio-rad.com/collections/digital-pcr" },
+  { title:"Rare Mutation Detection | Best Practices Guidelines", tag:"Best Practices", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6628.pdf" },
+];
+
+const SUPPORT_CONTACTS = [
+  { role:"Tech Support", name:"Bio-Rad Technical Support", email:"support@bio-rad.com", phone:"1-800-4-BIORAD", initials:"TS" },
+  { role:"Field Application Scientist", name:"John Smith, PhD", email:"john_smith@bio-rad.com", phone:"1-800-555-5555", initials:"JS" },
+  { role:"Account Executive", name:"Jane Doe", email:"jane_doe@bio-rad.com", phone:"1-800-777-7777", initials:"JD" },
+];
+
+function renderPlaceholderContent(){
+  if(placeholderKind === "learning"){ renderLearningPlaceholder(); return; }
+  if(placeholderKind === "support"){ renderSupportPlaceholder(); return; }
+  if(placeholderKind === "feedback"){ renderFeedbackPlaceholder(); return; }
+}
+
+function renderLearningPlaceholder(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="editor-panel" style="max-width:640px;margin:0 auto;">
+      <h2>ddPCR Learning Resources</h2>
+      <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.learning.desc}</div>
+      <div class="resource-list">
+        ${LEARNING_RESOURCES.map(r=>`
+          <a class="resource-item" href="${r.url}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;">
+            <svg class="resource-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6h9v9" stroke="#0e7c76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18 6L7 17" stroke="#0e7c76" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M13 6H6v12h12v-7" stroke="#0e7c76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+              <div class="resource-title">${r.title}</div>
+              <div class="resource-tag">${r.tag}</div>
+            </div>
+          </a>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderSupportPlaceholder(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="editor-panel" style="max-width:760px;margin:0 auto;">
+      <h2>ddPCR Support</h2>
+      <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.support.desc}</div>
+      <div class="profile-grid">
+        ${SUPPORT_CONTACTS.map(c=>`
+          <div class="profile-card">
+            <div class="profile-avatar">${c.initials}</div>
+            <div class="profile-role">${c.role}</div>
+            <div class="profile-name">${c.name}</div>
+            <div class="profile-contact">${c.email}<br>${c.phone}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+const FEEDBACK_FORM_URL = "https://forms.office.com/r/ddpcr-webapps-feedback";
+
+function renderFeedbackPlaceholder(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="editor-panel" style="max-width:640px;margin:0 auto;">
+      <h2>Feedback / Suggestions</h2>
+      <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.feedback.desc}</div>
+      <a class="resource-item" href="${FEEDBACK_FORM_URL}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;">
+        <svg class="resource-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M4 5h16v9H9l-4 3.5V14H4V5Z" stroke="#0e7c76" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M8.5 9.5l2 2 4.5-4.5" stroke="#0e7c76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <div class="resource-title">QX700 WebApps & Calculators Feedback Form</div>
+          <div class="resource-tag">Bugs · Issues · Suggestions</div>
+        </div>
+      </a>
+      <div class="info-note" style="margin-top:14px;">This is a placeholder link (${FEEDBACK_FORM_URL}) \u2014 swap in the real feedback form URL once it's set up.</div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   PLATEMAP LABELER
+   ============================================================ */
+const PM_CHIPS = ["Left","Middle","Right"];
+const PM_ROWS = ["A","B","C","D","E","F","G","H"];
+const PM_COLS = [1,2];
+
+const PM_SAMPLE_TYPES = [
+  {value:"", label:"— (blank) —"},
+  {value:"Unknown", label:"Unknown"},
+  {value:"Known", label:"Known"},
+  {value:"PositiveControl", label:"Positive Control"},
+  {value:"NegativeControl", label:"Negative Control"},
+];
+
+function pmChamberOrder(){
+  const list = [];
+  PM_COLS.forEach(col=>{
+    PM_ROWS.forEach(row=>{
+      list.push(row + col);
+    });
+  });
+  return list;
+}
+const PM_CHAMBERS = pmChamberOrder(); // A1,B1,...,H1,A2,...,H2
+
+function pmWellKey(chip, chamber){ return chip + "-" + chamber; }
+
+const pmWells = {};
+PM_CHIPS.forEach(chip=>{
+  PM_CHAMBERS.forEach(chamber=>{
+    pmWells[pmWellKey(chip, chamber)] = { sampleName:"", sampleType:"", context:"", dilution:null };
+  });
+});
+
+let pmSelected = new Set(); // well keys
+let pmLastClicked = null; // anchor for shift-range select, per chip
+let pmIsDragging = false;
+let pmDragChip = null;       // which chip the current drag started in
+let pmDragAnchorChamber = null; // chamber the drag started from
+let pmDragBase = new Set();  // selection to preserve underneath an additive (ctrl/cmd) drag
+
+function pmParseChamber(chamber){
+  const m = chamber.match(/^([A-H])(\d+)$/);
+  return { row: m[1], col: parseInt(m[2], 10) };
+}
+
+function pmRangeChambers(chip, chamberA, chamberB){
+  const a = pmParseChamber(chamberA);
+  const b = pmParseChamber(chamberB);
+  const rowIdxA = PM_ROWS.indexOf(a.row), rowIdxB = PM_ROWS.indexOf(b.row);
+  const colIdxA = PM_COLS.indexOf(a.col), colIdxB = PM_COLS.indexOf(b.col);
+  const [rowStart, rowEnd] = rowIdxA < rowIdxB ? [rowIdxA, rowIdxB] : [rowIdxB, rowIdxA];
+  const [colStart, colEnd] = colIdxA < colIdxB ? [colIdxA, colIdxB] : [colIdxB, colIdxA];
+  const out = [];
+  for(let r = rowStart; r <= rowEnd; r++){
+    for(let c = colStart; c <= colEnd; c++){
+      out.push(pmWellKey(chip, PM_ROWS[r] + PM_COLS[c]));
+    }
+  }
+  return out;
+}
+
+function pmHandleWellMouseDown(key, chip, e){
+  const chamber = key.split("-")[1];
+
+  if(e.shiftKey && pmLastClicked && pmLastClicked.chip === chip){
+    pmRangeChambers(chip, pmLastClicked.chamber, chamber).forEach(k => pmSelected.add(k));
+    renderPlatemapAll();
+    return;
+  }
+
+  // Start a fresh drag. Ctrl/Cmd keeps the existing selection underneath
+  // and adds the new drag range on top; a plain click starts a brand-new
+  // selection, replacing whatever was selected before.
+  pmDragBase = (e.metaKey || e.ctrlKey) ? new Set(pmSelected) : new Set();
+  pmDragChip = chip;
+  pmDragAnchorChamber = chamber;
+  pmIsDragging = true;
+  pmSelected = new Set([...pmDragBase, key]);
+  pmLastClicked = { chip, chamber };
+  renderPlatemapAll();
+}
+
+function pmHandleWellMouseEnter(key, chip){
+  if(!pmIsDragging || chip !== pmDragChip) return;
+  const chamber = key.split("-")[1];
+  const range = pmRangeChambers(pmDragChip, pmDragAnchorChamber, chamber);
+  pmSelected = new Set([...pmDragBase, ...range]);
+  renderPlatemapAll();
+}
+
+document.addEventListener("mouseup", ()=>{
+  pmIsDragging = false;
+  pmDragChip = null;
+  pmDragAnchorChamber = null;
+  pmDragBase = new Set();
+});
+
+function pmSelectAllInChip(chip){
+  PM_CHAMBERS.forEach(chamber=> pmSelected.add(pmWellKey(chip, chamber)));
+  renderPlatemapAll();
+}
+function pmClearSelection(){
+  pmSelected = new Set();
+  renderPlatemapAll();
+}
+function pmClearWells(keys){
+  keys.forEach(k=>{
+    pmWells[k] = { sampleName:"", sampleType:"", context:"", dilution:null };
+  });
+  renderPlatemapAll();
+}
+function pmClearAll(){
+  if(!confirm("Clear every well on the plate? This can't be undone.")) return;
+  Object.keys(pmWells).forEach(k=>{
+    pmWells[k] = { sampleName:"", sampleType:"", context:"", dilution:null };
+  });
+  pmSelected = new Set();
+  renderPlatemapAll();
+}
+
+function pmSharedValue(field){
+  const keys = Array.from(pmSelected);
+  if(keys.length === 0) return { value:"", mixed:false };
+  const first = pmWells[keys[0]][field];
+  const mixed = keys.some(k => pmWells[k][field] !== first);
+  return { value: mixed ? "" : (first ?? ""), mixed };
+}
+
+function pmApplyToSelection(field, value){
+  pmSelected.forEach(k=>{ pmWells[k][field] = value; });
+  renderPlatemapAll();
+}
+
+function pmCsvField(v){
+  if(v === null || v === undefined) return "";
+  const s = String(v);
+  if(/[",\r\n]/.test(s)){
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function pmBuildCSV(){
+  const header = ["Chip Position","Chamber","Chip ID","Sample Name","Sample Type","Context","Dilution"];
+  const lines = [header.join(",")];
+  PM_CHIPS.forEach(chip=>{
+    PM_CHAMBERS.forEach(chamber=>{
+      const w = pmWells[pmWellKey(chip, chamber)];
+      const row = [
+        chip,
+        chamber,
+        "",
+        pmCsvField(w.sampleName),
+        pmCsvField(w.sampleType),
+        pmCsvField(w.context),
+        w.dilution === null || w.dilution === undefined || isNaN(w.dilution) ? "" : String(w.dilution),
+      ];
+      lines.push(row.join(","));
+    });
+  });
+  return lines.join("\r\n") + "\r\n";
+}
+
+function pmExportCSV(){
+  const csv = pmBuildCSV();
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "platemap_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function pmEscapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function pmEscapeAttr(s){
+  return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+}
+
+function renderPlatemapContent(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="header-actions" style="margin-bottom:18px;">
+      <button class="btn danger" id="pmClearAllBtn">Clear All</button>
+      <button class="btn primary" id="pmExportBtn">Export CSV</button>
+    </div>
+    <div class="summary-bar" id="pmSummaryBar"></div>
+    <div class="main-grid">
+      <div class="chips-row" id="pmChipsRow"></div>
+      <div class="editor-panel" id="pmEditorPanel"></div>
+    </div>
+  `;
+  document.getElementById("pmExportBtn").onclick = pmExportCSV;
+  document.getElementById("pmClearAllBtn").onclick = pmClearAll;
+  renderPlatemapAll();
+}
+
+function pmRenderSummary(){
+  const el = document.getElementById("pmSummaryBar");
+  const total = PM_CHIPS.length * PM_CHAMBERS.length;
+  const filled = Object.values(pmWells).filter(w => w.sampleName.trim() !== "").length;
+  el.innerHTML = `
+    <span><strong>${filled}</strong> of <strong>${total}</strong> wells named</span>
+    <span><strong>${pmSelected.size}</strong> selected</span>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--blue-wash);border:1px solid var(--blue)"></span>Unknown</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--teal-wash);border:1px solid var(--teal)"></span>Known</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e4f3e6;border:1px solid #4a9d55"></span>Positive Control</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--red-wash);border:1px solid var(--red)"></span>Negative Control</div>
+    </div>
+  `;
+}
+
+function pmRenderChips(){
+  const el = document.getElementById("pmChipsRow");
+  el.innerHTML = "";
+  PM_CHIPS.forEach(chip=>{
+    const panel = document.createElement("div");
+    panel.className = "chip-panel";
+
+    const header = document.createElement("div");
+    header.className = "chip-panel-header";
+    header.innerHTML = `<div>
+        <div class="chip-title">${chip} Chip</div>
+        <div class="chip-subtitle">RDG16 · 16 chambers</div>
+      </div>`;
+    panel.appendChild(header);
+
+    const actions = document.createElement("div");
+    actions.className = "chip-actions";
+    const selAllBtn = document.createElement("button");
+    selAllBtn.className = "btn small ghost";
+    selAllBtn.textContent = "Select all";
+    selAllBtn.onclick = ()=> pmSelectAllInChip(chip);
+    actions.appendChild(selAllBtn);
+    panel.appendChild(actions);
+
+    const colHeaders = document.createElement("div");
+    colHeaders.className = "col-headers";
+    colHeaders.innerHTML = `<span>Column 1</span><span>Column 2</span>`;
+    panel.appendChild(colHeaders);
+
+    const grid = document.createElement("div");
+    grid.className = "well-grid";
+    PM_CHAMBERS.forEach(chamber=>{
+      const key = pmWellKey(chip, chamber);
+      const w = pmWells[key];
+      const btn = document.createElement("button");
+      const typeClass = w.sampleType ? ` type-${w.sampleType}` : "";
+      btn.className = "well" + typeClass + (pmSelected.has(key) ? " selected" : "");
+      btn.innerHTML = `<div class="well-chamber">${chamber}</div><div class="well-name">${w.sampleName ? pmEscapeHtml(w.sampleName) : "&nbsp;"}</div>`;
+      btn.onmousedown = (e)=>{ e.preventDefault(); pmHandleWellMouseDown(key, chip, e); };
+      btn.onmouseenter = ()=> pmHandleWellMouseEnter(key, chip);
+      grid.appendChild(btn);
+    });
+    panel.appendChild(grid);
+    el.appendChild(panel);
+  });
+}
+
+function pmRenderEditor(){
+  const el = document.getElementById("pmEditorPanel");
+  if(pmSelected.size === 0){
+    el.innerHTML = `<h2>Well Details</h2>
+      <div class="empty-state">Click a well to edit it, or click and drag across several to select them all.<br>Shift-click extends a range within a chip; Ctrl/Cmd-click (or Ctrl/Cmd-drag) adds individual wells without clearing your selection. Edits apply to every well selected.</div>`;
+    return;
+  }
+  const name = pmSharedValue("sampleName");
+  const type = pmSharedValue("sampleType");
+  const context = pmSharedValue("context");
+  const dilution = pmSharedValue("dilution");
+
+  el.innerHTML = `
+    <h2>Well Details</h2>
+    <div class="editor-sub">${pmSelected.size} well${pmSelected.size>1?"s":""} selected${pmSelected.size>1 ? " \u2014 edits apply to all of them" : ""}</div>
+    <div class="editor-fields-row">
+      <div class="field">
+        <label>Sample Name</label>
+        <input type="text" id="pmFieldSampleName" value="${name.mixed ? "" : pmEscapeAttr(name.value)}" placeholder="${name.mixed ? "(multiple values)" : ""}">
+      </div>
+      <div class="field">
+        <label>Sample Type</label>
+        <select id="pmFieldSampleType"></select>
+      </div>
+      <div class="field">
+        <label>Context</label>
+        <input type="text" id="pmFieldContext" value="${context.mixed ? "" : pmEscapeAttr(context.value)}" placeholder="${context.mixed ? "(multiple values)" : "Optional notes"}">
+      </div>
+      <div class="field">
+        <label>Dilution</label>
+        <input type="text" inputmode="decimal" id="pmFieldDilution" value="${dilution.mixed ? "" : (dilution.value ?? "")}" placeholder="${dilution.mixed ? "(multiple values)" : "e.g. 10"}">
+        <span class="hint">Dilution factor for downstream calculations.</span>
+      </div>
+    </div>
+    <div class="editor-footer-actions">
+      <button class="btn small" id="pmClearSelBtn">Clear Well${pmSelected.size>1?"s":""}</button>
+      <button class="btn small ghost" id="pmDeselectBtn">Deselect</button>
+    </div>
+  `;
+
+  const typeSelect = document.getElementById("pmFieldSampleType");
+  PM_SAMPLE_TYPES.forEach(opt=>{
+    const o = document.createElement("option");
+    o.value = opt.value;
+    o.textContent = type.mixed && opt.value==="" ? "(multiple values)" : opt.label;
+    if(!type.mixed && opt.value === type.value) o.selected = true;
+    typeSelect.appendChild(o);
+  });
+
+  document.getElementById("pmFieldSampleName").onchange = (e)=> pmApplyToSelection("sampleName", e.target.value);
+  document.getElementById("pmFieldSampleType").onchange = (e)=> pmApplyToSelection("sampleType", e.target.value);
+  document.getElementById("pmFieldContext").onchange = (e)=> pmApplyToSelection("context", e.target.value);
+  document.getElementById("pmFieldDilution").onchange = (e)=>{
+    const raw = e.target.value.trim();
+    if(raw === ""){ pmApplyToSelection("dilution", null); return; }
+    const v = parseFloat(raw);
+    pmApplyToSelection("dilution", isNaN(v) ? null : v);
+  };
+  document.getElementById("pmClearSelBtn").onclick = ()=> pmClearWells(Array.from(pmSelected));
+  document.getElementById("pmDeselectBtn").onclick = pmClearSelection;
+}
+
+function renderPlatemapAll(){
+  pmRenderSummary();
+  pmRenderChips();
+  pmRenderEditor();
+}
+
+/* ============================================================
+   DATA ANALYSIS 101 — illustrative droplet amplitude plots
+   ============================================================ */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function daGaussian(rng, mean, sd){
+  const u = Math.max(rng(), 1e-6);
+  const v = rng();
+  const z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  return mean + z*sd;
+}
+function daMakeWell(seed, opts){
+  const {nNeg=0, nPos=0, nRain=0, negMean=3100, negSD=220, posMean=8500, posSD=260, rainMin=4300, rainMax=7100} = opts;
+  const rng = mulberry32(seed);
+  const points = [];
+  for(let i=0;i<nNeg;i++) points.push({rfu: Math.max(150, daGaussian(rng, negMean, negSD)), positive:false});
+  for(let i=0;i<nPos;i++) points.push({rfu: Math.min(10200, daGaussian(rng, posMean, posSD)), positive:true});
+  for(let i=0;i<nRain;i++) points.push({rfu: rainMin + rng()*(rainMax-rainMin), positive:false, rain:true});
+  for(let i=points.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [points[i], points[j]] = [points[j], points[i]];
+  }
+  points.forEach((p,i)=> p.event = i+1);
+  return points;
+}
+
+const DA101_THRESHOLD = 5800;
+
+const DA101_FEATURE = {
+  id:"example", title:"Reading the plot",
+  data: daMakeWell(201, {nNeg:200, nPos:200}),
+  desc:"Each dot is one droplet read by the instrument. Its height (RFU) reflects how brightly it fluoresced \u2014 droplets above the pink threshold contain at least one copy of your target and are called positive; droplets below are negative. The x-axis is just read order and carries no biological meaning. A clean assay shows two tight bands with a clear gap around the threshold, like this evenly-mixed example."
+};
+
+const DA101_ROWS = [
+  {
+    label:"Controls", cols:2,
+    scenarios:[
+      { id:"ntc", title:"Clean NTC",
+        data: daMakeWell(202, {nNeg:100, nPos:0}),
+        desc:"No-template control with no amplification. All droplets sit in a tight negative cluster near baseline \u2014 exactly what you want to see to rule out contamination in your reagents." },
+      { id:"posControl", title:"Positive control",
+        data: daMakeWell(203, {nNeg:50, nPos:50}),
+        desc:"A validated positive control with abundant template. Droplets resolve into two tight, well-separated clusters \u2014 evidence the assay chemistry and instrument are performing well." },
+    ]
+  },
+  {
+    label:"Concentration range", cols:3,
+    scenarios:[
+      { id:"lowConc", title:"Low concentration",
+        data: daMakeWell(204, {nNeg:90, nPos:10}),
+        desc:"A sample near the low end of ddPCR's dynamic range. Few droplets are positive \u2014 this is where Poisson correction matters most, and where replicate wells help confirm a real signal." },
+      { id:"midConc", title:"Mid concentration",
+        data: daMakeWell(205, {nNeg:55, nPos:45}),
+        desc:"A more even split of positive and negative droplets, comfortably inside ddPCR's linear dynamic range \u2014 where Poisson statistics give the most precise concentration estimate." },
+      { id:"highConc", title:"High concentration",
+        data: daMakeWell(206, {nNeg:15, nPos:85}),
+        desc:"Most droplets are positive, with only a few negatives left to anchor the Poisson correction. Very high inputs widen the confidence interval and may be worth diluting and re-running." },
+    ]
+  },
+  {
+    label:"Troubleshooting", cols:2,
+    scenarios:[
+      { id:"contamNTC", title:"Contaminated NTC",
+        data: daMakeWell(207, {nNeg:97, nPos:3}),
+        desc:"This no-template control should be entirely negative, but a few unexpected droplets cross the threshold. Even 1\u20133 positive droplets in an NTC is worth investigating \u2014 carryover, aerosol contamination, or a splashed well are common culprits." },
+      { id:"rain", title:"Rain",
+        data: daMakeWell(208, {nNeg:30, nRain:20, nPos:50}),
+        desc:"\u201cRain\u201d (shown in amber) is droplets that fall between the two clusters instead of resolving cleanly. It can come from partial probe hydrolysis, a suboptimal annealing temperature, incomplete droplet stabilization, or genuinely intermediate targets like degraded FFPE DNA. A little rain is normal; heavy rain makes thresholding subjective and may call for assay optimization." },
+    ]
+  },
+];
+
+function daScatterSvg(points, opts){
+  opts = opts || {};
+  const w = opts.width || 300, h = opts.height || 180;
+  const annotate = !!opts.annotate;
+  const mL = 34, mR = 10, mT = annotate ? 20 : 12, mB = 22;
+  const plotW = w - mL - mR, plotH = h - mT - mB;
+  const xMax = points.length + 1;
+  const yMax = 10500;
+  const thresholdY = mT + plotH - (DA101_THRESHOLD/yMax)*plotH;
+
+  const dots = points.map(p=>{
+    const x = mL + (p.event/xMax)*plotW;
+    const y = mT + plotH - (Math.max(0,p.rfu)/yMax)*plotH;
+    const fill = p.rain ? "var(--da-rain)" : (p.positive ? "var(--blue)" : "var(--da-neg)");
+    const r = points.length > 150 ? 1.7 : 2.6;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${fill}" opacity="0.85"/>`;
+  }).join("");
+
+  let annotations = "";
+  if(annotate){
+    annotations += `<text x="${mL+2}" y="${mT+2}" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--blue)" font-weight="600">POSITIVE</text>`;
+    annotations += `<text x="${mL+2}" y="${h-mB+14}" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#6d7975" font-weight="600">NEGATIVE</text>`;
+    annotations += `<text x="${w-mR-64}" y="${thresholdY-6}" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--da-pink)" font-weight="600">THRESHOLD</text>`;
+  }
+
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+    <line x1="${mL}" y1="${mT}" x2="${mL}" y2="${h-mB}" stroke="var(--line)" stroke-width="1"/>
+    <line x1="${mL}" y1="${h-mB}" x2="${w-mR}" y2="${h-mB}" stroke="var(--line)" stroke-width="1"/>
+    <line x1="${mL}" y1="${thresholdY.toFixed(1)}" x2="${w-mR}" y2="${thresholdY.toFixed(1)}" stroke="var(--da-pink)" stroke-width="1.4" stroke-dasharray="4,3"/>
+    ${dots}
+    ${annotations}
+    <text x="${(mL+w-mR)/2}" y="${h-5}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--ink-soft)">Droplet Event</text>
+    <text x="9" y="${mT-2 > 8 ? mT-2 : 8}" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--ink-soft)">RFU</text>
+  </svg>`;
+}
+
+function renderDataAnalysis101Content(){
+  const el = document.getElementById("tabContent");
+
+  el.innerHTML = `
+    <div class="panel da-intro-panel">
+      <h2>ddPCR Data Analysis 101</h2>
+      <p>Before digging into your own runs, it helps to know what different droplet populations look like on a 1-D amplitude plot (RFU vs. droplet event) \u2014 the standard view for QX-series/QuantaSoft-style ddPCR analysis. Each well below is built from illustrative synthetic data, not real assay results. Real runs typically read many thousands of droplets per well.</p>
+      <div class="da-legend">
+        <div class="da-legend-item"><span class="da-legend-dot" style="background:var(--blue)"></span>Positive droplet</div>
+        <div class="da-legend-item"><span class="da-legend-dot" style="background:var(--da-neg)"></span>Negative droplet</div>
+        <div class="da-legend-item"><span class="da-legend-dot" style="background:var(--da-rain)"></span>Rain (ambiguous)</div>
+        <div class="da-legend-item"><span class="da-legend-line"></span>Threshold</div>
+      </div>
+    </div>
+
+    <div class="da-feature">
+      <div class="da-feature-text">
+        <h3>${DA101_FEATURE.title}</h3>
+        <p>${DA101_FEATURE.desc}</p>
+      </div>
+      <div class="da-feature-plot">${daScatterSvg(DA101_FEATURE.data, {width:340, height:200, annotate:true})}</div>
+    </div>
+
+    ${DA101_ROWS.map(row=>`
+      <div class="da-row-label">${row.label}</div>
+      <div class="da-grid ${row.cols===2 ? 'cols-2' : ''}">
+        ${row.scenarios.map(s=>`
+          <div class="da-card">
+            <div class="da-card-title">${s.title}</div>
+            <div class="da-card-plot">${daScatterSvg(s.data, {width:280, height:160})}</div>
+            <div class="da-card-desc">${s.desc}</div>
+          </div>
+        `).join("")}
+      </div>
+    `).join("")}
+  `;
+}
+
+renderAll();
+</script>
+</body>
+</html>
