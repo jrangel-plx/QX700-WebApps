@@ -430,6 +430,65 @@
     color:var(--ink-soft);
     line-height:1.7;
   }
+  .profile-card.personal{
+    border-color:var(--teal);
+    box-shadow:0 0 0 1px var(--teal);
+    position:relative;
+  }
+  .profile-card-badge{
+    position:absolute;
+    top:10px;right:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    border-radius:999px;
+    padding:2px 8px;
+  }
+  .profile-card-actions{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-top:12px;
+  }
+  .profile-card-actions button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:11px;
+    color:var(--teal-deep);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .profile-card-actions button.danger{color:var(--red);}
+  .fas-setup-panel{
+    background:var(--panel);
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:18px;
+    text-align:center;
+  }
+  .fas-setup-panel p{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 12px;
+    line-height:1.5;
+  }
+  .fas-form-fields{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    text-align:left;
+    margin-top:14px;
+  }
+  @media (max-width:520px){
+    .fas-form-fields{grid-template-columns:1fr;}
+  }
 
   /* ---------- layout ---------- */
   .grid{
@@ -2195,6 +2254,77 @@ const SUPPORT_CONTACTS = [
   { role:"Tech Support", name:"Bio-Rad Technical Support", email:"support@bio-rad.com", phone:"1-800-4-BIORAD", initials:"TS" },
 ];
 
+/* ---------- personal FAS / Account Executive contacts: URL param capture + localStorage ---------- */
+const PERSONAL_CONTACT_TYPES = [
+  { key:"fas", urlPrefix:"fas", role:"Field Application Scientist", badge:"Your FAS", addLabel:"Add my FAS's contact info" },
+  { key:"ae",  urlPrefix:"ae",  role:"Account Executive",           badge:"Your Account Exec", addLabel:"Add my Account Exec's contact info" },
+];
+let personalFormOpenKey = null; // which contact type's form is open ("fas" | "ae" | null)
+
+function fasComputeInitials(name){
+  const parts = (name||"").trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return "?";
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+function personalStorageKey(typeKey){ return "ddpcr_personalContact_" + typeKey; }
+
+function getPersonalContact(typeKey){
+  try{
+    const raw = localStorage.getItem(personalStorageKey(typeKey));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function savePersonalContact(typeKey, contact){
+  try{ localStorage.setItem(personalStorageKey(typeKey), JSON.stringify(contact)); }catch(e){}
+}
+
+function clearPersonalContact(typeKey){
+  try{ localStorage.removeItem(personalStorageKey(typeKey)); }catch(e){}
+}
+
+// One-time migration: the earlier single-contact version stored under
+// "ddpcr_personalContact" (no type suffix). Move it under the FAS slot.
+function migrateLegacyPersonalContact(){
+  try{
+    const legacy = localStorage.getItem("ddpcr_personalContact");
+    if(legacy && !localStorage.getItem(personalStorageKey("fas"))){
+      localStorage.setItem(personalStorageKey("fas"), legacy);
+    }
+    if(legacy) localStorage.removeItem("ddpcr_personalContact");
+  }catch(e){}
+}
+
+// Reads ?fasName=&fasEmail=&fasPhone= and ?aeName=&aeEmail=&aePhone= from the URL (once, on load).
+// If present, saves each to localStorage and strips those params from the address bar
+// so the link stays clean but the info persists across future visits and updates.
+function captureFasFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  let changed = false;
+  PERSONAL_CONTACT_TYPES.forEach(type=>{
+    const name = params.get(type.urlPrefix + "Name");
+    if(!name) return;
+    const contact = {
+      role: type.role,
+      name: name,
+      email: params.get(type.urlPrefix + "Email") || "",
+      phone: params.get(type.urlPrefix + "Phone") || "",
+      initials: fasComputeInitials(name),
+    };
+    savePersonalContact(type.key, contact);
+    params.delete(type.urlPrefix + "Name");
+    params.delete(type.urlPrefix + "Email");
+    params.delete(type.urlPrefix + "Phone");
+    changed = true;
+  });
+  if(!changed) return;
+  const cleanQuery = params.toString();
+  const newUrl = window.location.pathname + (cleanQuery ? "?"+cleanQuery : "") + window.location.hash;
+  window.history.replaceState(null, "", newUrl);
+}
+
 function renderPlaceholderContent(){
   if(placeholderKind === "learning"){ renderLearningPlaceholder(); return; }
   if(placeholderKind === "support"){ renderSupportPlaceholder(); return; }
@@ -2226,13 +2356,79 @@ function renderLearningPlaceholder(){
   `;
 }
 
+function personalContactCardHtml(type, contact){
+  return `
+    <div class="profile-card personal">
+      <span class="profile-card-badge">${type.badge}</span>
+      <div class="profile-avatar">${contact.initials}</div>
+      <div class="profile-role">${pmEscapeHtml(contact.role)}</div>
+      <div class="profile-name">${pmEscapeHtml(contact.name)}</div>
+      <div class="profile-contact">${contact.email ? pmEscapeHtml(contact.email) : "—"}<br>${contact.phone ? pmEscapeHtml(contact.phone) : "—"}</div>
+      <div class="profile-card-actions">
+        <button data-edit-key="${type.key}">Edit</button>
+        <button class="danger" data-remove-key="${type.key}">Remove</button>
+      </div>
+    </div>
+  `;
+}
+
+function personalSetupPanelHtml(type){
+  return `
+    <div class="fas-setup-panel">
+      <p>If your ${type.role.toLowerCase()} sent you a personalized link, opening it will save their info here automatically. You can also add it yourself.</p>
+      <button class="btn small" data-add-key="${type.key}">${type.addLabel}</button>
+    </div>
+  `;
+}
+
+function personalFormHtml(type, contact){
+  return `
+    <div class="fas-setup-panel" style="text-align:left;">
+      <p style="text-align:left;margin-bottom:14px;"><strong>${type.role}</strong></p>
+      <div class="fas-form-fields">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="fasFieldName_${type.key}" value="${contact ? pmEscapeAttr(contact.name) : ""}">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="text" id="fasFieldEmail_${type.key}" value="${contact ? pmEscapeAttr(contact.email) : ""}">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" id="fasFieldPhone_${type.key}" value="${contact ? pmEscapeAttr(contact.phone) : ""}">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
+        <button class="btn primary small" data-save-key="${type.key}">Save</button>
+        <button class="btn ghost small" data-cancel-key="${type.key}">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderSupportPlaceholder(){
   const el = document.getElementById("tabContent");
+
+  const topSections = PERSONAL_CONTACT_TYPES.map(type=>{
+    const contact = getPersonalContact(type.key);
+    if(personalFormOpenKey === type.key) return personalFormHtml(type, contact);
+    if(!contact) return personalSetupPanelHtml(type);
+    return "";
+  }).join("");
+
+  const personalCards = PERSONAL_CONTACT_TYPES.map(type=>{
+    const contact = getPersonalContact(type.key);
+    return contact ? personalContactCardHtml(type, contact) : "";
+  }).join("");
+
   el.innerHTML = `
     <div class="editor-panel" style="max-width:760px;margin:0 auto;">
       <h2>ddPCR Support</h2>
       <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.support.desc}</div>
+      ${topSections}
       <div class="profile-grid">
+        ${personalCards}
         ${SUPPORT_CONTACTS.map(c=>`
           <div class="profile-card">
             <div class="profile-avatar">${c.initials}</div>
@@ -2244,7 +2440,43 @@ function renderSupportPlaceholder(){
       </div>
     </div>
   `;
+
+  el.querySelectorAll("[data-add-key]").forEach(btn=>{
+    btn.onclick = ()=>{ personalFormOpenKey = btn.dataset.addKey; renderAll(); };
+  });
+  el.querySelectorAll("[data-edit-key]").forEach(btn=>{
+    btn.onclick = ()=>{ personalFormOpenKey = btn.dataset.editKey; renderAll(); };
+  });
+  el.querySelectorAll("[data-cancel-key]").forEach(btn=>{
+    btn.onclick = ()=>{ personalFormOpenKey = null; renderAll(); };
+  });
+  el.querySelectorAll("[data-remove-key]").forEach(btn=>{
+    btn.onclick = ()=>{
+      if(!confirm("Remove this saved contact?")) return;
+      clearPersonalContact(btn.dataset.removeKey);
+      renderAll();
+    };
+  });
+  el.querySelectorAll("[data-save-key]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const key = btn.dataset.saveKey;
+      const type = PERSONAL_CONTACT_TYPES.find(t=>t.key===key);
+      const name = document.getElementById("fasFieldName_"+key).value.trim();
+      if(!name) return;
+      const contact = {
+        role: type.role,
+        name: name,
+        email: document.getElementById("fasFieldEmail_"+key).value.trim(),
+        phone: document.getElementById("fasFieldPhone_"+key).value.trim(),
+        initials: fasComputeInitials(name),
+      };
+      savePersonalContact(key, contact);
+      personalFormOpenKey = null;
+      renderAll();
+    };
+  });
 }
+
 
 const FEEDBACK_FORM_URL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=6-sK7_Aqo0e4rlZl-KYtEVica9tD3v9Muw4PsUs7zH9UQU5aNFZEV1ZLUExFNUpSV09VTkxaOVhZWS4u";
 
@@ -2757,6 +2989,8 @@ function renderDataAnalysis101Content(){
   `;
 }
 
+migrateLegacyPersonalContact();
+captureFasFromURL();
 renderAll();
 </script>
 </body>
