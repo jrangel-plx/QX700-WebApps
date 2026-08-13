@@ -495,6 +495,44 @@
   @media (max-width:520px){
     .fas-form-fields{grid-template-columns:1fr;}
   }
+  .link-preview-row{
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .link-preview-row label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .link-preview-row .hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:4px;
+    display:block;
+  }
+  .link-copy-row{
+    display:flex;
+    gap:8px;
+  }
+  .link-copy-row input{
+    flex:1;
+    min-width:0;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:9px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink);
+    background:#fafcfb;
+  }
+  .link-copy-row input:disabled{color:var(--ink-soft);}
+  .link-copy-row button{
+    flex-shrink:0;
+    white-space:nowrap;
+  }
 
   /* ---------- layout ---------- */
   .grid{
@@ -2378,6 +2416,7 @@ function personalContactCardHtml(type, contact){
       <div class="profile-contact">${contact.email ? pmEscapeHtml(contact.email) : "—"}<br>${contact.phone ? pmEscapeHtml(contact.phone) : "—"}</div>
       <div class="profile-card-actions">
         <button data-edit-key="${type.key}">Edit</button>
+        <button data-copycard-key="${type.key}">Copy link</button>
         <button class="danger" data-remove-key="${type.key}">Remove</button>
       </div>
     </div>
@@ -2392,6 +2431,16 @@ function personalSetupPanelHtml(type){
       <button class="btn small" data-add-key="${type.key}">${type.addLabel}</button>
     </div>
   `;
+}
+
+function buildContactLink(type, name, email, phone){
+  if(!name || !name.trim()) return "";
+  const base = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
+  params.set(type.urlPrefix + "Name", name.trim());
+  if(email && email.trim()) params.set(type.urlPrefix + "Email", email.trim());
+  if(phone && phone.trim()) params.set(type.urlPrefix + "Phone", phone.trim());
+  return base + "?" + params.toString();
 }
 
 function personalFormHtml(type, contact){
@@ -2412,12 +2461,61 @@ function personalFormHtml(type, contact){
           <input type="text" id="fasFieldPhone_${type.key}" value="${contact ? pmEscapeAttr(contact.phone) : ""}">
         </div>
       </div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
+      <div class="link-preview-row">
+        <label>Shareable link</label>
+        <div class="link-copy-row">
+          <input type="text" id="fasFieldLink_${type.key}" readonly disabled placeholder="Fill in a name to generate a link">
+          <button class="btn small" id="fasCopyLinkBtn_${type.key}" disabled data-copylink-key="${type.key}">Copy</button>
+        </div>
+        <span class="hint">Send this link to a customer \u2014 opening it saves this ${type.role.toLowerCase()}'s info in their browser automatically.</span>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">
         <button class="btn primary small" data-save-key="${type.key}">Save</button>
         <button class="btn ghost small" data-cancel-key="${type.key}">Cancel</button>
       </div>
     </div>
   `;
+}
+
+function updateLinkPreview(typeKey){
+  const type = PERSONAL_CONTACT_TYPES.find(t=>t.key===typeKey);
+  const nameEl = document.getElementById("fasFieldName_"+typeKey);
+  const emailEl = document.getElementById("fasFieldEmail_"+typeKey);
+  const phoneEl = document.getElementById("fasFieldPhone_"+typeKey);
+  const linkEl = document.getElementById("fasFieldLink_"+typeKey);
+  const copyBtn = document.getElementById("fasCopyLinkBtn_"+typeKey);
+  if(!nameEl || !linkEl) return;
+  const link = buildContactLink(type, nameEl.value, emailEl.value, phoneEl.value);
+  linkEl.value = link;
+  linkEl.disabled = !link;
+  linkEl.placeholder = link ? "" : "Fill in a name to generate a link";
+  if(copyBtn) copyBtn.disabled = !link;
+}
+
+function copyTextToClipboard(text, btnEl){
+  const done = ()=>{
+    if(!btnEl) return;
+    const original = btnEl.textContent;
+    btnEl.textContent = "Copied!";
+    setTimeout(()=>{ btnEl.textContent = original; }, 1500);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){}
+  document.body.removeChild(ta);
 }
 
 function renderSupportPlaceholder(){
@@ -2489,6 +2587,29 @@ function renderSupportPlaceholder(){
       renderAll();
     };
   });
+  el.querySelectorAll("[data-copylink-key]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const linkEl = document.getElementById("fasFieldLink_"+btn.dataset.copylinkKey);
+      if(linkEl && linkEl.value) copyTextToClipboard(linkEl.value, btn);
+    };
+  });
+  el.querySelectorAll("[data-copycard-key]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const key = btn.dataset.copycardKey;
+      const type = PERSONAL_CONTACT_TYPES.find(t=>t.key===key);
+      const contact = getPersonalContact(key);
+      if(!contact) return;
+      const link = buildContactLink(type, contact.name, contact.email, contact.phone);
+      copyTextToClipboard(link, btn);
+    };
+  });
+  if(personalFormOpenKey){
+    ["Name","Email","Phone"].forEach(field=>{
+      const input = document.getElementById("fasField"+field+"_"+personalFormOpenKey);
+      if(input) input.oninput = ()=> updateLinkPreview(personalFormOpenKey);
+    });
+    updateLinkPreview(personalFormOpenKey);
+  }
 }
 
 
