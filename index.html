@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FAS QX700 ddPCR WebApps &amp; Calculators - Beta Build</title>
+<title>QX700 ddPCR WebApps &amp; Calculators</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -1056,6 +1056,117 @@
     margin:-10px 0 14px;
     line-height:1.5;
   }
+
+  /* ---------- experiment log / print ---------- */
+  .exp-header{
+    margin-bottom:20px;
+    padding-bottom:14px;
+    border-bottom:2px solid var(--ink);
+  }
+  .exp-header h2{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:19px;
+    font-weight:600;
+    color:var(--ink);
+    margin:0 0 4px;
+    text-transform:none;
+    letter-spacing:normal;
+  }
+  .exp-meta-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .exp-block{
+    margin-bottom:26px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--line);
+  }
+  .exp-block:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .exp-block-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--teal-deep);
+    margin:0 0 4px;
+  }
+  .exp-block-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:12px;
+  }
+  .exp-protocol{
+    margin:14px 0 0;
+    padding-left:20px;
+    font-size:12px;
+    color:var(--ink);
+    line-height:1.55;
+  }
+  .exp-snapshot-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .exp-snapshot-info .title{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--ink);
+  }
+  .exp-snapshot-info .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .exp-chip-panel .well{ cursor:default; }
+  .exp-empty-hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin-bottom:10px;
+  }
+
+  @media print{
+    @page{ size:landscape; margin:10mm; }
+    header, #tabs, footer, .no-print{ display:none !important; }
+    body{ padding:0; background:#fff; }
+    .wrap{ max-width:100%; }
+    .grid{ grid-template-columns:1fr; }
+    .exp-print-page{ border:none; padding:0; box-shadow:none; }
+    .exp-block, table, .chips-row{ page-break-inside:avoid; break-inside:avoid; }
+    .exp-block{ page-break-after:always; break-after:page; }
+    .exp-block:last-child{ page-break-after:auto; break-after:auto; }
+
+    /* tighten header + block chrome so a typical module fits one page */
+    .exp-header{ margin-bottom:10px; padding-bottom:8px; }
+    .exp-header h2{ font-size:15px; }
+    .exp-meta-line{ font-size:10px; }
+    .exp-block-title{ font-size:13px; }
+    .exp-block-sub{ font-size:10px; margin-bottom:8px; }
+    .exp-block table{ font-size:10px; }
+    .exp-block thead th{ padding:0 5px 5px; font-size:8.5px; }
+    .exp-block tbody td{ padding:4px 5px; }
+    .exp-protocol{ font-size:10px; line-height:1.4; margin-top:8px; }
+
+    /* compact platemap grid so all 3 chips fit side-by-side in landscape */
+    .chips-row{ grid-template-columns:repeat(3,1fr) !important; gap:8px; }
+    .exp-chip-panel{ padding:8px; }
+    .exp-chip-panel .chip-panel-header{ margin-bottom:5px; }
+    .exp-chip-panel .chip-title{ font-size:11px; }
+    .exp-chip-panel .col-headers{ margin-bottom:3px; }
+    .exp-chip-panel .col-headers span{ font-size:7.5px; }
+    .exp-chip-panel .well-grid{ gap:1.5px; }
+    .exp-chip-panel .well{ padding:3px 4px; min-height:24px; border-radius:2px; }
+    .exp-chip-panel .well-chamber{ font-size:7px; }
+    .exp-chip-panel .well-name{ font-size:8px; }
+  }
 </style>
 </head>
 <body>
@@ -1072,7 +1183,7 @@
         <h1>FAS QX700 ddPCR WebApps & Calculators - Beta Build</h1>
       </div>
     </div>
-    <div class="version-badge">v1.04</div>
+    <div class="version-badge">v1.03</div>
   </header>
 
   <div class="tabs" id="tabs"></div>
@@ -1597,7 +1708,7 @@ function clearDefaultSheetId(){
   try{ localStorage.removeItem(DEFAULT_SHEET_STORAGE_KEY); }catch(e){}
 }
 
-let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "dataAnalysis101" | "placeholder"
+let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "experimentLog" | "dataAnalysis101" | "placeholder"
 let activeTab = getDefaultSheetId() || SHEETS[0].id; // which mastermix sheet is selected, when currentView === "mastermix"
 let placeholderKind = null; // "learning" | "support" | "feedback" — which dummy module is showing
 const PLACEHOLDER_META = {
@@ -1615,8 +1726,86 @@ function goToMastermix(sheetId){
   renderAll();
 }
 function goToPlatemap(){ currentView = "platemap"; renderAll(); }
+function goToExperimentLog(){ currentView = "experimentLog"; renderAll(); }
 function goToDataAnalysis101(){ currentView = "dataAnalysis101"; renderAll(); }
 function goToPlaceholder(kind){ placeholderKind = kind; currentView = "placeholder"; renderAll(); }
+
+/* ============================================================
+   EXPERIMENT LOG — collects "sent" snapshots from the mastermix
+   calculator and platemap so they can be reviewed and printed
+   together as one combined record.
+   ============================================================ */
+function todayStr(){
+  const d = new Date();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+const experimentLog = {
+  meta:{ name:"", operator:"", date:todayStr() },
+  mastermixSnapshots:[], // {id, sheetId, sheetName, productName, reactionVolume, numReactions, sampleLabel, aliquotVolume, totalMastermix, isError, rows:[...], protocol:[...], notes}
+  platemapSnapshot:null  // {capturedAt, wells:{...}} — a deep copy of pmWells at time of sending
+};
+
+// Builds a static snapshot of whichever mastermix sheet is currently active and
+// appends it to the log. Rows are pre-computed plain data, not live references,
+// so later edits on that tab won't change what's already been attached.
+function sendMastermixToExperiment(){
+  const sheet = SHEETS.find(s=>s.id===activeTab);
+  const s = state[sheet.id];
+  const rows = sheet.components(s);
+  rows.forEach(r=>{ if(r.isSample) r.finalConc = sampleFinalConcText(sheet, s); });
+  const mastermixRows = rows.filter(r=>r.inMastermix);
+  const perRxnMastermixTotal = mastermixRows.reduce((a,r)=>a+r.perRxn,0);
+  const totalMastermix = perRxnMastermixTotal * s.numReactions;
+  const aliquotVolume = totalMastermix / s.numReactions;
+  const waterRow = rows.find(r=>r.label.includes("Water"));
+  const isError = waterRow && waterRow.perRxn < -0.0001;
+  const snapshotRows = rows.map(r=>({
+    label:r.label, finalConc:r.finalConc, perRxn:r.perRxn, total:r.perRxn * s.numReactions,
+    isSample: !!r.isSample, assay: r.assay || null
+  }));
+  experimentLog.mastermixSnapshots.push({
+    id:"mm"+Date.now()+Math.random().toString(36).slice(2,7),
+    sheetId:sheet.id,
+    sheetName:sheet.name,
+    productName:sheet.productName || sheet.name,
+    reactionVolume:s.reactionVolume,
+    numReactions:s.numReactions,
+    sampleLabel:sheet.sampleLabel,
+    aliquotVolume, totalMastermix, isError,
+    rows:snapshotRows,
+    protocol:sheet.protocol.slice(),
+    notes:sheet.notes || ""
+  });
+}
+
+function sendPlatemapToExperiment(){
+  experimentLog.platemapSnapshot = {
+    capturedAt:new Date().toISOString(),
+    wells:JSON.parse(JSON.stringify(pmWells))
+  };
+}
+
+function removeMastermixSnapshot(id){
+  experimentLog.mastermixSnapshots = experimentLog.mastermixSnapshots.filter(s=>s.id!==id);
+  renderAll();
+}
+function removePlatemapSnapshot(){
+  experimentLog.platemapSnapshot = null;
+  renderAll();
+}
+
+// Briefly swaps a button's label to confirm an action without a full re-render
+// (avoids disrupting focus/scroll position elsewhere on the page).
+function flashButtonConfirm(btn, text){
+  if(!btn) return;
+  const original = btn.textContent;
+  btn.textContent = text || "Added \u2713";
+  btn.disabled = true;
+  setTimeout(()=>{ btn.textContent = original; btn.disabled = false; }, 1100);
+}
 
 /* ============================================================
    RENDER
@@ -1700,6 +1889,11 @@ function renderTabs(){
     label.className = "nav-current-label";
     label.textContent = "RDG16 Platemap Labeler";
     el.appendChild(label);
+  } else if(currentView === "experimentLog"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = "Print an Experiment";
+    el.appendChild(label);
   } else if(currentView === "dataAnalysis101"){
     const label = document.createElement("div");
     label.className = "nav-current-label";
@@ -1775,6 +1969,18 @@ function renderHomeContent(){
         <div class="home-card-title">RDG16 Platemap Labeler</div>
         <div class="home-card-desc">Label sample names, types, context, and dilutions across a 48-well (3× RDG16) plate, then export the CSV template.</div>
       </button>
+      <button class="home-card" id="homeCardExperimentLog">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <polyline points="14,18 14,7 34,7 34,18" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="8" y="18" width="32" height="16" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
+          <rect x="14" y="27" width="20" height="14" rx="1.5" fill="#ffffff" stroke="#0e7c76" stroke-width="2"/>
+          <line x1="17.5" y1="32" x2="30.5" y2="32" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="17.5" y1="36" x2="26" y2="36" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="34.5" cy="22.5" r="1.4" fill="#0e7c76"/>
+        </svg>
+        <div class="home-card-title">Print an Experiment</div>
+        <div class="home-card-desc">Send a mastermix recipe and your platemap here, then print or save one combined PDF for your lab notebook.</div>
+      </button>
       <button class="home-card" id="homeCardDataAnalysis">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
           <path d="M10 8v32h30" stroke="#0e7c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1823,6 +2029,7 @@ function renderHomeContent(){
   document.getElementById("homeCardPrep").onclick = goToPrimerPrep;
   document.getElementById("homeCardMastermix").onclick = ()=> goToMastermix();
   document.getElementById("homeCardPlatemap").onclick = goToPlatemap;
+  document.getElementById("homeCardExperimentLog").onclick = goToExperimentLog;
   document.getElementById("homeCardDataAnalysis").onclick = goToDataAnalysis101;
   document.getElementById("homeCardLearning").onclick = ()=> goToPlaceholder("learning");
   document.getElementById("homeCardSupport").onclick = ()=> goToPlaceholder("support");
@@ -1840,6 +2047,10 @@ function renderContent(){
   }
   if(currentView === "platemap"){
     renderPlatemapContent();
+    return;
+  }
+  if(currentView === "experimentLog"){
+    renderExperimentLogContent();
     return;
   }
   if(currentView === "dataAnalysis101"){
@@ -1870,6 +2081,9 @@ function renderContent(){
       <div class="panel" id="inputsPanel"></div>
 
       <div>
+        <div class="header-actions" style="justify-content:flex-end;margin-bottom:12px;">
+          <button class="btn" id="sendMastermixExpBtn">+ Send Recipe to Experiment Log</button>
+        </div>
         <div class="aliquot-banner ${isError?'error':''}">
           ${gaugeSvg(s.reactionVolume>0? Math.min(aliquotVolume/s.reactionVolume,1):0, isError)}
           <div class="aliquot-text">
@@ -1896,6 +2110,10 @@ function renderContent(){
       </div>
     </div>
   `;
+  document.getElementById("sendMastermixExpBtn").onclick = (e)=>{
+    sendMastermixToExperiment();
+    flashButtonConfirm(e.currentTarget, "Sent \u2713");
+  };
   renderInputs(sheet, s);
 }
 
@@ -2248,6 +2466,16 @@ function toggleField(labelText, value, onChange){
       <span class="slider"></span>
     </label>`;
   wrap.querySelector("input").onchange = (e)=> onChange(e.target.checked);
+  return wrap;
+}
+
+function textField(labelText, value, onChange, hint, placeholder){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  wrap.innerHTML = `<label>${labelText}</label>
+    <input type="text" value="${pmEscapeAttr(value || "")}" placeholder="${placeholder ? pmEscapeAttr(placeholder) : ''}" data-field-key="${labelText}">
+    ${hint ? `<span class="hint">${hint}</span>` : ""}`;
+  wrap.querySelector("input").onchange = (e)=> onChange(e.target.value);
   return wrap;
 }
 
@@ -3040,6 +3268,7 @@ function renderPlatemapContent(){
     <div class="header-actions" style="margin-bottom:18px;">
       <button class="btn danger" id="pmClearAllBtn">Clear All</button>
       <button class="btn primary" id="pmExportBtn">Export CSV</button>
+      <button class="btn" id="pmSendExpBtn">+ Send Platemap to Experiment Log</button>
     </div>
     <div class="info-note" style="margin-top:-10px;">Import your labeled plate directly into the QX700 System Control Software. <br>
 	In the Digital Experiments tab select "Get Sample from file" under Sample Settings and select your labeled .csv file.</div>
@@ -3051,6 +3280,10 @@ function renderPlatemapContent(){
   `;
   document.getElementById("pmExportBtn").onclick = pmExportCSV;
   document.getElementById("pmClearAllBtn").onclick = pmClearAll;
+  document.getElementById("pmSendExpBtn").onclick = (e)=>{
+    sendPlatemapToExperiment();
+    flashButtonConfirm(e.currentTarget, "Sent \u2713");
+  };
   renderPlatemapAll();
 }
 
@@ -3183,6 +3416,220 @@ function renderPlatemapAll(){
   pmRenderSummary();
   pmRenderChips();
   pmRenderEditor();
+}
+
+/* ============================================================
+   EXPERIMENT LOG — review, edit, and print/save-as-PDF the
+   combined mastermix recipe(s) + platemap sent from those modules.
+   ============================================================ */
+function renderExperimentLogContent(){
+  const el = document.getElementById("tabContent");
+  el.innerHTML = `
+    <div class="grid">
+      <div class="panel no-print" id="expControlPanel"></div>
+      <div>
+        <div class="header-actions no-print" style="margin-bottom:14px;">
+          <button class="btn primary" id="expPrintBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save as PDF
+          </button>
+        </div>
+        <div class="panel exp-print-page" id="expPrintPage"></div>
+      </div>
+    </div>
+  `;
+  document.getElementById("expPrintBtn").onclick = ()=> window.print();
+  renderExpControlPanel();
+  renderExpPrintPage();
+}
+
+function renderExpControlPanel(){
+  const log = experimentLog;
+  const panel = document.getElementById("expControlPanel");
+  panel.innerHTML = `<h2>Experiment Details</h2>`;
+
+  panel.appendChild(textField("Experiment name", log.meta.name, v=>{ log.meta.name=v; renderAll(); }, null, "e.g. Patient 4021 CNV panel"));
+  panel.appendChild(textField("Operator", log.meta.operator, v=>{ log.meta.operator=v; renderAll(); }, null, "Your name"));
+  panel.appendChild(textField("Date", log.meta.date, v=>{ log.meta.date=v; renderAll(); }, "Defaults to today \u2014 edit freely.", "YYYY-MM-DD"));
+
+  const mmHeading = document.createElement("h2");
+  mmHeading.style.marginTop = "18px";
+  mmHeading.textContent = "Attached Mastermix Recipes";
+  panel.appendChild(mmHeading);
+
+  if(log.mastermixSnapshots.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "exp-empty-hint";
+    empty.textContent = "Nothing attached yet. Open a mastermix tab and use \u201c+ Send Recipe to Experiment Log\u201d to add one here.";
+    panel.appendChild(empty);
+    const goBtn = document.createElement("button");
+    goBtn.type = "button";
+    goBtn.className = "btn small ghost";
+    goBtn.textContent = "Go to Mastermix Calculator";
+    goBtn.onclick = ()=> goToMastermix();
+    panel.appendChild(goBtn);
+  } else {
+    log.mastermixSnapshots.forEach(snap=>{
+      const card = document.createElement("div");
+      card.className = "exp-snapshot-card";
+      card.innerHTML = `<div class="exp-snapshot-info">
+          <div class="title">${pmEscapeHtml(snap.productName)}</div>
+          <div class="sub">${fmt(snap.reactionVolume)} µL \u00d7 ${snap.numReactions} rxns${snap.isError ? ' \u2014 check inputs (water negative)' : ' \u00b7 ' + fmt(snap.aliquotVolume) + ' µL/well'}</div>
+        </div>`;
+      const rmBtn = document.createElement("button");
+      rmBtn.type = "button";
+      rmBtn.className = "btn small danger";
+      rmBtn.textContent = "Remove";
+      rmBtn.onclick = ()=> removeMastermixSnapshot(snap.id);
+      card.appendChild(rmBtn);
+      panel.appendChild(card);
+    });
+    const hint = document.createElement("div");
+    hint.className = "exp-empty-hint";
+    hint.style.marginTop = "4px";
+    hint.textContent = "Add more recipes anytime from any mastermix tab.";
+    panel.appendChild(hint);
+  }
+
+  const pmHeading = document.createElement("h2");
+  pmHeading.style.marginTop = "18px";
+  pmHeading.textContent = "Platemap";
+  panel.appendChild(pmHeading);
+
+  if(!log.platemapSnapshot){
+    const empty = document.createElement("div");
+    empty.className = "exp-empty-hint";
+    empty.textContent = "No platemap attached yet. Open the Platemap Labeler and use \u201c+ Send Platemap to Experiment Log\u201d to add it here.";
+    panel.appendChild(empty);
+    const goBtn = document.createElement("button");
+    goBtn.type = "button";
+    goBtn.className = "btn small ghost";
+    goBtn.textContent = "Go to Platemap Labeler";
+    goBtn.onclick = goToPlatemap;
+    panel.appendChild(goBtn);
+  } else {
+    const filled = Object.values(log.platemapSnapshot.wells).filter(w=>w.sampleName.trim()!=="").length;
+    const card = document.createElement("div");
+    card.className = "exp-snapshot-card";
+    card.innerHTML = `<div class="exp-snapshot-info">
+        <div class="title">Platemap snapshot</div>
+        <div class="sub">${filled} wells named \u00b7 captured ${new Date(log.platemapSnapshot.capturedAt).toLocaleString()}</div>
+      </div>`;
+    const rmBtn = document.createElement("button");
+    rmBtn.type = "button";
+    rmBtn.className = "btn small danger";
+    rmBtn.textContent = "Remove";
+    rmBtn.onclick = removePlatemapSnapshot;
+    card.appendChild(rmBtn);
+    panel.appendChild(card);
+    const hint = document.createElement("div");
+    hint.className = "exp-empty-hint";
+    hint.style.marginTop = "4px";
+    hint.textContent = "Made changes on the plate? Re-send it from the Platemap Labeler to update this snapshot.";
+    panel.appendChild(hint);
+  }
+
+  if(log.mastermixSnapshots.length > 0 || log.platemapSnapshot){
+    const footer = document.createElement("div");
+    footer.className = "editor-footer-actions";
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "btn small danger";
+    clearBtn.textContent = "Clear Experiment Log";
+    clearBtn.onclick = ()=>{
+      if(!confirm("Clear the experiment log? This removes all attached recipes and the platemap snapshot.")) return;
+      log.mastermixSnapshots = [];
+      log.platemapSnapshot = null;
+      renderAll();
+    };
+    footer.appendChild(clearBtn);
+    panel.appendChild(footer);
+  }
+}
+
+function renderExpPrintPage(){
+  const log = experimentLog;
+  const container = document.getElementById("expPrintPage");
+  const metaBits = [];
+  if(log.meta.date) metaBits.push(pmEscapeHtml(log.meta.date));
+  if(log.meta.operator) metaBits.push("Operator: " + pmEscapeHtml(log.meta.operator));
+
+  let html = `
+    <div class="exp-header">
+      <h2>${log.meta.name ? pmEscapeHtml(log.meta.name) : "Untitled Experiment"}</h2>
+      <div class="exp-meta-line">${metaBits.join(" \u00b7 ")}</div>
+    </div>
+  `;
+
+  if(log.mastermixSnapshots.length === 0 && !log.platemapSnapshot){
+    html += `<div class="empty-state">Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then print or save this page as a PDF for your lab notebook.</div>`;
+  }
+
+  log.mastermixSnapshots.forEach(snap=>{ html += renderExpSnapshotBlock(snap); });
+  if(log.platemapSnapshot){ html += renderExpPlatemapBlock(log.platemapSnapshot); }
+
+  container.innerHTML = html;
+}
+
+function renderExpSnapshotBlock(snap){
+  const totalPerRxn = snap.rows.reduce((a,r)=>a+r.perRxn,0);
+  const totalAll = totalPerRxn * snap.numReactions;
+  return `
+    <div class="exp-block">
+      <h3 class="exp-block-title">${pmEscapeHtml(snap.productName)}</h3>
+      <div class="exp-block-sub">${fmt(snap.reactionVolume)} µL reactions \u00d7 ${snap.numReactions} ${snap.isError
+        ? '<span style="color:var(--red);">\u2014 water volume negative, check inputs before mixing</span>'
+        : `\u2014 ${fmt(snap.totalMastermix)} µL total mastermix \u00b7 aliquot ${fmt(snap.aliquotVolume)} µL/well`}</div>
+      <table>
+        <thead><tr><th>COMPONENT</th><th>FINAL CONC.</th><th class="num">µL / RXN</th><th class="num">TOTAL µL</th></tr></thead>
+        <tbody>
+          ${snap.rows.map(r=>{
+            const dot = r.assay ? `<span class="assay-dot" style="background:${ASSAY_COLORS[r.assay]}"></span> ` : "";
+            return `<tr>
+              <td class="label-cell">${dot}${r.label}${r.isSample ? ' <span style="color:var(--ink-soft);font-weight:400;">(added after aliquoting)</span>' : ''}</td>
+              <td>${r.finalConc}</td>
+              <td class="num">${fmt(r.perRxn)}</td>
+              <td class="num">${fmt(r.total)}</td>
+            </tr>`;
+          }).join("")}
+          <tr class="total-row">
+            <td class="label-cell">Total reaction volume</td><td></td>
+            <td class="num">${fmt(totalPerRxn)}</td>
+            <td class="num">${fmt(totalAll)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ol class="exp-protocol">${snap.protocol.map(p=>`<li>${p}</li>`).join("")}</ol>
+    </div>
+  `;
+}
+
+function renderExpPlatemapBlock(snapshot){
+  const wells = snapshot.wells;
+  const capturedLabel = new Date(snapshot.capturedAt).toLocaleString();
+  let chipsHtml = "";
+  PM_CHIPS.forEach(chip=>{
+    let wellsHtml = "";
+    PM_CHAMBERS.forEach(chamber=>{
+      const w = wells[pmWellKey(chip, chamber)] || {sampleName:"",sampleType:"",context:"",dilution:null};
+      const typeClass = w.sampleType ? ` type-${w.sampleType}` : "";
+      wellsHtml += `<div class="well exp-well${typeClass}">
+        <div class="well-chamber">${chamber}</div>
+        <div class="well-name">${w.sampleName ? pmEscapeHtml(w.sampleName) : "&nbsp;"}</div>
+      </div>`;
+    });
+    chipsHtml += `<div class="chip-panel exp-chip-panel">
+      <div class="chip-panel-header"><div class="chip-title">${chip} Chip</div></div>
+      <div class="col-headers"><span>Column 1</span><span>Column 2</span></div>
+      <div class="well-grid">${wellsHtml}</div>
+    </div>`;
+  });
+  return `
+    <div class="exp-block">
+      <h3 class="exp-block-title">Platemap</h3>
+      <div class="exp-block-sub">Captured ${capturedLabel}</div>
+      <div class="chips-row">${chipsHtml}</div>
+    </div>
+  `;
 }
 
 /* ============================================================
