@@ -378,6 +378,168 @@
     line-height:1.55;
   }
 
+  /* ---------- ddPCR Experiment Planner ---------- */
+  .planner-intro-panel p{
+    margin:0 0 8px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .planner-intro-panel p:last-child{margin-bottom:0;}
+  .planner-progress-bar{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 18px;
+    margin-bottom:18px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    flex-wrap:wrap;
+  }
+  .planner-progress-bar strong{color:var(--ink);font-family:'IBM Plex Mono', monospace;}
+  .planner-progress-track{
+    width:120px;height:7px;background:#e3e9e7;border-radius:4px;overflow:hidden;flex-shrink:0;
+  }
+  .planner-progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .2s;}
+  .planner-section{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 18px 20px;
+    margin-bottom:16px;
+  }
+  .planner-section-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .planner-section-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    border-radius:999px;
+    width:23px;height:23px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .planner-section-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .planner-section-desc{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:0 0 16px 33px;
+    line-height:1.5;
+  }
+  .planner-item{margin-bottom:14px;}
+  .planner-item:last-child{margin-bottom:0;}
+  .planner-item label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .planner-textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:9px 10px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    color:var(--ink);
+    background:#fafcfb;
+    outline:none;
+    resize:vertical;
+    min-height:38px;
+    line-height:1.5;
+    display:block;
+  }
+  .planner-textarea:focus{border-color:var(--teal);}
+  .planner-textarea::placeholder{color:var(--ink-soft);opacity:0.65;}
+  .planner-control-group{margin-bottom:16px;}
+  .planner-control-group:last-child{margin-bottom:0;}
+  .planner-control-group-title{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--teal-deep);
+    margin-bottom:8px;
+  }
+  .planner-control-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .planner-control-row:last-child{margin-bottom:0;}
+  .planner-control-row input[type=checkbox]{
+    width:16px;height:16px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;
+  }
+  .planner-control-row label{
+    font-size:12.5px;
+    color:var(--ink);
+    cursor:pointer;
+    flex:0 0 auto;
+    min-width:170px;
+    max-width:220px;
+  }
+  .planner-control-row input[type=text]{
+    flex:1;
+    min-width:160px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:7px 9px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12px;
+    color:var(--ink);
+    background:#fafcfb;
+    outline:none;
+  }
+  .planner-control-row input[type=text]:focus{border-color:var(--teal);}
+  .planner-control-row input[type=text]::placeholder{color:var(--ink-soft);opacity:0.65;}
+  .planner-ready-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid #eef1f0;
+  }
+  .planner-ready-row:last-child{border-bottom:none;}
+  .planner-ready-row input[type=checkbox]{
+    width:17px;height:17px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;
+  }
+  .planner-ready-row label{font-size:13px;color:var(--ink);cursor:pointer;flex:1;}
+  .planner-ready-banner{
+    font-size:12.5px;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-top:14px;
+    line-height:1.5;
+  }
+  .planner-ready-banner.ok{
+    color:var(--teal-deep);
+    background:var(--teal-wash);
+    border:1px solid #bfe2dd;
+    font-weight:600;
+  }
+  .planner-ready-banner.pending{
+    color:#8a5a12;
+    background:#fbf1de;
+    border:1px solid #ecd6a6;
+  }
+
   /* ---------- learning resources list ---------- */
   .resource-list{display:flex;flex-direction:column;gap:10px;}
   .resource-item{
@@ -668,21 +830,47 @@
 
   .assay-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:2px 10px;
+    grid-template-columns:1fr;
+    gap:0;
   }
   .assay-item{
     display:flex;align-items:center;gap:8px;
     padding:6px 0;
   }
   .assay-item input[type=checkbox]{
-    width:15px;height:15px;accent-color:var(--teal);cursor:pointer;
+    width:15px;height:15px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;
   }
-  .assay-item label{font-size:12.5px;color:var(--ink);cursor:pointer;}
+  .assay-item label{font-size:12.5px;color:var(--ink);cursor:pointer;flex:1;}
   .assay-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .assay-item.locked{opacity:0.4;}
   .assay-item.locked label{cursor:not-allowed;}
   .assay-item.locked input[type=checkbox]{cursor:not-allowed;}
+  .assay-fold{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    margin-left:auto;
+    flex-shrink:0;
+  }
+  .assay-fold input{
+    width:40px;
+    text-align:right;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 5px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink);
+    background:#fafcfb;
+    outline:none;
+  }
+  .assay-fold input:focus{border-color:var(--teal);}
+  .assay-fold input:disabled{color:var(--ink-soft);background:var(--grey-wash);cursor:not-allowed;}
+  .assay-fold-suffix{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
   .assay-limit-note{
     font-size:11.5px;
     color:var(--ink-soft);
@@ -863,6 +1051,71 @@
     color:var(--ink-soft);
     text-align:center;
   }
+
+  /* ---------- unofficial-tools disclaimer modal ---------- */
+  .disclaimer-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(16,32,29,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .disclaimer-modal{
+    background:var(--panel);
+    border-radius:14px;
+    border:1px solid var(--line);
+    max-width:480px;
+    width:100%;
+    padding:26px 26px 22px;
+    box-shadow:0 18px 46px rgba(16,32,29,0.28);
+  }
+  .disclaimer-modal-icon{
+    width:38px;height:38px;
+    border-radius:50%;
+    background:var(--amber-wash);
+    border:1px solid #ecd6a6;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+  }
+  .disclaimer-modal h2{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--ink);
+    margin:0 0 10px;
+    text-transform:none;
+    letter-spacing:normal;
+  }
+  .disclaimer-modal p{
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin:0 0 12px;
+  }
+  .disclaimer-modal p:last-of-type{margin-bottom:0;}
+  .disclaimer-modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+  }
+  .disclaimer-dont-show{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .disclaimer-dont-show input{
+    width:15px;height:15px;accent-color:var(--teal);cursor:pointer;
+  }
+  .disclaimer-dont-show label{cursor:pointer;}
 
   /* ---------- platemap labeler ---------- */
   .header-actions{display:flex;gap:8px;flex-wrap:wrap;}
@@ -1077,6 +1330,78 @@
     font-size:12px;
     color:var(--ink-soft);
   }
+  .exp-title-input{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:19px;
+    font-weight:600;
+    color:var(--ink);
+    border:1px solid transparent;
+    border-radius:6px;
+    padding:3px 7px;
+    margin:-3px 0 6px -7px;
+    width:calc(100% + 14px);
+    background:transparent;
+    outline:none;
+    display:block;
+  }
+  .exp-title-input::placeholder{ color:var(--ink-soft); font-weight:500; }
+  .exp-title-input:hover{ border-color:var(--line); }
+  .exp-title-input:focus{ border-color:var(--teal); background:#fafcfb; }
+  .exp-meta-line-edit{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:2px;
+  }
+  .exp-meta-sep{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 2px 0 6px;
+  }
+  .exp-meta-input{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    border:1px solid transparent;
+    border-radius:5px;
+    padding:2px 6px;
+    background:transparent;
+    outline:none;
+    min-width:70px;
+  }
+  .exp-meta-input:hover{ border-color:var(--line); }
+  .exp-meta-input:focus{ border-color:var(--teal); background:#fafcfb; color:var(--ink); }
+  .exp-notes-block{
+    margin:14px 0 24px;
+    padding:12px 14px;
+    border:1px dashed var(--line);
+    border-radius:8px;
+    background:#fbfdfc;
+  }
+  .exp-notes-label{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:11px;
+    letter-spacing:0.8px;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .exp-notes-input{
+    width:100%;
+    border:none;
+    background:transparent;
+    resize:vertical;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    color:var(--ink);
+    outline:none;
+    line-height:1.55;
+    min-height:50px;
+    display:block;
+  }
+  .exp-notes-input::placeholder{ color:var(--ink-soft); }
   .exp-block{
     margin-bottom:26px;
     padding-bottom:20px;
@@ -1147,7 +1472,14 @@
     /* tighten header + block chrome so a typical module fits one page */
     .exp-header{ margin-bottom:10px; padding-bottom:8px; }
     .exp-header h2{ font-size:15px; }
+    .exp-title-input{ font-size:15px; border-color:transparent !important; background:transparent !important; padding:0; margin:0 0 4px; }
     .exp-meta-line{ font-size:10px; }
+    .exp-meta-input{ font-size:10px; border-color:transparent !important; background:transparent !important; padding:0; min-width:0; }
+    .exp-meta-sep{ font-size:10px; }
+    .exp-title-input::placeholder, .exp-meta-input::placeholder, .exp-notes-input::placeholder{ color:transparent; }
+    .exp-notes-block{ margin:8px 0 14px; padding:8px 10px; }
+    .exp-notes-label{ font-size:9.5px; margin-bottom:4px; }
+    .exp-notes-input{ font-size:10.5px; min-height:0; }
     .exp-block-title{ font-size:13px; }
     .exp-block-sub{ font-size:10px; margin-bottom:8px; }
     .exp-block table{ font-size:10px; }
@@ -1192,6 +1524,8 @@
   <footer>These are unofficial apps, always double-check calculations. Please leave a feedback form if you encounter any issues/bugs or have a request.</footer>
 </div>
 
+<div id="disclaimerOverlay"></div>
+
 <script>
 /* ============================================================
    DATA MODEL — one config object per sheet in the workbook
@@ -1223,6 +1557,7 @@ const SHEETS = [
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayFolds:{FAM:20,HEX:20,ROX:20,"Atto590":20,Cy5:20,"Cy5.5":20,"Atto550":20},
       assayStocks:{
         FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
         "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
@@ -1230,7 +1565,7 @@ const SHEETS = [
       } },
     components: naicaComponents(5),
     protocol: naicaProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naica10x",
@@ -1252,6 +1587,7 @@ const SHEETS = [
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayFolds:{FAM:20,HEX:20,ROX:20,"Atto590":20,Cy5:20,"Cy5.5":20,"Atto550":20},
       assayStocks:{
         FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
         "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
@@ -1259,7 +1595,7 @@ const SHEETS = [
       } },
     components: naicaComponents(10),
     protocol: naicaProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naicaEvaGreen5x",
@@ -1279,10 +1615,10 @@ const SHEETS = [
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
-      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components: naicaEvaGreenComponents(5),
     protocol: naicaEvaGreenProtocol(),
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naicaEvaGreen10x",
@@ -1302,10 +1638,10 @@ const SHEETS = [
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
-      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components: naicaEvaGreenComponents(10),
     protocol: naicaEvaGreenProtocol(),
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"evagreen",
@@ -1320,7 +1656,7 @@ const SHEETS = [
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:25 },
     sampleFinalConcDisplay:"*Up to 25ng",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
-      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100 },
+      individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components(state){
       const {reactionVolume:rv, sampleVolume} = state;
       const supermix = rv/5;
@@ -1335,9 +1671,10 @@ const SHEETS = [
         rows.push(...tubes.rows);
         primerSum = tubes.sum;
       } else {
-        const primer = rv/20;
+        const fold = state.mixFold || 20;
+        const primer = rv/fold;
         primerSum = primer;
-        rows.push({label:"20X Primer Mix", finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
+        rows.push({label:`${fold}X Primer Mix`, finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
       }
       const water = rv - (supermix + primerSum + enzyme + sample);
       rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
@@ -1353,7 +1690,7 @@ const SHEETS = [
       "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
       "Add DNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading."
     ],
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"probes",
@@ -1370,6 +1707,7 @@ const SHEETS = [
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayFolds:{FAM:20,HEX:20,ROX:20,"Atto590":20,Cy5:20,"Cy5.5":20,"Atto550":20},
       assayStocks:{
         FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
         "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
@@ -1382,7 +1720,7 @@ const SHEETS = [
       enzymeVariable:true
     }),
     protocol: qxProbeProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"rdq",
@@ -1400,6 +1738,7 @@ const SHEETS = [
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayFolds:{FAM:20,HEX:20,ROX:20,"Atto590":20,Cy5:20,"Cy5.5":20,"Atto550":20},
       assayStocks:{
         FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
         "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
@@ -1412,7 +1751,7 @@ const SHEETS = [
       enzymeVariable:true
     }),
     protocol: qxProbeProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"onestep",
@@ -1426,6 +1765,7 @@ const SHEETS = [
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, sampleConcentration:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
+      assayFolds:{FAM:20,HEX:20,ROX:20,"Atto590":20,Cy5:20,"Cy5.5":20,"Atto550":20},
       assayStocks:{
         FAM:{fwd:100,rev:100,probe:100}, HEX:{fwd:100,rev:100,probe:100}, ROX:{fwd:100,rev:100,probe:100},
         "Atto590":{fwd:100,rev:100,probe:100}, Cy5:{fwd:100,rev:100,probe:100},
@@ -1446,9 +1786,10 @@ const SHEETS = [
         assaySum += tubes.assaySum;
       } else {
         Object.keys(assays).forEach(name=>{
-          const v = assays[name] ? rv/20 : 0;
+          const fold = (state.assayFolds && state.assayFolds[name]) || 20;
+          const v = assays[name] ? rv/fold : 0;
           assaySum += v;
-          rows.push({label:`20X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+          rows.push({label:`${fold}X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
         });
       }
       const sample = sampleVolume;
@@ -1465,7 +1806,7 @@ const SHEETS = [
       "Add RNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading.",
       "Note: final primer/probe concentrations are 900 nM (fwd), 900 nM (rev), 250 nM (probe); RNA input up to 500 ng per reaction."
     ],
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your 20X stock in the Primer/Probe Mix Calculator tab \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration."
   },
 ];
 
@@ -1543,9 +1884,10 @@ function probeMixComponents(opts){
       assaySum += tubes.assaySum;
     } else {
       Object.keys(assays).forEach(name=>{
-        const v = assays[name] ? rv/20 : 0;
+        const fold = (state.assayFolds && state.assayFolds[name]) || 20;
+        const v = assays[name] ? rv/fold : 0;
         assaySum += v;
-        rows.push({label:`20X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+        rows.push({label:`${fold}X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
       });
     }
     const enzymeVol = opts.enzymeVariable ? (state.enzymeVolume ?? round4(rv*opts.enzymeRatio)) : round4(rv*opts.enzymeRatio);
@@ -1576,9 +1918,10 @@ function naicaComponents(bufferFactor){
       assaySum += tubes.assaySum;
     } else {
       Object.keys(assays).forEach(name=>{
-        const v = assays[name] ? rv/20 : 0;
+        const fold = (state.assayFolds && state.assayFolds[name]) || 20;
+        const v = assays[name] ? rv/fold : 0;
         assaySum += v;
-        rows.push({label:`20X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+        rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
       });
     }
     const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
@@ -1600,7 +1943,7 @@ function naicaProtocol(){
     "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
     "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
     "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
-    "Primer/probe volumes assume a 20X working stock at 900 nM/250 nM final \u2014 the product insert doesn't specify an exact value (it gives a broader 0.125\u20131 \u00b5M typical range), so this is our recommended default. Adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay is validated at a different concentration."
+    "Primer/probe volumes assume each channel's working stock is 20X by default (editable per channel below) at 900 nM/250 nM final \u2014 the product insert doesn't specify an exact value (it gives a broader 0.125\u20131 \u00b5M typical range), so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator tab, or the X-fold and concentration directly below, if your assay is validated differently."
   ];
 }
 
@@ -1626,9 +1969,10 @@ function naicaEvaGreenComponents(bufferFactor){
       rows.push(...tubes.rows);
       primerSum = tubes.sum;
     } else {
-      const primer = rv/20;
+      const fold = state.mixFold || 20;
+      const primer = rv/fold;
       primerSum = primer;
-      rows.push({label:"Primer Mix", finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
+      rows.push({label:`${fold}X Primer Mix`, finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
     }
     const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
     const enzyme = state.digest ? enzymeVol : 0;
@@ -1649,7 +1993,7 @@ function naicaEvaGreenProtocol(){
     "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
     "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
     "Dextran Alexa Fluor 647 is an optional reference dye, used as a backup for droplet detection in the Red/Infra-Red channel if EvaGreen's basal Blue-channel fluorescence isn't sufficient. Turn it off or set its volume to 0 to exclude it.",
-    "Primer volumes assume a 20X working stock at 250 nM final \u2014 the product insert gives a broader 0.125\u20131 \u00b5M typical range, so this is our recommended default. Adjust your 20X stock in the Primer/Probe Mix Calculator tab if your assay is validated at a different concentration."
+    "Primer volumes assume the working stock is 20X by default (editable below) at 250 nM final \u2014 the product insert gives a broader 0.125\u20131 \u00b5M typical range, so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator tab, or the X-fold and concentration directly below, if your assay is validated differently."
   ];
 }
 
@@ -1708,7 +2052,7 @@ function clearDefaultSheetId(){
   try{ localStorage.removeItem(DEFAULT_SHEET_STORAGE_KEY); }catch(e){}
 }
 
-let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "experimentLog" | "dataAnalysis101" | "placeholder"
+let currentView = "home"; // "home" | "primerPrep" | "mastermix" | "platemap" | "experimentLog" | "dataAnalysis101" | "planner" | "placeholder"
 let activeTab = getDefaultSheetId() || SHEETS[0].id; // which mastermix sheet is selected, when currentView === "mastermix"
 let placeholderKind = null; // "learning" | "support" | "feedback" — which dummy module is showing
 const PLACEHOLDER_META = {
@@ -1728,6 +2072,7 @@ function goToMastermix(sheetId){
 function goToPlatemap(){ currentView = "platemap"; renderAll(); }
 function goToExperimentLog(){ currentView = "experimentLog"; renderAll(); }
 function goToDataAnalysis101(){ currentView = "dataAnalysis101"; renderAll(); }
+function goToPlanner(){ currentView = "planner"; renderAll(); }
 function goToPlaceholder(kind){ placeholderKind = kind; currentView = "placeholder"; renderAll(); }
 
 /* ============================================================
@@ -1743,7 +2088,7 @@ function todayStr(){
 }
 
 const experimentLog = {
-  meta:{ name:"", operator:"", date:todayStr() },
+  meta:{ name:"", operator:"", date:todayStr(), notes:"" },
   mastermixSnapshots:[], // {id, sheetId, sheetName, productName, reactionVolume, numReactions, sampleLabel, aliquotVolume, totalMastermix, isError, rows:[...], protocol:[...], notes}
   platemapSnapshot:null  // {capturedAt, wells:{...}} — a deep copy of pmWells at time of sending
 };
@@ -1882,7 +2227,7 @@ function renderTabs(){
   } else if(currentView === "primerPrep"){
     const label = document.createElement("div");
     label.className = "nav-current-label";
-    label.textContent = "20X Primer/Probe Mix Calculator";
+    label.textContent = "Primer/Probe Mix Calculator";
     el.appendChild(label);
   } else if(currentView === "platemap"){
     const label = document.createElement("div");
@@ -1898,6 +2243,11 @@ function renderTabs(){
     const label = document.createElement("div");
     label.className = "nav-current-label";
     label.textContent = "ddPCR Data Analysis 101";
+    el.appendChild(label);
+  } else if(currentView === "planner"){
+    const label = document.createElement("div");
+    label.className = "nav-current-label";
+    label.textContent = "ddPCR Experiment Planner";
     el.appendChild(label);
   } else if(currentView === "placeholder"){
     const label = document.createElement("div");
@@ -1930,8 +2280,8 @@ function renderHomeContent(){
           <line x1="30" y1="20" x2="30" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
           </g>
         </svg>
-        <div class="home-card-title">20X Primer/Probe Mix Calculator</div>
-        <div class="home-card-desc">Design a custom 20X primer, probe, or primer/probe working stock from your own oligo concentrations.</div>
+        <div class="home-card-title">Primer/Probe Mix Calculator</div>
+        <div class="home-card-desc">Design a custom primer or primer/probe working stock from your own oligo concentrations.</div>
       </button>
       <button class="home-card" id="homeCardMastermix">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
@@ -1980,6 +2330,21 @@ function renderHomeContent(){
         </svg>
         <div class="home-card-title">Print an Experiment</div>
         <div class="home-card-desc">Send a mastermix recipe and your platemap here, then print or save one combined PDF for your lab notebook.</div>
+      </button>
+      <button class="home-card" id="homeCardPlanner">
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
+          <rect x="10" y="6" width="28" height="36" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
+          <rect x="15" y="12.5" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
+          <path d="M16.2 14.5l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="22.5" y1="14.5" x2="33" y2="14.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <rect x="15" y="22" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
+          <path d="M16.2 24l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="22.5" y1="24" x2="33" y2="24" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+          <rect x="15" y="31.5" width="4" height="4" rx="1" fill="none" stroke="#c98a1e" stroke-width="1.8"/>
+          <line x1="22.5" y1="33.5" x2="33" y2="33.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="home-card-title">ddPCR Experiment Planner</div>
+        <div class="home-card-desc">A digital MIQE-inspired checklist to think through your question, targets, samples, and controls before you order assays or run reactions.</div>
       </button>
       <button class="home-card" id="homeCardDataAnalysis">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
@@ -2030,6 +2395,7 @@ function renderHomeContent(){
   document.getElementById("homeCardMastermix").onclick = ()=> goToMastermix();
   document.getElementById("homeCardPlatemap").onclick = goToPlatemap;
   document.getElementById("homeCardExperimentLog").onclick = goToExperimentLog;
+  document.getElementById("homeCardPlanner").onclick = goToPlanner;
   document.getElementById("homeCardDataAnalysis").onclick = goToDataAnalysis101;
   document.getElementById("homeCardLearning").onclick = ()=> goToPlaceholder("learning");
   document.getElementById("homeCardSupport").onclick = ()=> goToPlaceholder("support");
@@ -2055,6 +2421,10 @@ function renderContent(){
   }
   if(currentView === "dataAnalysis101"){
     renderDataAnalysis101Content();
+    return;
+  }
+  if(currentView === "planner"){
+    renderPlannerContent();
     return;
   }
   if(currentView === "placeholder"){
@@ -2276,10 +2646,20 @@ function renderInputs(sheet, s){
       const locked = sheet.maxAssays && !checked && checkedCount >= sheet.maxAssays;
       item.className = "assay-item" + (locked ? " locked" : "");
       const id = "assay-"+activeTab+"-"+name.replace(/[^a-zA-Z0-9]/g,"");
+      if(!s.assayFolds) s.assayFolds = {};
+      if(s.assayFolds[name] == null) s.assayFolds[name] = 20;
+      const showFold = !s.individualTubes;
+      const foldId = id+"-fold";
+      const foldHtml = showFold ? `
+        <span class="assay-fold">
+          <input type="text" inputmode="decimal" id="${foldId}" value="${s.assayFolds[name]}" data-field-key="${foldId}">
+          <span class="assay-fold-suffix">X</span>
+        </span>` : "";
       item.innerHTML = `<input type="checkbox" id="${id}" ${checked?'checked':''} ${locked?'disabled':''} data-field-key="${id}">
         <span class="assay-dot" style="background:${ASSAY_COLORS[name]}"></span>
-        <label for="${id}">${name}</label>`;
-      item.querySelector("input").onchange = (e)=>{
+        <label for="${id}">${name}</label>
+        ${foldHtml}`;
+      item.querySelector("input[type=checkbox]").onchange = (e)=>{
         if(e.target.checked && sheet.maxAssays){
           const count = Object.values(s.assays).filter(Boolean).length;
           if(count >= sheet.maxAssays){
@@ -2290,9 +2670,23 @@ function renderInputs(sheet, s){
         s.assays[name]=e.target.checked;
         renderAll();
       };
+      const foldInput = item.querySelector(".assay-fold input");
+      if(foldInput){
+        foldInput.onchange = (e)=>{
+          const v = parseFloat(e.target.value);
+          s.assayFolds[name] = (isFinite(v) && v > 0) ? v : 20;
+          renderAll();
+        };
+      }
       grid.appendChild(item);
     });
     panel.appendChild(grid);
+    if(!s.individualTubes){
+      const foldHint = document.createElement("div");
+      foldHint.className = "info-note";
+      foldHint.textContent = "Each channel's premixed working stock can use its own dilution factor (X) \u2014 20X is the usual default, but 40X, 50X, or any other fold works too. Edit the X value next to a channel to match your actual stock.";
+      panel.appendChild(foldHint);
+    }
 
     if(sheet.allowIndividualTubes){
       panel.appendChild(toggleField(
@@ -2303,7 +2697,7 @@ function renderInputs(sheet, s){
       const tubeNote = document.createElement("div");
       tubeNote.className = "info-note";
       tubeNote.style.marginTop = "-8px";
-      tubeNote.textContent = "Skip the pre-mixed 20X stock and pipette forward primer, reverse primer, and probe from separate tubes instead. Volumes are calculated from your own stock concentrations.";
+      tubeNote.textContent = "Skip the pre-mixed working stock and pipette forward primer, reverse primer, and probe from separate tubes instead. Volumes are calculated from your own stock concentrations.";
       panel.appendChild(tubeNote);
 
       if(s.individualTubes){
@@ -2353,7 +2747,7 @@ function renderInputs(sheet, s){
     const tubeNote = document.createElement("div");
     tubeNote.className = "info-note";
     tubeNote.style.marginTop = "-8px";
-    tubeNote.textContent = "Skip the pre-mixed 20X primer stock and pipette forward and reverse primer from separate tubes instead. Volumes are calculated from your own stock concentrations.";
+    tubeNote.textContent = "Skip the pre-mixed primer stock and pipette forward and reverse primer from separate tubes instead. Volumes are calculated from your own stock concentrations.";
     panel.appendChild(tubeNote);
 
     if(s.individualTubes){
@@ -2370,6 +2764,13 @@ function renderInputs(sheet, s){
       panel.appendChild(stockH);
       panel.appendChild(numField("Forward primer stock", "µM", s.stockFwd, v=>{ s.stockFwd=v; renderAll(); }, "As ordered/resuspended (e.g. 100 µM standard oligo stock)."));
       panel.appendChild(numField("Reverse primer stock", "µM", s.stockRev, v=>{ s.stockRev=v; renderAll(); }));
+    } else {
+      if(s.mixFold == null) s.mixFold = 20;
+      panel.appendChild(numField(
+        "Primer mix dilution factor (X)", "fold", s.mixFold,
+        v=>{ s.mixFold = (v && v > 0) ? v : 20; renderAll(); },
+        "How concentrated your premixed primer stock is. 20X is the usual default, but 40X, 50X, or any other fold works too \u2014 match it to your stock from the Primer/Probe Mix Calculator tab."
+      ));
     }
   }
 }
@@ -2477,6 +2878,13 @@ function textField(labelText, value, onChange, hint, placeholder){
     ${hint ? `<span class="hint">${hint}</span>` : ""}`;
   wrap.querySelector("input").onchange = (e)=> onChange(e.target.value);
   return wrap;
+}
+
+// Grows a textarea's height to fit its content (used for the inline Notes
+// field so it never shows a scrollbar on screen or clips content on print).
+function autoGrowTextarea(el){
+  el.style.height = "auto";
+  el.style.height = (el.scrollHeight + 2) + "px";
 }
 
 /* ============================================================
@@ -3428,16 +3836,19 @@ function renderExperimentLogContent(){
     <div class="grid">
       <div class="panel no-print" id="expControlPanel"></div>
       <div>
-        <div class="header-actions no-print" style="margin-bottom:14px;">
-          <button class="btn primary" id="expPrintBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save as PDF
+        <div class="header-actions no-print" style="margin-bottom:6px;">
+          <button class="btn primary" id="expWordBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h1.2l1.1 4 1.1-4h1.2l1.1 4 1.1-4H16"/></svg>Print Together (Download as Word)
           </button>
+        </div>
+        <div class="exp-empty-hint no-print" style="margin-bottom:14px;">
+          Downloads a .doc file with every attached module together \u2014 open it in Word to adjust margins, spacing, and page breaks before printing. Prefer to print one module straight to PDF instead? Use the &quot;Print This\u2026&quot; button on that module below.
         </div>
         <div class="panel exp-print-page" id="expPrintPage"></div>
       </div>
     </div>
   `;
-  document.getElementById("expPrintBtn").onclick = ()=> window.print();
+  document.getElementById("expWordBtn").onclick = generateExperimentWordDoc;
   renderExpControlPanel();
   renderExpPrintPage();
 }
@@ -3445,11 +3856,8 @@ function renderExperimentLogContent(){
 function renderExpControlPanel(){
   const log = experimentLog;
   const panel = document.getElementById("expControlPanel");
-  panel.innerHTML = `<h2>Experiment Details</h2>`;
-
-  panel.appendChild(textField("Experiment name", log.meta.name, v=>{ log.meta.name=v; renderAll(); }, null, "e.g. Patient 4021 CNV panel"));
-  panel.appendChild(textField("Operator", log.meta.operator, v=>{ log.meta.operator=v; renderAll(); }, null, "Your name"));
-  panel.appendChild(textField("Date", log.meta.date, v=>{ log.meta.date=v; renderAll(); }, "Defaults to today \u2014 edit freely.", "YYYY-MM-DD"));
+  panel.innerHTML = `<h2>Manage Attachments</h2>
+    <div class="exp-empty-hint" style="margin-top:-6px;">Experiment name, date, operator, and notes are now edited directly at the top of the experiment module to the right \u2014 this panel is just for attaching and removing recipes and the platemap.</div>`;
 
   const mmHeading = document.createElement("h2");
   mmHeading.style.marginTop = "18px";
@@ -3549,32 +3957,91 @@ function renderExpControlPanel(){
 function renderExpPrintPage(){
   const log = experimentLog;
   const container = document.getElementById("expPrintPage");
-  const metaBits = [];
-  if(log.meta.date) metaBits.push(pmEscapeHtml(log.meta.date));
-  if(log.meta.operator) metaBits.push("Operator: " + pmEscapeHtml(log.meta.operator));
+  container.innerHTML = "";
 
-  let html = `
-    <div class="exp-header">
-      <h2>${log.meta.name ? pmEscapeHtml(log.meta.name) : "Untitled Experiment"}</h2>
-      <div class="exp-meta-line">${metaBits.join(" \u00b7 ")}</div>
-    </div>
-  `;
+  const headerWrap = document.createElement("div");
+  headerWrap.className = "exp-header";
 
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.className = "exp-title-input";
+  nameInput.placeholder = "Untitled Experiment";
+  nameInput.value = log.meta.name || "";
+  nameInput.dataset.fieldKey = "Experiment name";
+  nameInput.onchange = (e)=>{ log.meta.name = e.target.value; renderAll(); };
+  headerWrap.appendChild(nameInput);
+
+  const metaLine = document.createElement("div");
+  metaLine.className = "exp-meta-line exp-meta-line-edit";
+
+  const dateInput = document.createElement("input");
+  dateInput.type = "text";
+  dateInput.className = "exp-meta-input";
+  dateInput.value = log.meta.date || "";
+  dateInput.placeholder = "YYYY-MM-DD";
+  dateInput.dataset.fieldKey = "Experiment date";
+  dateInput.onchange = (e)=>{ log.meta.date = e.target.value; renderAll(); };
+  metaLine.appendChild(dateInput);
+
+  const sep = document.createElement("span");
+  sep.className = "exp-meta-sep";
+  sep.textContent = "\u00b7 Operator:";
+  metaLine.appendChild(sep);
+
+  const operatorInput = document.createElement("input");
+  operatorInput.type = "text";
+  operatorInput.className = "exp-meta-input";
+  operatorInput.value = log.meta.operator || "";
+  operatorInput.placeholder = "Your name";
+  operatorInput.dataset.fieldKey = "Experiment operator";
+  operatorInput.onchange = (e)=>{ log.meta.operator = e.target.value; renderAll(); };
+  metaLine.appendChild(operatorInput);
+
+  headerWrap.appendChild(metaLine);
+  container.appendChild(headerWrap);
+
+  const notesWrap = document.createElement("div");
+  notesWrap.className = "exp-notes-block";
+  const notesLabel = document.createElement("div");
+  notesLabel.className = "exp-notes-label";
+  notesLabel.textContent = "Notes";
+  notesWrap.appendChild(notesLabel);
+  const notesInput = document.createElement("textarea");
+  notesInput.className = "exp-notes-input";
+  notesInput.rows = 2;
+  notesInput.placeholder = "Purpose, goals, notes...";
+  notesInput.value = log.meta.notes || "";
+  notesInput.dataset.fieldKey = "Experiment notes";
+  notesInput.addEventListener("input", ()=> autoGrowTextarea(notesInput));
+  notesInput.onchange = (e)=>{ log.meta.notes = e.target.value; renderAll(); };
+  notesWrap.appendChild(notesInput);
+  container.appendChild(notesWrap);
+  requestAnimationFrame(()=> autoGrowTextarea(notesInput));
+
+  const blocksWrap = document.createElement("div");
+  let html = "";
   if(log.mastermixSnapshots.length === 0 && !log.platemapSnapshot){
-    html += `<div class="empty-state">Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then print or save this page as a PDF for your lab notebook.</div>`;
+    html += `<div class="empty-state">Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then print or download this experiment for your lab notebook.</div>`;
   }
-
   log.mastermixSnapshots.forEach(snap=>{ html += renderExpSnapshotBlock(snap); });
   if(log.platemapSnapshot){ html += renderExpPlatemapBlock(log.platemapSnapshot); }
+  blocksWrap.innerHTML = html;
+  container.appendChild(blocksWrap);
 
-  container.innerHTML = html;
+  container.querySelectorAll("[data-print-target]").forEach(btn=>{
+    btn.onclick = ()=> printElementById(btn.dataset.printTarget, btn.dataset.printTitle || "Print");
+  });
 }
 
 function renderExpSnapshotBlock(snap){
   const totalPerRxn = snap.rows.reduce((a,r)=>a+r.perRxn,0);
   const totalAll = totalPerRxn * snap.numReactions;
+  const blockId = "expBlock-mm-" + snap.id;
   return `
-    <div class="exp-block">
+    <div class="exp-block" id="${blockId}">
+      <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn small ghost" data-print-target="${blockId}" data-print-title="${pmEscapeAttr(snap.productName)}">Print This Recipe</button>
+      </div>
       <h3 class="exp-block-title">${pmEscapeHtml(snap.productName)}</h3>
       <div class="exp-block-sub">${fmt(snap.reactionVolume)} µL reactions \u00d7 ${snap.numReactions} ${snap.isError
         ? '<span style="color:var(--red);">\u2014 water volume negative, check inputs before mixing</span>'
@@ -3624,12 +4091,199 @@ function renderExpPlatemapBlock(snapshot){
     </div>`;
   });
   return `
-    <div class="exp-block">
+    <div class="exp-block" id="expBlock-platemap">
+      <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn small ghost" data-print-target="expBlock-platemap" data-print-title="Platemap">Print This Platemap</button>
+      </div>
       <h3 class="exp-block-title">Platemap</h3>
       <div class="exp-block-sub">Captured ${capturedLabel}</div>
       <div class="chips-row">${chipsHtml}</div>
     </div>
   `;
+}
+
+/* ---------- single-module print (isolated so one module can't get cut
+   in half by page breaks from the other modules sharing the print page) ---------- */
+function printElementById(elId, title){
+  const source = document.getElementById(elId);
+  if(!source) return;
+  const styleTag = document.head.querySelector("style");
+  const styleHtml = styleTag ? styleTag.outerHTML : "";
+  const safeTitle = (title || "Print").replace(/</g, "&lt;");
+
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+
+  const cleanup = ()=>{ if(iframe.parentNode) iframe.parentNode.removeChild(iframe); };
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${safeTitle}</title>${styleHtml}</head><body><div class="wrap"><div class="exp-print-page">${source.outerHTML}</div></div></body></html>`);
+  doc.close();
+
+  iframe.onload = ()=>{
+    setTimeout(()=>{
+      iframe.contentWindow.focus();
+      iframe.contentWindow.onafterprint = cleanup;
+      iframe.contentWindow.print();
+      setTimeout(cleanup, 1500); // fallback in case afterprint doesn't fire
+    }, 150);
+  };
+}
+
+/* ---------- "print together" as a downloadable Word document, so the user
+   can freely adjust margins/spacing/page breaks themselves instead of
+   fighting the browser's print pagination ---------- */
+function downloadWordDoc(filename, bodyHtml){
+  const preHtml = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Experiment Log</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+<style>
+  @page { size: 11in 8.5in; mso-page-orientation: landscape; margin: 0.6in; }
+  body { font-family: Calibri, "IBM Plex Sans", Arial, sans-serif; font-size: 10.5pt; color:#10201d; }
+  h1 { font-size:17pt; margin:0 0 4pt; }
+  h2 { font-size:13pt; color:#085a56; margin:16pt 0 4pt; }
+  h3 { font-size:11.5pt; color:#085a56; margin:10pt 0 4pt; }
+  p.meta { font-size:9.5pt; color:#4b5f5a; margin:0 0 10pt; }
+  table { border-collapse:collapse; width:100%; margin-bottom:8pt; }
+  th, td { border:1px solid #d6e0dc; padding:4pt 6pt; font-size:9.5pt; text-align:left; vertical-align:top; }
+  th { background:#eef2f0; }
+  td.num, th.num { text-align:right; }
+  tr.total-row td { border-top:1.5pt solid #10201d; font-weight:bold; }
+  ol.protocol li { font-size:9.5pt; margin-bottom:4pt; }
+  div.notes-block { border:1px dashed #d6e0dc; border-radius:4pt; padding:8pt 10pt; margin:0 0 14pt; background:#fbfdfc; }
+  div.notes-block .notes-label { font-size:8.5pt; letter-spacing:0.5pt; text-transform:uppercase; color:#085a56; font-weight:bold; margin-bottom:4pt; }
+  div.notes-block .notes-body { font-size:10pt; white-space:pre-wrap; }
+  table.well-table { width:auto; }
+  table.well-table td { text-align:center; font-size:8pt; padding:4pt 8pt; min-width:60pt; }
+  table.combined-plate td.chip-header { text-align:center; font-weight:bold; background:#e3f2f0; color:#085a56; }
+  table.combined-plate td.spacer { border:none; background:transparent; width:10pt; padding:0; }
+  h2, h3 { page-break-after:avoid; mso-pagination:widow-orphan; }
+</style>
+</head>
+<body>`;
+  const postHtml = "</body></html>";
+  const full = preHtml + bodyHtml + postHtml;
+  const blob = new Blob(["\ufeff", full], { type: "application/msword" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=> URL.revokeObjectURL(url), 1000);
+}
+
+// Word's HTML filter doesn't reliably honor page-break-before set on a wrapping
+// <div> — it can insert the break partway through the div's content instead
+// (which was orphaning the "Platemap" heading on its own page). This explicit
+// break marker is the syntax Word itself uses/expects, so it breaks exactly
+// where placed, right before the heading and its table.
+const WORD_PAGE_BREAK = '<br clear="all" style="mso-special-character:line-break;page-break-before:always">';
+
+function buildWordSnapshotHtml(snap, isFirst){
+  const totalPerRxn = snap.rows.reduce((a,r)=>a+r.perRxn,0);
+  const totalAll = totalPerRxn * snap.numReactions;
+  const subLine = snap.isError
+    ? "\u2014 water volume negative, check inputs before mixing"
+    : `\u2014 ${fmt(snap.totalMastermix)} \u00b5L total mastermix \u00b7 aliquot ${fmt(snap.aliquotVolume)} \u00b5L/well`;
+  let html = isFirst ? "" : WORD_PAGE_BREAK;
+  html += `<div>`;
+  html += `<h2>${pmEscapeHtml(snap.productName)}</h2>`;
+  html += `<p class="meta">${fmt(snap.reactionVolume)} \u00b5L reactions \u00d7 ${snap.numReactions} ${subLine}</p>`;
+  html += `<table><thead><tr><th>Component</th><th>Final Conc.</th><th class="num">\u00b5L / Rxn</th><th class="num">Total \u00b5L</th></tr></thead><tbody>`;
+  snap.rows.forEach(r=>{
+    const label = pmEscapeHtml(r.label) + (r.isSample ? " (added after aliquoting)" : "");
+    html += `<tr><td>${label}</td><td>${pmEscapeHtml(String(r.finalConc))}</td><td class="num">${fmt(r.perRxn)}</td><td class="num">${fmt(r.total)}</td></tr>`;
+  });
+  html += `<tr class="total-row"><td>Total reaction volume</td><td></td><td class="num">${fmt(totalPerRxn)}</td><td class="num">${fmt(totalAll)}</td></tr>`;
+  html += `</tbody></table>`;
+  html += `<ol class="protocol">${snap.protocol.map(p=>`<li>${p}</li>`).join("")}</ol>`;
+  html += `</div>`;
+  return html;
+}
+
+function buildWordPlatemapHtml(snapshot, isFirst){
+  const capturedLabel = new Date(snapshot.capturedAt).toLocaleString();
+  let html = isFirst ? "" : WORD_PAGE_BREAK;
+  html += `<div>`;
+  html += `<h2>Platemap</h2>`;
+  html += `<p class="meta">Captured ${pmEscapeHtml(capturedLabel)}</p>`;
+
+  html += `<table class="well-table combined-plate"><tbody>`;
+
+  // header row: chip name spans its 2 columns, with a thin spacer column between chips
+  html += `<tr>`;
+  PM_CHIPS.forEach((chip, ci)=>{
+    html += `<td colspan="2" class="chip-header">${pmEscapeHtml(chip)} Chip</td>`;
+    if(ci < PM_CHIPS.length - 1) html += `<td class="spacer"></td>`;
+  });
+  html += `</tr>`;
+
+  // 8 data rows (A-H), 2 columns per chip, spacer column between chips
+  PM_ROWS.forEach(row=>{
+    html += `<tr>`;
+    PM_CHIPS.forEach((chip, ci)=>{
+      PM_COLS.forEach(col=>{
+        const chamber = row + col;
+        const w = snapshot.wells[pmWellKey(chip, chamber)] || {sampleName:"", sampleType:""};
+        const bg = w.sampleType === "Unknown" ? "#e6eef5"
+          : w.sampleType === "Known" ? "#e3f2f0"
+          : w.sampleType === "PositiveControl" ? "#e4f3e6"
+          : w.sampleType === "NegativeControl" ? "#fbe9e7"
+          : "#ffffff";
+        const name = w.sampleName ? pmEscapeHtml(w.sampleName) : "&nbsp;";
+        html += `<td style="background:${bg};"><strong>${chamber}</strong><br>${name}</td>`;
+      });
+      if(ci < PM_CHIPS.length - 1) html += `<td class="spacer"></td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  html += `</div>`;
+  return html;
+}
+
+function generateExperimentWordDoc(){
+  const log = experimentLog;
+  const metaBits = [];
+  if(log.meta.date) metaBits.push(pmEscapeHtml(log.meta.date));
+  if(log.meta.operator) metaBits.push("Operator: " + pmEscapeHtml(log.meta.operator));
+
+  let body = `<h1>${log.meta.name ? pmEscapeHtml(log.meta.name) : "Untitled Experiment"}</h1>`;
+  body += `<p class="meta">${metaBits.join(" \u00b7 ")}</p>`;
+
+  const notesText = (log.meta.notes || "").trim();
+  body += `<div class="notes-block"><div class="notes-label">Notes</div><div class="notes-body">${notesText ? pmEscapeHtml(notesText) : "&nbsp;"}</div></div>`;
+
+  if(log.mastermixSnapshots.length === 0 && !log.platemapSnapshot){
+    body += `<p>Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then download this Word document for your lab notebook.</p>`;
+  }
+
+  let isFirst = true;
+  log.mastermixSnapshots.forEach(snap=>{
+    body += buildWordSnapshotHtml(snap, isFirst);
+    isFirst = false;
+  });
+  if(log.platemapSnapshot){
+    body += buildWordPlatemapHtml(log.platemapSnapshot, isFirst);
+    isFirst = false;
+  }
+
+  const rawName = (log.meta.name && log.meta.name.trim()) ? log.meta.name.trim() : "experiment_log";
+  const filename = rawName.replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() + ".doc";
+  downloadWordDoc(filename, body);
 }
 
 /* ============================================================
@@ -3785,9 +4439,367 @@ function renderDataAnalysis101Content(){
   `;
 }
 
+/* ============================================================
+   ddPCR EXPERIMENT PLANNER — a digital, MIQE-inspired planning
+   checklist. Free-text questions plus checkbox controls, with
+   a running "ready to run" summary. State lives in-memory for
+   the session, mirroring the other modules on this page.
+   ============================================================ */
+const PLANNER_QUESTION_SECTIONS = [
+  {
+    id:"question", num:1, title:"Define the Question",
+    desc:"Think through the experiment before ordering assays, extracting samples, or running reactions.",
+    items:[
+      {id:"q_biological", label:"What biological question am I trying to answer?", placeholder:"e.g. Does Treatment X reduce viral load in patient plasma samples?"},
+      {id:"q_decision", label:"What decision will be made from the result?", placeholder:"e.g. Whether to advance the compound to Phase 2 dosing"},
+      {id:"q_sensitivity", label:"What level of sensitivity or precision is required?", placeholder:"e.g. Detect down to 1 copy/µL with <10% CV between replicates"},
+      {id:"q_samplesize", label:"How many samples are needed to answer the question confidently?", placeholder:"e.g. n=24, based on prior variability estimates"},
+    ]
+  },
+  {
+    id:"targets", num:2, title:"Define the Target(s)",
+    items:[
+      {id:"t_targets", label:"What target(s) will be measured?", placeholder:"e.g. KRAS G12D mutation, GAPDH reference gene"},
+      {id:"t_why", label:"Why were these targets selected?", placeholder:"e.g. Established biomarker for tumor burden"},
+      {id:"t_literature", label:"Is there supporting literature for these targets?", placeholder:"e.g. Smith et al. 2021, PMID 12345678"},
+      {id:"t_reference", label:"Is a reference gene or normalization target needed?", placeholder:"e.g. Yes — RPP30 for copy number normalization"},
+      {id:"t_plex", label:"Will the experiment be singleplex or multiplex?", placeholder:"e.g. Duplex — FAM (target), HEX (reference)"},
+    ]
+  },
+  {
+    id:"samples", num:3, title:"Define the Samples",
+    items:[
+      {id:"s_type", label:"What sample type will be analyzed?", placeholder:"e.g. FFPE tissue, plasma cfDNA, cultured cells"},
+      {id:"s_collection", label:"How will samples be collected?", placeholder:"e.g. Venipuncture into Streck cfDNA tubes"},
+      {id:"s_storage", label:"How will samples be stored and transported?", placeholder:"e.g. -80°C, shipped on dry ice"},
+      {id:"s_inhibitors", label:"Are inhibitors or degradation concerns expected?", placeholder:"e.g. Heparin carryover, freeze-thaw cycles"},
+      {id:"s_amount", label:"How much sample is available?", placeholder:"e.g. 200 µL plasma per patient, single draw"},
+    ]
+  },
+  {
+    id:"extraction", num:4, title:"Define the Extraction Strategy",
+    items:[
+      {id:"e_dnarna", label:"DNA or RNA?", placeholder:"e.g. DNA — cell-free"},
+      {id:"e_method", label:"What extraction method or kit will be used?", placeholder:"e.g. QIAamp Circulating Nucleic Acid Kit"},
+      {id:"e_validated", label:"Is the method validated for this sample type?", placeholder:"e.g. Yes, per kit's plasma protocol"},
+      {id:"e_qc", label:"How will concentration and quality be assessed?", placeholder:"e.g. Qubit dsDNA HS assay + TapeStation"},
+      {id:"e_controls", label:"Are extraction controls needed?", placeholder:"e.g. Water-only extraction blank per batch"},
+    ]
+  },
+  {
+    id:"assay", num:5, title:"Define the Assay Strategy",
+    items:[
+      {id:"a_source", label:"Commercial assay or custom assay?", placeholder:"e.g. Custom-designed, ordered from Bio-Rad"},
+      {id:"a_validated", label:"Has the assay been validated for the intended application?", placeholder:"e.g. Validated on gBlock standards, LOD confirmed"},
+      {id:"a_specificity", label:"Is assay specificity understood?", placeholder:"e.g. No cross-reactivity with WT allele confirmed"},
+      {id:"a_confirmation", label:"Are additional targets required for confirmation?", placeholder:"e.g. Orthogonal NGS confirmation planned"},
+    ]
+  },
+  {
+    id:"workflow", num:7, title:"Define the ddPCR Workflow",
+    items:[
+      {id:"w_supermix", label:"Which ddPCR supermix will be used?", placeholder:"e.g. QX700 ddPCR Supermix for Probes"},
+      {id:"w_rt", label:"Is reverse transcription required?", placeholder:"e.g. Yes — One-Step RT-ddPCR"},
+      {id:"w_digest", label:"Is restriction digestion required?", placeholder:"e.g. Yes — HaeIII digest for gDNA"},
+      {id:"w_template", label:"How much template will be loaded per reaction?", placeholder:"e.g. 1 µL, ~10 ng gDNA"},
+      {id:"w_techrep", label:"How many technical replicates will be run?", placeholder:"e.g. 2 wells per sample"},
+      {id:"w_biorep", label:"How many biological replicates will be run?", placeholder:"e.g. 3 independent extractions per condition"},
+    ]
+  },
+  {
+    id:"success", num:8, title:"Define Success Before Starting",
+    items:[
+      {id:"su_support", label:"What result would support the hypothesis?", placeholder:"e.g. >2-fold increase in target copies/µL vs. control"},
+      {id:"su_reject", label:"What result would reject the hypothesis?", placeholder:"e.g. No significant difference between groups"},
+      {id:"su_repeat", label:"What outcome would require repeating the experiment?", placeholder:"e.g. NTC shows amplification, or <10,000 droplets/well"},
+      {id:"su_followup", label:"What outcome would trigger additional follow-up experiments?", placeholder:"e.g. Borderline positive calls near threshold"},
+    ]
+  },
+];
+
+const PLANNER_CONTROLS_SECTION = {
+  id:"controls", num:6, title:"Define the Controls",
+  groups:[
+    {
+      id:"positive", title:"Positive Controls",
+      items:[
+        {id:"posKnown", label:"Known positive sample", placeholder:"e.g. Patient sample #12, confirmed positive"},
+        {id:"posSynthetic", label:"Synthetic or reference material", placeholder:"e.g. gBlock standard, 500 copies/µL"},
+      ]
+    },
+    {
+      id:"negative", title:"Negative Controls",
+      items:[
+        {id:"negNTC", label:"No-template control (NTC)", placeholder:"e.g. Nuclease-free water, one per plate"},
+        {id:"negKnown", label:"Known negative sample", placeholder:"e.g. Healthy donor plasma"},
+        {id:"negBlank", label:"Extraction blank (if applicable)", placeholder:"e.g. Water carried through extraction"},
+      ]
+    },
+    {
+      id:"quant", title:"Quantification Controls",
+      items:[
+        {id:"quantRef", label:"Reference assay required", placeholder:"e.g. RPP30 for input normalization"},
+        {id:"quantInternal", label:"Internal control required", placeholder:"e.g. Spiked synthetic internal standard"},
+      ]
+    },
+  ]
+};
+
+const PLANNER_READY_ITEMS = [
+  {id:"r_question", label:"Question defined"},
+  {id:"r_targets", label:"Targets selected"},
+  {id:"r_samples", label:"Samples identified"},
+  {id:"r_extraction", label:"Extraction method chosen"},
+  {id:"r_assays", label:"Assays selected"},
+  {id:"r_controls", label:"Controls planned"},
+  {id:"r_replicates", label:"Replicates planned"},
+  {id:"r_success", label:"Success criteria defined"},
+];
+
+const plannerState = {
+  meta:{ name:"", date:todayStr() },
+  answers:{},   // question item id -> free text
+  controls:{},  // control item id -> {checked:bool, note:string}
+  ready:{}      // ready-check id -> bool
+};
+
+function plannerAnswerCount(){
+  let total = 0, filled = 0;
+  PLANNER_QUESTION_SECTIONS.forEach(sec=>{
+    sec.items.forEach(item=>{
+      total++;
+      if((plannerState.answers[item.id]||"").trim() !== "") filled++;
+    });
+  });
+  return {filled, total};
+}
+function plannerControlsCount(){
+  let total = 0, checked = 0;
+  PLANNER_CONTROLS_SECTION.groups.forEach(g=>{
+    g.items.forEach(item=>{
+      total++;
+      if(plannerState.controls[item.id] && plannerState.controls[item.id].checked) checked++;
+    });
+  });
+  return {checked, total};
+}
+function plannerReadyCount(){
+  const total = PLANNER_READY_ITEMS.length;
+  const checked = PLANNER_READY_ITEMS.filter(item=>plannerState.ready[item.id]).length;
+  return {checked, total};
+}
+
+function plannerResetAll(){
+  if(!confirm("Reset the entire experiment planner? This clears every answer, control, and checklist item.")) return;
+  plannerState.meta = { name:"", date:todayStr() };
+  plannerState.answers = {};
+  plannerState.controls = {};
+  plannerState.ready = {};
+  renderAll();
+}
+
+function renderPlannerContent(){
+  const el = document.getElementById("tabContent");
+  const answerStats = plannerAnswerCount();
+  const controlStats = plannerControlsCount();
+  const readyStats = plannerReadyCount();
+  const readyPct = readyStats.total > 0 ? Math.round((readyStats.checked/readyStats.total)*100) : 0;
+
+  el.innerHTML = `
+    <div class="panel planner-intro-panel">
+      <h2>ddPCR Experiment Planner</h2>
+      <p>Inspired by the digital MIQE guidelines, this is a running checklist to think through your experiment <em>before</em> ordering assays, extracting samples, or running reactions. Answer what you can now and come back to fill in the rest — nothing here is graded, it's just a prompt to catch gaps early.</p>
+      <p>Nothing is saved between visits — treat this as a working scratchpad for the current planning session, and copy your answers into your lab notebook or ELN when you're done.</p>
+    </div>
+
+    <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:14px;">
+      <button class="btn danger" id="plannerResetBtn">Reset Planner</button>
+    </div>
+
+    <div class="planner-progress-bar">
+      <span><strong>${answerStats.filled}</strong> of <strong>${answerStats.total}</strong> planning questions answered</span>
+      <span><strong>${controlStats.checked}</strong> of <strong>${controlStats.total}</strong> controls planned</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <span><strong>${readyStats.checked}</strong> of <strong>${readyStats.total}</strong> ready to run</span>
+        <span class="planner-progress-track"><span class="planner-progress-fill" style="width:${readyPct}%"></span></span>
+      </span>
+    </div>
+
+    <div id="plannerSections"></div>
+
+    <div class="planner-section" id="plannerReadySection"></div>
+  `;
+
+  document.getElementById("plannerResetBtn").onclick = plannerResetAll;
+
+  const sectionsEl = document.getElementById("plannerSections");
+  PLANNER_QUESTION_SECTIONS.forEach(sec=>{
+    if(sec.num === 6){ /* not used, controls occupies slot 6 */ }
+    sectionsEl.appendChild(renderPlannerQuestionSection(sec));
+    if(sec.num === 5){
+      // Controls section (6) is interleaved between Assay Strategy (5) and Workflow (7)
+      sectionsEl.appendChild(renderPlannerControlsSection());
+    }
+  });
+
+  renderPlannerReadySection();
+
+  // auto-grow every planner textarea to fit its current content
+  sectionsEl.querySelectorAll(".planner-textarea").forEach(ta=> autoGrowTextarea(ta));
+}
+
+function renderPlannerQuestionSection(sec){
+  const wrap = document.createElement("div");
+  wrap.className = "planner-section";
+  wrap.innerHTML = `
+    <div class="planner-section-header">
+      <span class="planner-section-num">${sec.num}</span>
+      <span class="planner-section-title">${sec.title}</span>
+    </div>
+    ${sec.desc ? `<div class="planner-section-desc">${sec.desc}</div>` : ""}
+  `;
+  sec.items.forEach(item=>{
+    const field = document.createElement("div");
+    field.className = "planner-item";
+    field.innerHTML = `<label for="${item.id}">${item.label}</label>
+      <textarea class="planner-textarea" id="${item.id}" rows="1" placeholder="${pmEscapeAttr(item.placeholder||"")}" data-field-key="${item.id}">${pmEscapeHtml(plannerState.answers[item.id]||"")}</textarea>`;
+    const ta = field.querySelector("textarea");
+    ta.addEventListener("input", ()=> autoGrowTextarea(ta));
+    ta.onchange = (e)=>{ plannerState.answers[item.id] = e.target.value; };
+    wrap.appendChild(field);
+  });
+  return wrap;
+}
+
+function renderPlannerControlsSection(){
+  const sec = PLANNER_CONTROLS_SECTION;
+  const wrap = document.createElement("div");
+  wrap.className = "planner-section";
+  wrap.innerHTML = `
+    <div class="planner-section-header">
+      <span class="planner-section-num">${sec.num}</span>
+      <span class="planner-section-title">${sec.title}</span>
+    </div>
+    <div class="planner-section-desc">Check off each control you're planning to include, and jot down what it will be.</div>
+  `;
+  sec.groups.forEach(group=>{
+    const groupEl = document.createElement("div");
+    groupEl.className = "planner-control-group";
+    const groupTitle = document.createElement("div");
+    groupTitle.className = "planner-control-group-title";
+    groupTitle.textContent = group.title;
+    groupEl.appendChild(groupTitle);
+    group.items.forEach(item=>{
+      if(!plannerState.controls[item.id]) plannerState.controls[item.id] = {checked:false, note:""};
+      const state = plannerState.controls[item.id];
+      const row = document.createElement("div");
+      row.className = "planner-control-row";
+      const cbId = "ctrl-"+item.id;
+      const noteId = "ctrl-note-"+item.id;
+      row.innerHTML = `
+        <input type="checkbox" id="${cbId}" ${state.checked?'checked':''} data-field-key="${cbId}">
+        <label for="${cbId}">${item.label}</label>
+        <input type="text" id="${noteId}" value="${pmEscapeAttr(state.note)}" placeholder="${pmEscapeAttr(item.placeholder||"")}" data-field-key="${noteId}">
+      `;
+      row.querySelector("input[type=checkbox]").onchange = (e)=>{ state.checked = e.target.checked; };
+      row.querySelector("input[type=text]").onchange = (e)=>{ state.note = e.target.value; };
+      groupEl.appendChild(row);
+    });
+    wrap.appendChild(groupEl);
+  });
+  return wrap;
+}
+
+function renderPlannerReadySection(){
+  const wrap = document.getElementById("plannerReadySection");
+  const stats = plannerReadyCount();
+  const allChecked = stats.checked === stats.total;
+  wrap.innerHTML = `
+    <div class="planner-section-header">
+      <span class="planner-section-num">&#10003;</span>
+      <span class="planner-section-title">Ready to Run?</span>
+    </div>
+    <div class="planner-section-desc">Before beginning, confirm each item below. If any box remains unchecked, the experiment design may need additional planning before proceeding.</div>
+    <div id="plannerReadyRows"></div>
+    <div class="planner-ready-banner ${allChecked ? 'ok' : 'pending'}">
+      ${allChecked
+        ? "All planning items confirmed \u2014 you're ready to move on to sample extraction and mastermix setup."
+        : `${stats.total - stats.checked} item${stats.total-stats.checked===1?"":"s"} still unconfirmed \u2014 review the sections above before ordering assays or running reactions.`}
+    </div>
+  `;
+  const rowsEl = document.getElementById("plannerReadyRows");
+  PLANNER_READY_ITEMS.forEach(item=>{
+    const row = document.createElement("div");
+    row.className = "planner-ready-row";
+    const id = "ready-"+item.id;
+    row.innerHTML = `<input type="checkbox" id="${id}" ${plannerState.ready[item.id]?'checked':''} data-field-key="${id}">
+      <label for="${id}">${item.label}</label>`;
+    row.querySelector("input").onchange = (e)=>{ plannerState.ready[item.id] = e.target.checked; renderAll(); };
+    rowsEl.appendChild(row);
+  });
+}
+
+/* ============================================================
+   FIRST-VISIT DISCLAIMER MODAL — reminds people these are
+   unofficial, unaffiliated tools before they start using them.
+   ============================================================ */
+const DISCLAIMER_STORAGE_KEY = "ddpcr_disclaimerAck_v1";
+const DISCLAIMER_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+function hasAckedDisclaimer(){
+  try{
+    const raw = localStorage.getItem(DISCLAIMER_STORAGE_KEY);
+    if(!raw) return false;
+    const until = parseInt(raw, 10);
+    if(!isFinite(until)) return false;
+    return Date.now() < until;
+  }catch(e){ return false; }
+}
+function ackDisclaimer(dontShowAgain){
+  try{
+    if(dontShowAgain) localStorage.setItem(DISCLAIMER_STORAGE_KEY, String(Date.now() + DISCLAIMER_SNOOZE_MS));
+  }catch(e){}
+  const overlay = document.getElementById("disclaimerOverlay");
+  if(overlay) overlay.innerHTML = "";
+}
+
+function renderDisclaimerModal(){
+  if(hasAckedDisclaimer()) return;
+  const overlay = document.getElementById("disclaimerOverlay");
+  if(!overlay) return;
+  overlay.innerHTML = `
+    <div class="disclaimer-overlay" id="disclaimerBackdrop">
+      <div class="disclaimer-modal" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle">
+        <div class="disclaimer-modal-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c98a1e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h2 id="disclaimerTitle">Disclaimer</h2>
+        <p>This site is an independent, unofficial set of calculators and utilities for QX700 ddPCR workflows.</p>
+        <p>Always double-check every calculation against the official product inserts and your own lab's validated protocols before using it in an experiment.</p>
+        <div class="disclaimer-dont-show">
+          <input type="checkbox" id="disclaimerDontShow" checked>
+          <label for="disclaimerDontShow">Don't show this again for 30 days on this device.</label>
+        </div>
+        <div class="disclaimer-modal-actions">
+          <button class="btn primary" id="disclaimerAckBtn">I understand.</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("disclaimerAckBtn").onclick = ()=>{
+    const dontShow = document.getElementById("disclaimerDontShow").checked;
+    ackDisclaimer(dontShow);
+  };
+}
+
 migrateLegacyPersonalContact();
 captureFasFromURL();
 renderAll();
+renderDisclaimerModal();
 </script>
 </body>
 </html>
