@@ -182,6 +182,11 @@
   .product-link-row{
     flex-basis:100%;
     margin-top:2px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    column-gap:16px;
+    row-gap:4px;
   }
   .product-link{
     display:inline-flex;
@@ -1544,7 +1549,7 @@
         <h1>FAS QX700 ddPCR WebApps & Calculators - Beta Build</h1>
       </div>
     </div>
-    <div class="version-badge">v1.04</div>
+    <div class="version-badge">v1.05</div>
   </header>
 
   <div class="tabs" id="tabs"></div>
@@ -1570,6 +1575,7 @@ const SHEETS = [
     id:"naica5x",
     name:"naica 5X Multiplex ddPCR Mix",
     productUrl:"https://www.bio-rad.com/en-us/sku/12025253-naica-5x-multiplex-ddpcr-mix-1-x-0-75-ml?ID=12025253",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-12/MKT-00136_RevF_IFU_naica-multiplex-PCR-MIX.pdf",
     productName:"naica\u00ae 5X Multiplex ddPCR Mix",
     hasAssays:true,
     allowIndividualTubes:true,
@@ -1600,6 +1606,7 @@ const SHEETS = [
     id:"naica10x",
     name:"naica 10X Multiplex ddPCR Mix",
     productUrl:"https://www.bio-rad.com/en-us/sku/12025255-naica-10x-multiplex-ddpcr-mix-1-x-0-375-ml?ID=12025255",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-12/MKT-00136_RevF_IFU_naica-multiplex-PCR-MIX.pdf",
     productName:"naica\u00ae 10X Multiplex ddPCR Mix",
     hasAssays:true,
     allowIndividualTubes:true,
@@ -1630,6 +1637,7 @@ const SHEETS = [
     id:"naicaEvaGreen5x",
     name:"naica 5X ddPCR Mix",
     productUrl:"https://www.bio-rad.com/en-us/sku/12025257-naica-5x-ddpcr-mix-2-x-0-75-ml?ID=12025257",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-12/MKT-00135_RevF_IFU_naicaPCRMIX.pdf",
     productName:"naica\u00ae 5X ddPCR Mix",
     hasAssays:false,
     allowIndividualTubes:true,
@@ -1653,6 +1661,7 @@ const SHEETS = [
     id:"naicaEvaGreen10x",
     name:"naica 10X ddPCR Mix",
     productUrl:"https://www.bio-rad.com/en-us/sku/12025258-naica-10x-ddpcr-mix-2-x-0-375-ml?ID=12025258",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-12/MKT-00135_RevF_IFU_naicaPCRMIX.pdf",
     productName:"naica\u00ae 10X ddPCR Mix",
     hasAssays:false,
     allowIndividualTubes:true,
@@ -1676,6 +1685,7 @@ const SHEETS = [
     id:"evagreen",
     name:"QX700 ddPCR EvaGreen Supermix",
     productUrl:"https://www.bio-rad.com/en-us/product/qx700-ddpcr-evagreen-supermix?ID=5cd1b941-75a3-6c82-672a-5af6768ecdbf",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-09/10000253121.pdf",
     productName:"QX700\u2122 ddPCR\u2122 EvaGreen\u00ae Supermix",
     hasAssays:false,
     allowIndividualTubes:true,
@@ -1725,6 +1735,7 @@ const SHEETS = [
     id:"probes",
     name:"QX700 ddPCR Supermix for Probes",
     productUrl:"https://www.bio-rad.com/en-us/product/qx700-ddpcr-supermix-for-probes?ID=f61e2c2b-e2a7-38f8-4400-2cc22ea36ccb",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2026-07/10000253083_Ver_B.pdf",
     productName:"QX700\u2122 ddPCR\u2122 Supermix for Probes",
     hasAssays:true,
     allowIndividualTubes:true,
@@ -1755,6 +1766,7 @@ const SHEETS = [
     id:"rdq",
     name:"QX700 ddPCR RDQ Supermix",
     productUrl:"https://www.bio-rad.com/en-us/product/qx700ddpcrrdq-supermix?ID=N3D44215",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2026-06/10000257311.pdf",
     productName:"QX700\u2122 ddPCR\u2122 RDQ Supermix",
     hasAssays:true,
     allowIndividualTubes:true,
@@ -1786,6 +1798,7 @@ const SHEETS = [
     id:"onestep",
     name:"QX700 One-Step RT-ddPCR Kit for Probes",
     productUrl:"https://www.bio-rad.com/en-us/product/qx700-one-step-rt-ddpcr-kit-for-probes?ID=3db6466c-287a-2c03-7290-7bcc5368e42c",
+    insertUrl:"https://www.bio-rad.com/sites/default/files/2025-11/10000253122.pdf",
     productName:"QX700\u2122 One-Step RT-ddPCR Kit for Probes",
     hasAssays:true,
     allowIndividualTubes:true,
@@ -2314,6 +2327,15 @@ function renderTabs(){
       const displayName = activeSheet.productName || activeSheet.name;
       link.innerHTML = `Order more at Bio-Rad.com: &quot;${displayName}&quot; <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
       linkRow.appendChild(link);
+      if(activeSheet.insertUrl){
+        const insertLink = document.createElement("a");
+        insertLink.className = "product-link";
+        insertLink.href = activeSheet.insertUrl;
+        insertLink.target = "_blank";
+        insertLink.rel = "noopener noreferrer";
+        insertLink.innerHTML = `Product Insert (Instructions For Use) <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+        linkRow.appendChild(insertLink);
+      }
       el.appendChild(linkRow);
     }
   } else if(currentView === "primerPrep"){
