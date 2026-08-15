@@ -539,6 +539,35 @@
     background:#fbf1de;
     border:1px solid #ecd6a6;
   }
+  .planner-print-section-h{
+    font-family:'IBM Plex Sans Condensed', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--teal-deep);
+    margin:18px 0 4px;
+  }
+  .planner-print-section-h:first-child{margin-top:0;}
+  .planner-print-group-h{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink);
+    margin:10px 0 2px;
+  }
+  .planner-print-q{
+    font-weight:600;
+    font-size:12px;
+    color:var(--ink);
+    margin-top:9px;
+  }
+  .planner-print-a{
+    font-size:12px;
+    color:var(--ink);
+    white-space:pre-wrap;
+    margin:2px 0 0;
+    line-height:1.5;
+  }
+  .planner-print-a.empty{color:var(--ink-soft);font-style:italic;}
+  .planner-print-check{font-size:12px;color:var(--ink);margin:3px 0;line-height:1.5;}
 
   /* ---------- learning resources list ---------- */
   .resource-list{display:flex;flex-direction:column;gap:10px;}
@@ -1459,7 +1488,7 @@
   }
 
   @media print{
-    @page{ size:landscape; margin:10mm; }
+    @page{ margin:10mm; }
     header, #tabs, footer, .no-print{ display:none !important; }
     body{ padding:0; background:#fff; }
     .wrap{ max-width:100%; }
@@ -2090,15 +2119,14 @@ function todayStr(){
 const experimentLog = {
   meta:{ name:"", operator:"", date:todayStr(), notes:"" },
   mastermixSnapshots:[], // {id, sheetId, sheetName, productName, reactionVolume, numReactions, sampleLabel, aliquotVolume, totalMastermix, isError, rows:[...], protocol:[...], notes}
+  primerPrepSnapshots:[], // {id, title, chemistry, dilutionFactor, totalMixVolume, hasError, diluent, vol, rows:[...], notes:[...]}
   platemapSnapshot:null  // {capturedAt, wells:{...}} — a deep copy of pmWells at time of sending
 };
 
-// Builds a static snapshot of whichever mastermix sheet is currently active and
-// appends it to the log. Rows are pre-computed plain data, not live references,
-// so later edits on that tab won't change what's already been attached.
-function sendMastermixToExperiment(){
-  const sheet = SHEETS.find(s=>s.id===activeTab);
-  const s = state[sheet.id];
+// Builds a static snapshot of whichever mastermix sheet is currently active.
+// Rows are pre-computed plain data, not live references, so later edits on
+// that tab won't change what's already been attached or printed.
+function buildMastermixSnapshot(sheet, s){
   const rows = sheet.components(s);
   rows.forEach(r=>{ if(r.isSample) r.finalConc = sampleFinalConcText(sheet, s); });
   const mastermixRows = rows.filter(r=>r.inMastermix);
@@ -2111,7 +2139,7 @@ function sendMastermixToExperiment(){
     label:r.label, finalConc:r.finalConc, perRxn:r.perRxn, total:r.perRxn * s.numReactions,
     isSample: !!r.isSample, assay: r.assay || null
   }));
-  experimentLog.mastermixSnapshots.push({
+  return {
     id:"mm"+Date.now()+Math.random().toString(36).slice(2,7),
     sheetId:sheet.id,
     sheetName:sheet.name,
@@ -2123,7 +2151,63 @@ function sendMastermixToExperiment(){
     rows:snapshotRows,
     protocol:sheet.protocol.slice(),
     notes:sheet.notes || ""
-  });
+  };
+}
+
+function sendMastermixToExperiment(){
+  const sheet = SHEETS.find(s=>s.id===activeTab);
+  const s = state[sheet.id];
+  experimentLog.mastermixSnapshots.push(buildMastermixSnapshot(sheet, s));
+}
+
+function printMastermixDirect(){
+  const sheet = SHEETS.find(s=>s.id===activeTab);
+  const s = state[sheet.id];
+  const snap = buildMastermixSnapshot(sheet, s);
+  printHtmlString(renderExpSnapshotBlock(snap), snap.productName);
+}
+
+// The five notes shown under the primer/probe mix recipe — shared between the
+// live Primer Prep tab, sent Experiment Log snapshots, and direct printing,
+// so all three always stay in sync.
+function primerPrepNotesList(st){
+  return [
+    st.chemistry === "probe"
+      ? "Suggested defaults (18 \u00b5M / 18 \u00b5M / 5 \u00b5M at 20X) land on 900 nM / 900 nM / 250 nM final \u2014 typical hydrolysis-probe assay targets."
+      : "Suggested default (5 \u00b5M / 5 \u00b5M at 20X) lands on 250 nM / 250 nM final \u2014 a common EvaGreen dye-based target within Bio-Rad's 100\u2013250 nM range.",
+    "Thaw and vortex all primer/probe stocks thoroughly before diluting.",
+    "Add each stock volume below, then bring to the total volume with nuclease-free water or TE buffer.",
+    "Vortex the finished mix and store per your primer/probe manufacturer's instructions (typically \u201320\u00b0C, protected from light for dye-labeled probes).",
+    `Use this mix as the "${st.dilutionFactor}X Primer Mix" (or "${st.dilutionFactor}X Primers/Probe Mix") input on the mastermix tabs.`
+  ];
+}
+
+// Builds a static snapshot of the current Primer/Probe Mix Calculator recipe.
+function buildPrimerPrepSnapshot(){
+  const st = primerPrepState;
+  const result = computePrimerPrep();
+  const chemLabel = st.chemistry === "probe" ? "Probe-based" : "EvaGreen (dye)";
+  return {
+    id:"pp"+Date.now()+Math.random().toString(36).slice(2,7),
+    title:`${chemLabel} ${fmt(st.dilutionFactor,0)}X Primer/Probe Mix`,
+    chemistry:st.chemistry,
+    dilutionFactor:st.dilutionFactor,
+    totalMixVolume:st.totalMixVolume,
+    hasError:result.hasError,
+    diluent:result.diluent,
+    vol:result.vol,
+    rows:result.rows.map(r=>({label:r.label, stock_uM:r.stock_uM, target20X_uM:r.target20X_uM, volNeeded:r.volNeeded, insufficient:r.insufficient})),
+    notes:primerPrepNotesList(st)
+  };
+}
+
+function sendPrimerPrepToExperiment(){
+  experimentLog.primerPrepSnapshots.push(buildPrimerPrepSnapshot());
+}
+
+function printPrimerPrepDirect(){
+  const snap = buildPrimerPrepSnapshot();
+  printHtmlString(renderExpPrimerPrepBlock(snap), snap.title);
 }
 
 function sendPlatemapToExperiment(){
@@ -2133,8 +2217,16 @@ function sendPlatemapToExperiment(){
   };
 }
 
+function printPlatemapDirect(){
+  printHtmlString(renderExpPlatemapBlock({capturedAt:new Date().toISOString(), wells:pmWells}), "Platemap");
+}
+
 function removeMastermixSnapshot(id){
   experimentLog.mastermixSnapshots = experimentLog.mastermixSnapshots.filter(s=>s.id!==id);
+  renderAll();
+}
+function removePrimerPrepSnapshot(id){
+  experimentLog.primerPrepSnapshots = experimentLog.primerPrepSnapshots.filter(s=>s.id!==id);
   renderAll();
 }
 function removePlatemapSnapshot(){
@@ -2329,7 +2421,7 @@ function renderHomeContent(){
           <circle cx="34.5" cy="22.5" r="1.4" fill="#0e7c76"/>
         </svg>
         <div class="home-card-title">Print an Experiment</div>
-        <div class="home-card-desc">Send a mastermix recipe and your platemap here, then print or save one combined PDF for your lab notebook.</div>
+        <div class="home-card-desc">Send primer/probe mix recipes, mastermix recipes, and your platemap here, then print or save one combined document for your lab notebook.</div>
       </button>
       <button class="home-card" id="homeCardPlanner">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
@@ -2451,7 +2543,8 @@ function renderContent(){
       <div class="panel" id="inputsPanel"></div>
 
       <div>
-        <div class="header-actions" style="justify-content:flex-end;margin-bottom:12px;">
+        <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:12px;">
+          <button class="btn" id="printMastermixBtn">Print This Recipe</button>
           <button class="btn" id="sendMastermixExpBtn">+ Send Recipe to Experiment Log</button>
         </div>
         <div class="aliquot-banner ${isError?'error':''}">
@@ -2480,6 +2573,7 @@ function renderContent(){
       </div>
     </div>
   `;
+  document.getElementById("printMastermixBtn").onclick = printMastermixDirect;
   document.getElementById("sendMastermixExpBtn").onclick = (e)=>{
     sendMastermixToExperiment();
     flashButtonConfirm(e.currentTarget, "Sent \u2713");
@@ -2962,6 +3056,10 @@ function renderPrimerPrepContent(){
     <div class="grid">
       <div class="panel" id="prepInputsPanel"></div>
       <div>
+        <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:12px;">
+          <button class="btn" id="printPrimerPrepBtn">Print This Recipe</button>
+          <button class="btn" id="sendPrimerPrepExpBtn">+ Send Recipe to Experiment Log</button>
+        </div>
         <div class="aliquot-banner ${result.hasError ? 'error' : ''}">
           ${gaugeSvg(result.vol>0 ? Math.max(0, Math.min(result.diluent/result.vol,1)) : 0, result.hasError)}
           <div class="aliquot-text">
@@ -2979,19 +3077,16 @@ function renderPrimerPrepContent(){
         </div>
         <div class="panel protocol">
           <h2>Notes</h2>
-          <ol>
-            <li>${st.chemistry === "probe"
-                ? "Suggested defaults (18 µM / 18 µM / 5 µM at 20X) land on 900 nM / 900 nM / 250 nM final \u2014 typical hydrolysis-probe assay targets."
-                : "Suggested default (5 µM / 5 µM at 20X) lands on 250 nM / 250 nM final \u2014 a common EvaGreen dye-based target within Bio-Rad's 100\u2013250 nM range."}</li>
-            <li>Thaw and vortex all primer/probe stocks thoroughly before diluting.</li>
-            <li>Add each stock volume below, then bring to the total volume with nuclease-free water or TE buffer.</li>
-            <li>Vortex the finished mix and store per your primer/probe manufacturer's instructions (typically \u201320°C, protected from light for dye-labeled probes).</li>
-            <li>Use this mix as the "20X Primer Mix" (or "20X Primers/Probe Mix") input on the mastermix tabs.</li>
-          </ol>
+          <ol>${primerPrepNotesList(st).map(n=>`<li>${n}</li>`).join("")}</ol>
         </div>
       </div>
     </div>
   `;
+  document.getElementById("printPrimerPrepBtn").onclick = printPrimerPrepDirect;
+  document.getElementById("sendPrimerPrepExpBtn").onclick = (e)=>{
+    sendPrimerPrepToExperiment();
+    flashButtonConfirm(e.currentTarget, "Sent \u2713");
+  };
   renderPrimerPrepInputs();
 }
 
@@ -3673,9 +3768,10 @@ function pmEscapeAttr(s){
 function renderPlatemapContent(){
   const el = document.getElementById("tabContent");
   el.innerHTML = `
-    <div class="header-actions" style="margin-bottom:18px;">
+    <div class="header-actions no-print" style="margin-bottom:18px;">
       <button class="btn danger" id="pmClearAllBtn">Clear All</button>
       <button class="btn primary" id="pmExportBtn">Export CSV</button>
+      <button class="btn" id="pmPrintBtn">Print This Platemap</button>
       <button class="btn" id="pmSendExpBtn">+ Send Platemap to Experiment Log</button>
     </div>
     <div class="info-note" style="margin-top:-10px;">Import your labeled plate directly into the QX700 System Control Software. <br>
@@ -3688,6 +3784,7 @@ function renderPlatemapContent(){
   `;
   document.getElementById("pmExportBtn").onclick = pmExportCSV;
   document.getElementById("pmClearAllBtn").onclick = pmClearAll;
+  document.getElementById("pmPrintBtn").onclick = printPlatemapDirect;
   document.getElementById("pmSendExpBtn").onclick = (e)=>{
     sendPlatemapToExperiment();
     flashButtonConfirm(e.currentTarget, "Sent \u2713");
@@ -3859,6 +3956,45 @@ function renderExpControlPanel(){
   panel.innerHTML = `<h2>Manage Attachments</h2>
     <div class="exp-empty-hint" style="margin-top:-6px;">Experiment name, date, operator, and notes are now edited directly at the top of the experiment module to the right \u2014 this panel is just for attaching and removing recipes and the platemap.</div>`;
 
+const ppHeading = document.createElement("h2");
+  ppHeading.style.marginTop = "18px";
+  ppHeading.textContent = "Attached Primer/Probe Mixes";
+  panel.appendChild(ppHeading);
+
+  if(log.primerPrepSnapshots.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "exp-empty-hint";
+    empty.textContent = "Nothing attached yet. Open the Primer/Probe Mix Calculator and use \u201c+ Send Recipe to Experiment Log\u201d to add one here.";
+    panel.appendChild(empty);
+    const goBtn = document.createElement("button");
+    goBtn.type = "button";
+    goBtn.className = "btn small ghost";
+    goBtn.textContent = "Go to Primer/Probe Mix Calculator";
+    goBtn.onclick = goToPrimerPrep;
+    panel.appendChild(goBtn);
+  } else {
+    log.primerPrepSnapshots.forEach(snap=>{
+      const card = document.createElement("div");
+      card.className = "exp-snapshot-card";
+      card.innerHTML = `<div class="exp-snapshot-info">
+          <div class="title">${pmEscapeHtml(snap.title)}</div>
+          <div class="sub">${fmt(snap.totalMixVolume)} µL total${snap.hasError ? ' \u2014 check inputs (stock insufficient)' : ''}</div>
+        </div>`;
+      const rmBtn = document.createElement("button");
+      rmBtn.type = "button";
+      rmBtn.className = "btn small danger";
+      rmBtn.textContent = "Remove";
+      rmBtn.onclick = ()=> removePrimerPrepSnapshot(snap.id);
+      card.appendChild(rmBtn);
+      panel.appendChild(card);
+    });
+    const hint = document.createElement("div");
+    hint.className = "exp-empty-hint";
+    hint.style.marginTop = "4px";
+    hint.textContent = "Add more recipes anytime from the Primer/Probe Mix Calculator.";
+    panel.appendChild(hint);
+  }
+  
   const mmHeading = document.createElement("h2");
   mmHeading.style.marginTop = "18px";
   mmHeading.textContent = "Attached Mastermix Recipes";
@@ -3936,7 +4072,7 @@ function renderExpControlPanel(){
     panel.appendChild(hint);
   }
 
-  if(log.mastermixSnapshots.length > 0 || log.platemapSnapshot){
+  if(log.mastermixSnapshots.length > 0 || log.primerPrepSnapshots.length > 0 || log.platemapSnapshot){
     const footer = document.createElement("div");
     footer.className = "editor-footer-actions";
     const clearBtn = document.createElement("button");
@@ -3946,6 +4082,7 @@ function renderExpControlPanel(){
     clearBtn.onclick = ()=>{
       if(!confirm("Clear the experiment log? This removes all attached recipes and the platemap snapshot.")) return;
       log.mastermixSnapshots = [];
+      log.primerPrepSnapshots = [];
       log.platemapSnapshot = null;
       renderAll();
     };
@@ -4020,9 +4157,10 @@ function renderExpPrintPage(){
 
   const blocksWrap = document.createElement("div");
   let html = "";
-  if(log.mastermixSnapshots.length === 0 && !log.platemapSnapshot){
-    html += `<div class="empty-state">Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then print or download this experiment for your lab notebook.</div>`;
+  if(log.mastermixSnapshots.length === 0 && log.primerPrepSnapshots.length === 0 && !log.platemapSnapshot){
+    html += `<div class="empty-state">Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective tabs, then print or download this experiment for your lab notebook.</div>`;
   }
+  log.primerPrepSnapshots.forEach(snap=>{ html += renderExpPrimerPrepBlock(snap); });
   log.mastermixSnapshots.forEach(snap=>{ html += renderExpSnapshotBlock(snap); });
   if(log.platemapSnapshot){ html += renderExpPlatemapBlock(log.platemapSnapshot); }
   blocksWrap.innerHTML = html;
@@ -4070,6 +4208,42 @@ function renderExpSnapshotBlock(snap){
   `;
 }
 
+function renderExpPrimerPrepBlock(snap){
+  const blockId = "expBlock-pp-" + snap.id;
+  return `
+    <div class="exp-block" id="${blockId}">
+      <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn small ghost" data-print-target="${blockId}" data-print-title="${pmEscapeAttr(snap.title)}">Print This Recipe</button>
+      </div>
+      <h3 class="exp-block-title">${pmEscapeHtml(snap.title)}</h3>
+      <div class="exp-block-sub">${fmt(snap.totalMixVolume)} µL total mix at a ${fmt(snap.dilutionFactor,0)}-fold dilution factor${snap.hasError
+        ? ' <span style="color:var(--red);">\u2014 one or more stocks insufficiently concentrated, check inputs</span>'
+        : ''}</div>
+      <table>
+        <thead><tr><th>COMPONENT</th><th>YOUR STOCK</th><th>TARGET IN ${fmt(snap.dilutionFactor,0)}X MIX</th><th class="num">VOLUME TO ADD (µL)</th></tr></thead>
+        <tbody>
+          ${snap.rows.map(r=>`<tr>
+            <td class="label-cell">${pmEscapeHtml(r.label)}</td>
+            <td>${fmt(r.stock_uM)} µM stock</td>
+            <td>${fmt(r.target20X_uM)} µM (${fmt(snap.dilutionFactor,0)}X)</td>
+            <td class="num">${isFinite(r.volNeeded) ? fmt(r.volNeeded) : '—'}</td>
+          </tr>`).join("")}
+          <tr>
+            <td class="label-cell">Nuclease-Free Water / TE Buffer</td>
+            <td>—</td><td>—</td>
+            <td class="num">${fmt(snap.diluent)}</td>
+          </tr>
+          <tr class="total-row">
+            <td class="label-cell">Total mix volume</td><td></td><td></td>
+            <td class="num">${fmt(snap.vol)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ol class="exp-protocol">${snap.notes.map(n=>`<li>${n}</li>`).join("")}</ol>
+    </div>
+  `;
+}
+
 function renderExpPlatemapBlock(snapshot){
   const wells = snapshot.wells;
   const capturedLabel = new Date(snapshot.capturedAt).toLocaleString();
@@ -4104,9 +4278,7 @@ function renderExpPlatemapBlock(snapshot){
 
 /* ---------- single-module print (isolated so one module can't get cut
    in half by page breaks from the other modules sharing the print page) ---------- */
-function printElementById(elId, title){
-  const source = document.getElementById(elId);
-  if(!source) return;
+function printHtmlString(bodyHtml, title){
   const styleTag = document.head.querySelector("style");
   const styleHtml = styleTag ? styleTag.outerHTML : "";
   const safeTitle = (title || "Print").replace(/</g, "&lt;");
@@ -4124,7 +4296,7 @@ function printElementById(elId, title){
 
   const doc = iframe.contentWindow.document;
   doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${safeTitle}</title>${styleHtml}</head><body><div class="wrap"><div class="exp-print-page">${source.outerHTML}</div></div></body></html>`);
+  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${safeTitle}</title>${styleHtml}</head><body><div class="wrap"><div class="exp-print-page">${bodyHtml}</div></div></body></html>`);
   doc.close();
 
   iframe.onload = ()=>{
@@ -4135,6 +4307,12 @@ function printElementById(elId, title){
       setTimeout(cleanup, 1500); // fallback in case afterprint doesn't fire
     }, 150);
   };
+}
+
+function printElementById(elId, title){
+  const source = document.getElementById(elId);
+  if(!source) return;
+  printHtmlString(source.outerHTML, title);
 }
 
 /* ---------- "print together" as a downloadable Word document, so the user
@@ -4148,7 +4326,7 @@ function downloadWordDoc(filename, bodyHtml){
 <title>Experiment Log</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
 <style>
-  @page { size: 11in 8.5in; mso-page-orientation: landscape; margin: 0.6in; }
+  @page { margin: 0.6in; }
   body { font-family: Calibri, "IBM Plex Sans", Arial, sans-serif; font-size: 10.5pt; color:#10201d; }
   h1 { font-size:17pt; margin:0 0 4pt; }
   h2 { font-size:13pt; color:#085a56; margin:16pt 0 4pt; }
@@ -4255,6 +4433,26 @@ function buildWordPlatemapHtml(snapshot, isFirst){
   return html;
 }
 
+function buildWordPrimerPrepHtml(snap, isFirst){
+  const subLine = snap.hasError
+    ? "\u2014 one or more stocks insufficiently concentrated, check inputs"
+    : `\u2014 ${fmt(snap.totalMixVolume)} \u00b5L total at a ${fmt(snap.dilutionFactor,0)}-fold dilution factor`;
+  let html = isFirst ? "" : WORD_PAGE_BREAK;
+  html += `<div>`;
+  html += `<h2>${pmEscapeHtml(snap.title)}</h2>`;
+  html += `<p class="meta">${subLine}</p>`;
+  html += `<table><thead><tr><th>Component</th><th>Your Stock</th><th>Target in ${fmt(snap.dilutionFactor,0)}X Mix</th><th class="num">Volume to Add (\u00b5L)</th></tr></thead><tbody>`;
+  snap.rows.forEach(r=>{
+    html += `<tr><td>${pmEscapeHtml(r.label)}</td><td>${fmt(r.stock_uM)} \u00b5M stock</td><td>${fmt(r.target20X_uM)} \u00b5M (${fmt(snap.dilutionFactor,0)}X)</td><td class="num">${isFinite(r.volNeeded) ? fmt(r.volNeeded) : '\u2014'}</td></tr>`;
+  });
+  html += `<tr><td>Nuclease-Free Water / TE Buffer</td><td>\u2014</td><td>\u2014</td><td class="num">${fmt(snap.diluent)}</td></tr>`;
+  html += `<tr class="total-row"><td>Total mix volume</td><td></td><td></td><td class="num">${fmt(snap.vol)}</td></tr>`;
+  html += `</tbody></table>`;
+  html += `<ol class="protocol">${snap.notes.map(n=>`<li>${n}</li>`).join("")}</ol>`;
+  html += `</div>`;
+  return html;
+}
+
 function generateExperimentWordDoc(){
   const log = experimentLog;
   const metaBits = [];
@@ -4267,11 +4465,15 @@ function generateExperimentWordDoc(){
   const notesText = (log.meta.notes || "").trim();
   body += `<div class="notes-block"><div class="notes-label">Notes</div><div class="notes-body">${notesText ? pmEscapeHtml(notesText) : "&nbsp;"}</div></div>`;
 
-  if(log.mastermixSnapshots.length === 0 && !log.platemapSnapshot){
-    body += `<p>Nothing attached yet. Send a mastermix recipe and/or your platemap here from their respective tabs, then download this Word document for your lab notebook.</p>`;
+  if(log.mastermixSnapshots.length === 0 && log.primerPrepSnapshots.length === 0 && !log.platemapSnapshot){
+    body += `<p>Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective tabs, then download this Word document for your lab notebook.</p>`;
   }
 
   let isFirst = true;
+  log.primerPrepSnapshots.forEach(snap=>{
+    body += buildWordPrimerPrepHtml(snap, isFirst);
+    isFirst = false;
+  });
   log.mastermixSnapshots.forEach(snap=>{
     body += buildWordSnapshotHtml(snap, isFirst);
     isFirst = false;
@@ -4480,7 +4682,7 @@ const PLANNER_QUESTION_SECTIONS = [
     id:"extraction", num:4, title:"Define the Extraction Strategy",
     items:[
       {id:"e_dnarna", label:"DNA or RNA?", placeholder:"e.g. DNA — cell-free"},
-      {id:"e_method", label:"What extraction method or kit will be used?", placeholder:"e.g. QIAamp Circulating Nucleic Acid Kit"},
+      {id:"e_method", label:"What extraction method or kit will be used?", placeholder:"e.g. Silica-column Extraction Kit"},
       {id:"e_validated", label:"Is the method validated for this sample type?", placeholder:"e.g. Yes, per kit's plasma protocol"},
       {id:"e_qc", label:"How will concentration and quality be assessed?", placeholder:"e.g. Qubit dsDNA HS assay + TapeStation"},
       {id:"e_controls", label:"Are extraction controls needed?", placeholder:"e.g. Water-only extraction blank per batch"},
@@ -4613,6 +4815,7 @@ function renderPlannerContent(){
     </div>
 
     <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:14px;">
+      <button class="btn" id="plannerPrintBtn">Print This Plan</button>
       <button class="btn danger" id="plannerResetBtn">Reset Planner</button>
     </div>
 
@@ -4630,6 +4833,7 @@ function renderPlannerContent(){
     <div class="planner-section" id="plannerReadySection"></div>
   `;
 
+  document.getElementById("plannerPrintBtn").onclick = printPlannerDirect;
   document.getElementById("plannerResetBtn").onclick = plannerResetAll;
 
   const sectionsEl = document.getElementById("plannerSections");
@@ -4739,6 +4943,47 @@ function renderPlannerReadySection(){
   });
 }
 
+// Builds a standalone, printable rendering of the whole planner (every
+// question, its answer or "(not answered)", the controls checklist, and
+// the final Ready to Run checklist) for direct printing from this module.
+function buildPlannerPrintHtml(){
+  let html = `<div class="exp-block">`;
+  html += `<h3 class="exp-block-title">ddPCR Experiment Planning Checklist</h3>`;
+  html += `<div class="exp-block-sub">Printed ${pmEscapeHtml(todayStr())}</div>`;
+
+  PLANNER_QUESTION_SECTIONS.forEach(sec=>{
+    html += `<div class="planner-print-section-h">${sec.num}. ${pmEscapeHtml(sec.title)}</div>`;
+    sec.items.forEach(item=>{
+      const answer = (plannerState.answers[item.id]||"").trim();
+      html += `<div class="planner-print-q">${pmEscapeHtml(item.label)}</div>`;
+      html += `<div class="planner-print-a${answer?"":" empty"}">${answer ? pmEscapeHtml(answer) : "(not answered)"}</div>`;
+    });
+    if(sec.num === 5){
+      html += `<div class="planner-print-section-h">${PLANNER_CONTROLS_SECTION.num}. ${pmEscapeHtml(PLANNER_CONTROLS_SECTION.title)}</div>`;
+      PLANNER_CONTROLS_SECTION.groups.forEach(group=>{
+        html += `<div class="planner-print-group-h">${pmEscapeHtml(group.title)}</div>`;
+        group.items.forEach(item=>{
+          const cs = plannerState.controls[item.id] || {checked:false, note:""};
+          const note = (cs.note||"").trim();
+          html += `<div class="planner-print-check">${cs.checked ? "\u2611" : "\u2610"} ${pmEscapeHtml(item.label)}${note ? " \u2014 " + pmEscapeHtml(note) : ""}</div>`;
+        });
+      });
+    }
+  });
+
+  html += `<div class="planner-print-section-h">Ready to Run?</div>`;
+  PLANNER_READY_ITEMS.forEach(item=>{
+    html += `<div class="planner-print-check">${plannerState.ready[item.id] ? "\u2611" : "\u2610"} ${pmEscapeHtml(item.label)}</div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+function printPlannerDirect(){
+  printHtmlString(buildPlannerPrintHtml(), "ddPCR Experiment Planner");
+}
+
 /* ============================================================
    FIRST-VISIT DISCLAIMER MODAL — reminds people these are
    unofficial, unaffiliated tools before they start using them.
@@ -4781,7 +5026,7 @@ function renderDisclaimerModal(){
         <p>This site is an independent, unofficial set of calculators and utilities for QX700 ddPCR workflows.</p>
         <p>Always double-check every calculation against the official product inserts and your own lab's validated protocols before using it in an experiment.</p>
         <div class="disclaimer-dont-show">
-          <input type="checkbox" id="disclaimerDontShow" checked>
+          <input type="checkbox" id="disclaimerDontShow">
           <label for="disclaimerDontShow">Don't show this again for 30 days on this device.</label>
         </div>
         <div class="disclaimer-modal-actions">
