@@ -151,11 +151,80 @@
     flex:1;
     max-width:420px;
   }
-  .nav-current-label{
-    font-family:'IBM Plex Sans Condensed', sans-serif;
+  .module-nav-strip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .module-nav-icon{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#fafcfb;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:7px;
+    max-width:36px;
+    overflow:hidden;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:max-width .25s ease, background .15s, border-color .15s;
+  }
+  .module-nav-icon:hover,
+  .module-nav-icon:focus-visible{
+    max-width:280px;
+    background:var(--teal-wash);
+    border-color:#bfe2dd;
+    outline:none;
+  }
+  .module-nav-icon-svg{
+    width:20px;
+    height:20px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .module-nav-icon-svg svg{width:20px;height:20px;}
+  .module-nav-icon-label{
+    font-family:'IBM Plex Sans', sans-serif;
     font-weight:600;
-    font-size:14px;
-    color:var(--ink);
+    font-size:12.5px;
+    color:var(--teal-deep);
+    opacity:0;
+    transition:opacity .12s ease;
+  }
+  .module-nav-icon:hover .module-nav-icon-label,
+  .module-nav-icon:focus-visible .module-nav-icon-label{
+    opacity:1;
+    transition:opacity .18s ease .08s;
+  }
+  .module-nav-icon.is-current{
+    background:var(--teal-wash);
+    border-color:var(--teal);
+    cursor:default;
+    max-width:280px; /* stay expanded — this is where you are */
+    padding:7px 12px 7px 7px;
+  }
+  .module-nav-icon.is-current .module-nav-icon-label{
+    opacity:1;
+  }
+  @media (hover:none){
+    /* Touch devices can't hover — tapping navigates immediately, so make
+       sure the tap target itself is comfortably sized without relying on
+       the label ever becoming visible. */
+    .module-nav-icon{padding:8px;}
+  }
+  @media (max-width:700px){
+    .module-nav-strip{flex-basis:100%;}
+  }
+  .mastermix-controls-row{
+    display:flex;
+    align-items:center;
+    gap:10px 14px;
+    flex-wrap:wrap;
+    flex-basis:100%;
   }
   .promo-banner{
     background:var(--teal-wash);
@@ -2103,19 +2172,49 @@ const PLACEHOLDER_META = {
   feedback:{ title:"Feedback / Suggestions", desc:"Report bugs, request features, or share any other feedback on these apps." },
 };
 
-function goHome(){ currentView = "home"; renderAll(); }
-function goToPrimerPrep(){ currentView = "primerPrep"; renderAll(); }
+function goHome(){
+  // If we got here via the in-app Home button (not a browser back/forward event),
+  // let history.back() do the work so the browser's back stack stays in sync.
+  if(historyDepth > 0){ window.history.back(); return; }
+  currentView = "home";
+  renderAll();
+}
+function goToPrimerPrep(){ pushModuleHistory(); currentView = "primerPrep"; renderAll(); }
 function goToMastermix(sheetId){
+  pushModuleHistory();
   currentView = "mastermix";
   if(sheetId){ activeTab = sheetId; }
   else { activeTab = getDefaultSheetId() || activeTab; }
   renderAll();
 }
-function goToPlatemap(){ currentView = "platemap"; renderAll(); }
-function goToExperimentLog(){ currentView = "experimentLog"; renderAll(); }
-function goToDataAnalysis101(){ currentView = "dataAnalysis101"; renderAll(); }
-function goToPlanner(){ currentView = "planner"; renderAll(); }
-function goToPlaceholder(kind){ placeholderKind = kind; currentView = "placeholder"; renderAll(); }
+function goToPlatemap(){ pushModuleHistory(); currentView = "platemap"; renderAll(); }
+function goToExperimentLog(){ pushModuleHistory(); currentView = "experimentLog"; renderAll(); }
+function goToDataAnalysis101(){ pushModuleHistory(); currentView = "dataAnalysis101"; renderAll(); }
+function goToPlanner(){ pushModuleHistory(); currentView = "planner"; renderAll(); }
+function goToPlaceholder(kind){ pushModuleHistory(); placeholderKind = kind; currentView = "placeholder"; renderAll(); }
+
+// ---- Browser back/forward support -----------------------------------------
+// We don't give each module its own URL/route. Instead, every time the user
+// enters a module from Home we push one extra entry onto the browser's
+// history stack (same URL, just a new state object). That means pressing the
+// browser's back button fires a "popstate" event instead of leaving the app,
+// and we use that event to snap the view back to Home. historyDepth tracks
+// whether we currently have that extra entry pushed, so the in-app Home
+// button can call history.back() and stay perfectly in sync with the
+// browser's own back/forward buttons.
+let historyDepth = 0;
+function pushModuleHistory(){
+  if(historyDepth > 0) return; // already one level deep; don't stack further entries
+  try{
+    window.history.pushState({ fasModuleView:true }, "", window.location.href);
+    historyDepth = 1;
+  }catch(e){ /* history API unavailable; navigation still works, just no back-button support */ }
+}
+window.addEventListener("popstate", function(){
+  historyDepth = 0;
+  currentView = "home";
+  renderAll();
+});
 
 /* ============================================================
    EXPERIMENT LOG — collects "sent" snapshots from the mastermix
@@ -2270,6 +2369,135 @@ function fmt(n, d=2){
   return r.toFixed(d).replace(/\.00$/,"").replace(/(\.\d)0$/,"$1");
 }
 
+/* ------------------------------------------------------------------------
+   MODULE REGISTRY — single source of truth for each module's icon, title,
+   and navigation target. Used to build both the home-page cards and the
+   hoverable icon strip in the nav bar, so the two stay visually in sync.
+   ------------------------------------------------------------------------ */
+const MODULE_ICONS = {
+  primerPrep: `
+    <g transform="scale(1,-1) translate(0,-48)">
+    <!-- long template strand -->
+    <line x1="6" y1="14" x2="42" y2="14" stroke="#0e7c76" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="10" y1="14" x2="10" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <line x1="15" y1="14" x2="15" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="14" x2="20" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <line x1="25" y1="14" x2="25" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <line x1="30" y1="14" x2="30" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <line x1="35" y1="14" x2="35" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <!-- short annealed primer -->
+    <line x1="14" y1="27" x2="31" y2="27" stroke="#c98a1e" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="15" y1="20" x2="15" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="20" x2="20" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+    <line x1="25" y1="20" x2="25" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+    <line x1="30" y1="20" x2="30" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
+    </g>`,
+  mastermix: `
+    <rect x="8" y="6" width="32" height="36" rx="4" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <path d="M12 16.5h9M16.5 12v9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M27 16.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M12 27l9 9M21 27l-9 9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="31.5" cy="27" r="1.4" fill="#0e7c76"/>
+    <path d="M27 31.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="31.5" cy="36" r="1.4" fill="#0e7c76"/>`,
+  platemap: `
+    <rect x="4.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <rect x="18.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <rect x="32.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <circle cx="7.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="15" r="1.4" fill="#0e7c76"/>
+    <circle cx="7.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="24" r="1.4" fill="#0e7c76"/>
+    <circle cx="7.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="33" r="1.4" fill="#0e7c76"/>
+    <circle cx="21.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="15" r="1.4" fill="#0e7c76"/>
+    <circle cx="21.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="24" r="1.4" fill="#0e7c76"/>
+    <circle cx="21.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="33" r="1.4" fill="#0e7c76"/>
+    <circle cx="35.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="15" r="1.4" fill="#0e7c76"/>
+    <circle cx="35.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="24" r="1.4" fill="#0e7c76"/>
+    <circle cx="35.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="33" r="1.4" fill="#0e7c76"/>`,
+  experimentLog: `
+    <polyline points="14,18 14,7 34,7 34,18" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="8" y="18" width="32" height="16" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
+    <rect x="14" y="27" width="20" height="14" rx="1.5" fill="#ffffff" stroke="#0e7c76" stroke-width="2"/>
+    <line x1="17.5" y1="32" x2="30.5" y2="32" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
+    <line x1="17.5" y1="36" x2="26" y2="36" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="34.5" cy="22.5" r="1.4" fill="#0e7c76"/>`,
+  planner: `
+    <rect x="10" y="6" width="28" height="36" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
+    <rect x="15" y="12.5" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
+    <path d="M16.2 14.5l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="22.5" y1="14.5" x2="33" y2="14.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <rect x="15" y="22" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
+    <path d="M16.2 24l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="22.5" y1="24" x2="33" y2="24" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
+    <rect x="15" y="31.5" width="4" height="4" rx="1" fill="none" stroke="#c98a1e" stroke-width="1.8"/>
+    <line x1="22.5" y1="33.5" x2="33" y2="33.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>`,
+  dataAnalysis101: `
+    <path d="M10 8v32h30" stroke="#0e7c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="10" y1="26" x2="40" y2="26" stroke="#c98a6a" stroke-width="1.6" stroke-dasharray="3,3"/>
+    <circle cx="15" cy="33" r="2.1" fill="#9aa7a2"/>
+    <circle cx="19.5" cy="30.5" r="2.1" fill="#9aa7a2"/>
+    <circle cx="23" cy="34" r="2.1" fill="#9aa7a2"/>
+    <circle cx="27.5" cy="31.5" r="2.1" fill="#9aa7a2"/>
+    <circle cx="17" cy="15" r="2.1" fill="#0e7c76"/>
+    <circle cx="24" cy="12.5" r="2.1" fill="#0e7c76"/>
+    <circle cx="30.5" cy="16.5" r="2.1" fill="#0e7c76"/>
+    <circle cx="35.5" cy="13" r="2.1" fill="#0e7c76"/>`,
+  learning: `
+    <path d="M24 13c-3-2.2-8-3.2-14-3.2v25c6 0 11 1 14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M24 13c3-2.2 8-3.2 14-3.2v25c-6 0-11 1-14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M24 13v28" stroke="#0e7c76" stroke-width="2"/>`,
+  support: `
+    <path d="M12 26v-4a12 12 0 0 1 24 0v4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="9" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <rect x="33" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
+    <path d="M39 34v2a6 6 0 0 1-6 6h-4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>`,
+  feedback: `
+    <path d="M8 12h32v18H20l-8 7v-7H8V12Z" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M17 20.5l3.2 3.2 7-7" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+
+// id here matches currentView, except the three placeholder kinds which are
+// distinguished by placeholderKind while currentView === "placeholder".
+const MODULES = [
+  { id:"primerPrep", title:"Primer/Probe Mix Calculator", go: ()=>goToPrimerPrep() },
+  { id:"mastermix", title:"QX700 Mastermix Calculator", go: ()=>goToMastermix() },
+  { id:"platemap", title:"RDG16 Platemap Labeler", go: ()=>goToPlatemap() },
+  { id:"experimentLog", title:"Print an Experiment", go: ()=>goToExperimentLog() },
+  { id:"planner", title:"ddPCR Experiment Planner", go: ()=>goToPlanner() },
+  { id:"dataAnalysis101", title:"ddPCR Data Analysis 101", go: ()=>goToDataAnalysis101() },
+  { id:"learning", title:"ddPCR Learning Resources", go: ()=>goToPlaceholder("learning") },
+  { id:"support", title:"ddPCR Support", go: ()=>goToPlaceholder("support") },
+  { id:"feedback", title:"Feedback / Suggestions", go: ()=>goToPlaceholder("feedback") },
+];
+
+// Which MODULES entry corresponds to what's on screen right now.
+function currentModuleId(){
+  return currentView === "placeholder" ? placeholderKind : currentView;
+}
+
+// Builds the hoverable icon strip used in the nav bar so people can jump
+// directly between modules without going back to Home first.
+function renderModuleNavStrip(){
+  const activeId = currentModuleId();
+  const items = MODULES.map(mod=>{
+    const isCurrent = mod.id === activeId;
+    return `<button type="button" class="module-nav-icon${isCurrent ? " is-current" : ""}"
+        data-module="${mod.id}" title="${pmEscapeAttr(mod.title)}${isCurrent ? " (current)" : ""}"
+        aria-label="${pmEscapeAttr(mod.title)}" ${isCurrent ? 'aria-current="page"' : ""}>
+      <span class="module-nav-icon-svg"><svg viewBox="0 0 48 48" fill="none">${MODULE_ICONS[mod.id]}</svg></span>
+      <span class="module-nav-icon-label">${pmEscapeHtml(mod.title)}</span>
+    </button>`;
+  }).join("");
+  const wrap = document.createElement("div");
+  wrap.className = "module-nav-strip";
+  wrap.innerHTML = items;
+  wrap.querySelectorAll(".module-nav-icon").forEach(btn=>{
+    const mod = MODULES.find(m=>m.id === btn.getAttribute("data-module"));
+    if(!mod || mod.id === activeId) return; // current module isn't clickable
+    btn.onclick = ()=> mod.go();
+  });
+  return wrap;
+}
+
 function renderTabs(){
   const el = document.getElementById("tabs");
   el.innerHTML = "";
@@ -2285,7 +2513,12 @@ function renderTabs(){
   backBtn.onclick = goHome;
   el.appendChild(backBtn);
 
+  el.appendChild(renderModuleNavStrip());
+
   if(currentView === "mastermix"){
+    const controlsRow = document.createElement("div");
+    controlsRow.className = "mastermix-controls-row";
+
     const select = document.createElement("select");
     select.className = "sheet-select";
     SHEETS.forEach(sheet=>{
@@ -2296,7 +2529,7 @@ function renderTabs(){
       select.appendChild(opt);
     });
     select.onchange = (e)=>{ activeTab = e.target.value; renderAll(); };
-    el.appendChild(select);
+    controlsRow.appendChild(select);
 
     const isDefaultSheet = getDefaultSheetId() === activeTab;
     const defaultBtn = document.createElement("button");
@@ -2313,7 +2546,8 @@ function renderTabs(){
       if(isDefaultSheet){ clearDefaultSheetId(); } else { setDefaultSheetId(activeTab); }
       renderAll();
     };
-    el.appendChild(defaultBtn);
+    controlsRow.appendChild(defaultBtn);
+    el.appendChild(controlsRow);
 
     const activeSheet = SHEETS.find(s=>s.id===activeTab);
     if(activeSheet && activeSheet.productUrl){
@@ -2338,168 +2572,61 @@ function renderTabs(){
       }
       el.appendChild(linkRow);
     }
-  } else if(currentView === "primerPrep"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = "Primer/Probe Mix Calculator";
-    el.appendChild(label);
-  } else if(currentView === "platemap"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = "RDG16 Platemap Labeler";
-    el.appendChild(label);
-  } else if(currentView === "experimentLog"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = "Print an Experiment";
-    el.appendChild(label);
-  } else if(currentView === "dataAnalysis101"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = "ddPCR Data Analysis 101";
-    el.appendChild(label);
-  } else if(currentView === "planner"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = "ddPCR Experiment Planner";
-    el.appendChild(label);
-  } else if(currentView === "placeholder"){
-    const label = document.createElement("div");
-    label.className = "nav-current-label";
-    label.textContent = PLACEHOLDER_META[placeholderKind].title;
-    el.appendChild(label);
   }
 }
 
 function renderHomeContent(){
   const el = document.getElementById("tabContent");
+  const mastermixDesc = (()=>{
+    const defId = getDefaultSheetId();
+    if(!defId) return "";
+    const defSheet = SHEETS.find(s=>s.id===defId);
+    return defSheet ? `<br><span style="color:var(--teal-deep);font-weight:600;">Opens to your default: ${defSheet.name}</span>` : "";
+  })();
   el.innerHTML = `
     <div class="home-grid">
       <button class="home-card" id="homeCardPrep">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <g transform="scale(1,-1) translate(0,-48)">
-          <!-- long template strand -->
-          <line x1="6" y1="14" x2="42" y2="14" stroke="#0e7c76" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="10" y1="14" x2="10" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <line x1="15" y1="14" x2="15" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <line x1="20" y1="14" x2="20" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <line x1="25" y1="14" x2="25" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <line x1="30" y1="14" x2="30" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <line x1="35" y1="14" x2="35" y2="20" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <!-- short annealed primer -->
-          <line x1="14" y1="27" x2="31" y2="27" stroke="#c98a1e" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="15" y1="20" x2="15" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
-          <line x1="20" y1="20" x2="20" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
-          <line x1="25" y1="20" x2="25" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
-          <line x1="30" y1="20" x2="30" y2="27" stroke="#c98a1e" stroke-width="2" stroke-linecap="round"/>
-          </g>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.primerPrep}</svg>
         <div class="home-card-title">Primer/Probe Mix Calculator</div>
         <div class="home-card-desc">Design a custom primer or primer/probe working stock from your own oligo concentrations.</div>
       </button>
       <button class="home-card" id="homeCardMastermix">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <rect x="8" y="6" width="32" height="36" rx="4" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <path d="M12 16.5h9M16.5 12v9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M27 16.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M12 27l9 9M21 27l-9 9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-          <circle cx="31.5" cy="27" r="1.4" fill="#0e7c76"/>
-          <path d="M27 31.5h9" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-          <circle cx="31.5" cy="36" r="1.4" fill="#0e7c76"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.mastermix}</svg>
         <div class="home-card-title">QX700 Mastermix Calculator</div>
-        <div class="home-card-desc">Pick a ddPCR mastermix chemistry and calculate aliquot volumes for your reactions.${(()=>{
-          const defId = getDefaultSheetId();
-          if(!defId) return "";
-          const defSheet = SHEETS.find(s=>s.id===defId);
-          return defSheet ? `<br><span style="color:var(--teal-deep);font-weight:600;">Opens to your default: ${defSheet.name}</span>` : "";
-        })()}</div>
+        <div class="home-card-desc">Pick a ddPCR mastermix chemistry and calculate aliquot volumes for your reactions.${mastermixDesc}</div>
       </button>
       <button class="home-card" id="homeCardPlatemap">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <rect x="4.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <rect x="18.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <rect x="32.5" y="9" width="11" height="30" rx="2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <circle cx="7.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="15" r="1.4" fill="#0e7c76"/>
-          <circle cx="7.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="24" r="1.4" fill="#0e7c76"/>
-          <circle cx="7.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="12.5" cy="33" r="1.4" fill="#0e7c76"/>
-          <circle cx="21.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="15" r="1.4" fill="#0e7c76"/>
-          <circle cx="21.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="24" r="1.4" fill="#0e7c76"/>
-          <circle cx="21.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="26.5" cy="33" r="1.4" fill="#0e7c76"/>
-          <circle cx="35.5" cy="15" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="15" r="1.4" fill="#0e7c76"/>
-          <circle cx="35.5" cy="24" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="24" r="1.4" fill="#0e7c76"/>
-          <circle cx="35.5" cy="33" r="1.4" fill="#0e7c76"/><circle cx="40.5" cy="33" r="1.4" fill="#0e7c76"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.platemap}</svg>
         <div class="home-card-title">RDG16 Platemap Labeler</div>
         <div class="home-card-desc">Label sample names, types, context, and dilutions across a 48-well (3× RDG16) plate, then export the CSV template.</div>
       </button>
       <button class="home-card" id="homeCardExperimentLog">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <polyline points="14,18 14,7 34,7 34,18" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <rect x="8" y="18" width="32" height="16" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
-          <rect x="14" y="27" width="20" height="14" rx="1.5" fill="#ffffff" stroke="#0e7c76" stroke-width="2"/>
-          <line x1="17.5" y1="32" x2="30.5" y2="32" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
-          <line x1="17.5" y1="36" x2="26" y2="36" stroke="#0e7c76" stroke-width="1.6" stroke-linecap="round"/>
-          <circle cx="34.5" cy="22.5" r="1.4" fill="#0e7c76"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.experimentLog}</svg>
         <div class="home-card-title">Print an Experiment</div>
         <div class="home-card-desc">Send primer/probe mix recipes, mastermix recipes, and your platemap here, then print or save one combined document for your lab notebook.</div>
       </button>
       <button class="home-card" id="homeCardPlanner">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <rect x="10" y="6" width="28" height="36" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2"/>
-          <rect x="15" y="12.5" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
-          <path d="M16.2 14.5l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="22.5" y1="14.5" x2="33" y2="14.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <rect x="15" y="22" width="4" height="4" rx="1" fill="none" stroke="#0e7c76" stroke-width="1.8"/>
-          <path d="M16.2 24l0.8 0.8 1.4-1.5" stroke="#0e7c76" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="22.5" y1="24" x2="33" y2="24" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-          <rect x="15" y="31.5" width="4" height="4" rx="1" fill="none" stroke="#c98a1e" stroke-width="1.8"/>
-          <line x1="22.5" y1="33.5" x2="33" y2="33.5" stroke="#0e7c76" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.planner}</svg>
         <div class="home-card-title">ddPCR Experiment Planner</div>
         <div class="home-card-desc">A digital MIQE-inspired checklist to think through your question, targets, samples, and controls before you order assays or run reactions.</div>
       </button>
       <button class="home-card" id="homeCardDataAnalysis">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <path d="M10 8v32h30" stroke="#0e7c76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="10" y1="26" x2="40" y2="26" stroke="#c98a6a" stroke-width="1.6" stroke-dasharray="3,3"/>
-          <circle cx="15" cy="33" r="2.1" fill="#9aa7a2"/>
-          <circle cx="19.5" cy="30.5" r="2.1" fill="#9aa7a2"/>
-          <circle cx="23" cy="34" r="2.1" fill="#9aa7a2"/>
-          <circle cx="27.5" cy="31.5" r="2.1" fill="#9aa7a2"/>
-          <circle cx="17" cy="15" r="2.1" fill="#0e7c76"/>
-          <circle cx="24" cy="12.5" r="2.1" fill="#0e7c76"/>
-          <circle cx="30.5" cy="16.5" r="2.1" fill="#0e7c76"/>
-          <circle cx="35.5" cy="13" r="2.1" fill="#0e7c76"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.dataAnalysis101}</svg>
         <div class="home-card-title">ddPCR Data Analysis 101</div>
         <div class="home-card-desc">See what clean separation, low/mid/high concentration, rain, and contamination actually look like on an amplitude plot.</div>
       </button>
       <button class="home-card" id="homeCardLearning">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <path d="M24 13c-3-2.2-8-3.2-14-3.2v25c6 0 11 1 14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
-          <path d="M24 13c3-2.2 8-3.2 14-3.2v25c-6 0-11 1-14 3.2" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
-          <path d="M24 13v28" stroke="#0e7c76" stroke-width="2"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.learning}</svg>
         <div class="home-card-title">ddPCR Learning Resources</div>
         <div class="home-card-desc">Links to useful resources about ddPCR.</div>
       </button>
       <button class="home-card" id="homeCardSupport">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <path d="M12 26v-4a12 12 0 0 1 24 0v4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-          <rect x="9" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <rect x="33" y="24" width="6" height="12" rx="3" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2"/>
-          <path d="M39 34v2a6 6 0 0 1-6 6h-4" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.support}</svg>
         <div class="home-card-title">ddPCR Support</div>
         <div class="home-card-desc">Contact tech support, your local FAS, or Sales Rep for help.</div>
       </button>
       <button class="home-card" id="homeCardFeedback">
-        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">
-          <path d="M8 12h32v18H20l-8 7v-7H8V12Z" fill="#e3f2f0" stroke="#0e7c76" stroke-width="2.2" stroke-linejoin="round"/>
-          <path d="M17 20.5l3.2 3.2 7-7" stroke="#0e7c76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.feedback}</svg>
         <div class="home-card-title">Feedback / Suggestions</div>
         <div class="home-card-desc">Report bugs, request features, or share any other feedback on these apps.</div>
       </button>
@@ -5065,6 +5192,7 @@ function renderDisclaimerModal(){
 
 migrateLegacyPersonalContact();
 captureFasFromURL();
+try{ window.history.replaceState({ fasHome:true }, "", window.location.href); }catch(e){}
 renderAll();
 renderDisclaimerModal();
 </script>
