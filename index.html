@@ -825,6 +825,24 @@
     flex-shrink:0;
     white-space:nowrap;
   }
+  .support-share-row{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .support-share-row .btn{
+    display:inline-block;
+  }
+  .support-share-row .hint{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    max-width:480px;
+    margin-left:auto;
+    margin-right:auto;
+  }
 
   /* ---------- layout ---------- */
   .grid{
@@ -3636,13 +3654,9 @@ function renderSupportPlaceholder(){
 
   const mergedLink = buildMergedLink();
   const mergedLinkHtml = mergedLink ? `
-    <div class="link-preview-row" style="border-top:none;padding-top:0;margin-top:0;margin-bottom:18px;">
-      <label>Shareable link (all saved roles above)</label>
-      <div class="link-copy-row">
-        <input type="text" id="mergedLinkField" readonly value="${pmEscapeAttr(mergedLink)}">
-        <button class="btn small" id="mergedLinkCopyBtn">Copy</button>
-      </div>
-      <span class="hint">Sending this one link saves every role filled in below \u2014 opening it on a customer's device stores all of it in their browser at once.</span>
+    <div class="support-share-row">
+      <button class="btn small" id="mergedLinkCopyBtn">Copy shareable link (all saved roles above)</button>
+      <span class="hint">Copies one link that saves every role filled in above at once.</span>
     </div>
   ` : "";
 
@@ -3650,7 +3664,6 @@ function renderSupportPlaceholder(){
     <div class="editor-panel" style="max-width:760px;margin:0 auto;">
       <h2>ddPCR Support</h2>
       <div class="editor-sub" style="margin-bottom:18px;">${PLACEHOLDER_META.support.desc}</div>
-      ${mergedLinkHtml}
       ${topSections}
       <div class="profile-grid">
         ${personalCards}
@@ -3664,6 +3677,7 @@ function renderSupportPlaceholder(){
           </div>
         `).join("")}
       </div>
+      ${mergedLinkHtml}
     </div>
   `;
 
