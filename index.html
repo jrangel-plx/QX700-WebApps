@@ -1335,6 +1335,12 @@
   .well:hover{border-color:var(--teal);}
   .well.selected{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-wash);}
   .well-chamber{font-family:'IBM Plex Mono', monospace;font-size:10px;color:var(--ink-soft);font-weight:600;}
+  /* Interactive Platemap Labeler tiles only (not the static Experiment Log / print
+     rendering, which reuses .well/.well-chamber without an input) — the name input
+     is stretched to cover the whole tile so the cell acts as one clickable+typeable
+     unit, with the chamber label floating on top as a non-interactive overlay. */
+  .well.well-editable{padding:0;cursor:text;}
+  .well.well-editable .well-chamber{position:absolute;top:5px;left:7px;pointer-events:none;}
   .well-name{
     font-size:11px;
     font-weight:600;
@@ -1343,6 +1349,28 @@
     overflow:hidden;
     text-overflow:ellipsis;
     margin-top:2px;
+  }
+  .well-name-input{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    box-sizing:border-box;
+    margin:0;
+    padding:17px 7px 5px;
+    border:none;
+    background:none;
+    outline:none;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:text;
+  }
+  .well-name-input::placeholder{color:var(--ink-soft);font-weight:400;opacity:0.7;}
+  .well-name-input:focus{
+    background:#ffffff;
+    border-radius:3px;
   }
   .well.type-Unknown{background:var(--blue-wash);}
   .well.type-Known{background:var(--teal-wash);}
@@ -3770,6 +3798,31 @@ function pmChamberOrder(){
 const PM_CHAMBERS = pmChamberOrder(); // A1,B1,...,H1,A2,...,H2
 
 function pmWellKey(chip, chamber){ return chip + "-" + chamber; }
+function pmSplitWellKey(key){
+  const parts = key.split("-");
+  return [parts[0], parts[1]];
+}
+// Absolute column across the whole plate (chip 0's two columns, then chip 1's, then chip 2's) —
+// lets copy/paste and range math treat the three chips as one continuous table.
+function pmAbsCol(chip, col){ return PM_CHIPS.indexOf(chip) * PM_COLS.length + PM_COLS.indexOf(col); }
+function pmAbsRow(row){ return PM_ROWS.indexOf(row); }
+function pmFromAbs(absRow, absCol){
+  if(absRow < 0 || absRow >= PM_ROWS.length) return null;
+  const chipIdx = Math.floor(absCol / PM_COLS.length);
+  const colWithinChip = absCol - chipIdx * PM_COLS.length;
+  if(chipIdx < 0 || chipIdx >= PM_CHIPS.length) return null;
+  return { chip: PM_CHIPS[chipIdx], chamber: PM_ROWS[absRow] + PM_COLS[colWithinChip] };
+}
+// Next/previous well in "down the column" reading order (dir=+1 down, dir=-1 up), wrapping
+// from the bottom of one column into the top of the next, and from one chip into the next.
+function pmAdjacentWellKey(chip, chamber, dir){
+  const {row, col} = pmParseChamber(chamber);
+  const next = pmFromAbs(pmAbsRow(row) + dir, pmAbsCol(chip, col));
+  return next ? pmWellKey(next.chip, next.chamber) : null;
+}
+function pmFieldKeyEscape(s){
+  return String(s).replace(/"/g, '\\"');
+}
 
 const pmWells = {};
 PM_CHIPS.forEach(chip=>{
@@ -3784,6 +3837,8 @@ let pmIsDragging = false;
 let pmDragChip = null;       // which chip the current drag started in
 let pmDragAnchorChamber = null; // chamber the drag started from
 let pmDragBase = new Set();  // selection to preserve underneath an additive (ctrl/cmd) drag
+let pmArmedForDrag = false;  // a plain mousedown just happened; becomes a real drag if the
+                              // pointer leaves that well while the button is still held
 
 function pmParseChamber(chamber){
   const m = chamber.match(/^([A-H])(\d+)$/);
@@ -3815,9 +3870,6 @@ function pmHandleWellMouseDown(key, chip, e){
     return;
   }
 
-  // Start a fresh drag. Ctrl/Cmd keeps the existing selection underneath
-  // and adds the new drag range on top; a plain click starts a brand-new
-  // selection, replacing whatever was selected before.
   pmDragBase = (e.metaKey || e.ctrlKey) ? new Set(pmSelected) : new Set();
   pmDragChip = chip;
   pmDragAnchorChamber = chamber;
@@ -3827,12 +3879,30 @@ function pmHandleWellMouseDown(key, chip, e){
   renderPlatemapAll();
 }
 
-function pmHandleWellMouseEnter(key, chip){
-  if(!pmIsDragging || chip !== pmDragChip) return;
-  const chamber = key.split("-")[1];
-  const range = pmRangeChambers(pmDragChip, pmDragAnchorChamber, chamber);
-  pmSelected = new Set([...pmDragBase, ...range]);
-  renderPlatemapAll();
+function pmHandleWellMouseEnter(key, chip, e){
+  if(pmIsDragging){
+    if(chip !== pmDragChip) return;
+    const chamber = key.split("-")[1];
+    const range = pmRangeChambers(pmDragChip, pmDragAnchorChamber, chamber);
+    pmSelected = new Set([...pmDragBase, ...range]);
+    renderPlatemapAll();
+    return;
+  }
+  // A plain click (no modifier keys) doesn't start a drag immediately — it lets the
+  // browser focus that well's name field for typing. But if the pointer moves into a
+  // different well while the mouse button is still held, that's the moment a simple
+  // click turns into a click-and-drag range selection, same as an Excel cell drag.
+  if(pmArmedForDrag && e && e.buttons === 1 && chip === pmDragChip){
+    const anchorKey = pmWellKey(pmDragChip, pmDragAnchorChamber);
+    if(key === anchorKey) return;
+    pmIsDragging = true;
+    const active = document.activeElement;
+    if(active && active.classList && active.classList.contains("well-name-input")) active.blur();
+    const chamber = key.split("-")[1];
+    const range = pmRangeChambers(pmDragChip, pmDragAnchorChamber, chamber);
+    pmSelected = new Set([...pmDragBase, ...range]);
+    renderPlatemapAll();
+  }
 }
 
 document.addEventListener("mouseup", ()=>{
@@ -3840,6 +3910,98 @@ document.addEventListener("mouseup", ()=>{
   pmDragChip = null;
   pmDragAnchorChamber = null;
   pmDragBase = new Set();
+  pmArmedForDrag = false;
+});
+
+// ---- Excel-style copy/paste for well sample names --------------------------
+// Copy: with 2+ wells selected, builds a tab/newline-delimited block (matching
+// the wells' row/column positions across all three chips treated as one table)
+// so it pastes cleanly into Excel or back into this grid. A single well is left
+// to the browser's normal text-copy behavior. Paste mirrors this: multi-cell
+// clipboard content is laid out starting at the focused/anchor well, and a
+// single copied value fills every currently selected well (Excel's fill rule).
+function pmActiveIsOtherEditable(active){
+  if(!active) return false;
+  if(active.classList && active.classList.contains("well-name-input")) return false;
+  return active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT";
+}
+
+document.addEventListener("copy", (e)=>{
+  if(currentView !== "platemap") return;
+  if(pmActiveIsOtherEditable(document.activeElement)) return;
+  if(pmSelected.size <= 1) return; // let native single-field text copy proceed
+
+  const cells = Array.from(pmSelected).map(key=>{
+    const [chip, chamber] = pmSplitWellKey(key);
+    const {row, col} = pmParseChamber(chamber);
+    return { key, absRow: pmAbsRow(row), absCol: pmAbsCol(chip, col) };
+  });
+  const minRow = Math.min(...cells.map(c=>c.absRow));
+  const maxRow = Math.max(...cells.map(c=>c.absRow));
+  const minCol = Math.min(...cells.map(c=>c.absCol));
+  const maxCol = Math.max(...cells.map(c=>c.absCol));
+  const valueAt = {};
+  cells.forEach(c=>{ valueAt[c.absRow+","+c.absCol] = pmWells[c.key].sampleName || ""; });
+
+  const lines = [];
+  for(let r=minRow; r<=maxRow; r++){
+    const rowVals = [];
+    for(let c=minCol; c<=maxCol; c++){
+      rowVals.push(valueAt[r+","+c] !== undefined ? valueAt[r+","+c] : "");
+    }
+    lines.push(rowVals.join("\t"));
+  }
+  e.clipboardData.setData("text/plain", lines.join("\n"));
+  e.preventDefault();
+});
+
+document.addEventListener("paste", (e)=>{
+  if(currentView !== "platemap") return;
+  const active = document.activeElement;
+  if(pmActiveIsOtherEditable(active)) return;
+  const activeIsWellInput = active && active.classList && active.classList.contains("well-name-input");
+  if(!activeIsWellInput && pmSelected.size === 0) return;
+
+  const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+  if(text == null) return;
+  e.preventDefault();
+
+  const rows = text.replace(/\r/g,"").split("\n");
+  if(rows.length > 1 && rows[rows.length-1] === "") rows.pop();
+  const grid = rows.map(r=>r.split("\t"));
+
+  if(grid.length === 1 && grid[0].length === 1 && pmSelected.size > 1){
+    const val = grid[0][0];
+    pmSelected.forEach(k=>{ pmWells[k].sampleName = val; });
+    renderAll();
+    return;
+  }
+
+  let anchorKey = null;
+  if(activeIsWellInput){
+    anchorKey = active.dataset.fieldKey.replace(/^pmname-/, "");
+  } else if(pmLastClicked){
+    anchorKey = pmWellKey(pmLastClicked.chip, pmLastClicked.chamber);
+  } else {
+    anchorKey = Array.from(pmSelected)[0];
+  }
+  const [anchorChip, anchorChamber] = pmSplitWellKey(anchorKey);
+  const {row:anchorRow, col:anchorCol} = pmParseChamber(anchorChamber);
+  const anchorAbsRow = pmAbsRow(anchorRow);
+  const anchorAbsCol = pmAbsCol(anchorChip, anchorCol);
+
+  const pasted = new Set();
+  grid.forEach((rowVals, i)=>{
+    rowVals.forEach((val, j)=>{
+      const target = pmFromAbs(anchorAbsRow + i, anchorAbsCol + j);
+      if(!target) return;
+      const key = pmWellKey(target.chip, target.chamber);
+      pmWells[key].sampleName = val;
+      pasted.add(key);
+    });
+  });
+  if(pasted.size > 0) pmSelected = pasted;
+  renderAll();
 });
 
 function pmSelectAllInChip(chip){
@@ -4005,12 +4167,54 @@ function pmRenderChips(){
     PM_CHAMBERS.forEach(chamber=>{
       const key = pmWellKey(chip, chamber);
       const w = pmWells[key];
-      const btn = document.createElement("button");
+      const btn = document.createElement("div");
       const typeClass = w.sampleType ? ` type-${w.sampleType}` : "";
-      btn.className = "well" + typeClass + (pmSelected.has(key) ? " selected" : "");
-      btn.innerHTML = `<div class="well-chamber">${chamber}</div><div class="well-name">${w.sampleName ? pmEscapeHtml(w.sampleName) : "&nbsp;"}</div>`;
-      btn.onmousedown = (e)=>{ e.preventDefault(); pmHandleWellMouseDown(key, chip, e); };
-      btn.onmouseenter = ()=> pmHandleWellMouseEnter(key, chip);
+      btn.className = "well well-editable" + typeClass + (pmSelected.has(key) ? " selected" : "");
+      btn.innerHTML = `<div class="well-chamber">${chamber}</div>
+        <input type="text" class="well-name-input" value="${pmEscapeAttr(w.sampleName || "")}" data-field-key="pmname-${key}" autocomplete="off" spellcheck="false">`;
+      btn.onmouseenter = (e)=> pmHandleWellMouseEnter(key, chip, e);
+
+      const input = btn.querySelector(".well-name-input");
+      input.onmousedown = (e)=>{
+        if(e.shiftKey && pmLastClicked && pmLastClicked.chip === chip){
+          e.preventDefault();
+          pmHandleWellMouseDown(key, chip, e);
+          return;
+        }
+        if(e.metaKey || e.ctrlKey){
+          e.preventDefault();
+          pmHandleWellMouseDown(key, chip, e);
+          return;
+        }
+        // Plain click: don't hijack it — let the browser focus this field and place
+        // the caret so the well can be typed into immediately. Just arm the drag
+        // anchor in case the pointer moves into another well while still held.
+        pmDragChip = chip;
+        pmDragAnchorChamber = chamber;
+        pmDragBase = new Set();
+        pmArmedForDrag = true;
+      };
+      input.addEventListener("focus", ()=>{
+        if(pmSelected.size === 1 && pmSelected.has(key)) return;
+        pmSelected = new Set([key]);
+        pmLastClicked = {chip, chamber};
+        renderAll();
+      });
+      input.onchange = (e)=>{ pmWells[key].sampleName = e.target.value; renderAll(); };
+      input.addEventListener("keydown", (e)=>{
+        if(e.key !== "Enter" && e.key !== "Tab") return;
+        e.preventDefault();
+        pmWells[key].sampleName = input.value;
+        const dir = e.shiftKey ? -1 : 1;
+        const nextKey = pmAdjacentWellKey(chip, chamber, dir);
+        if(!nextKey){ input.blur(); return; }
+        pmSelected = new Set([nextKey]);
+        const [nextChip, nextChamber] = pmSplitWellKey(nextKey);
+        pmLastClicked = { chip: nextChip, chamber: nextChamber };
+        renderAll();
+        const nextInput = document.querySelector(`[data-field-key="pmname-${pmFieldKeyEscape(nextKey)}"]`);
+        if(nextInput){ nextInput.focus(); nextInput.select(); }
+      });
       grid.appendChild(btn);
     });
     panel.appendChild(grid);
