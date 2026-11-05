@@ -963,6 +963,18 @@
   }
   .assay-item label{font-size:12.5px;color:var(--ink);cursor:pointer;flex:1;}
   .assay-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  td .assay-dot{display:inline-block;margin-right:2px;vertical-align:middle;}
+  .assay-pair-tag{font-size:10.5px;color:var(--ink-soft);font-weight:400;margin-left:4px;}
+  .pair-link-btn{
+    display:inline-flex;align-items:center;gap:5px;justify-self:start;
+    margin:0 0 6px 23px;padding:3px 9px;
+    font-family:'IBM Plex Sans', sans-serif;font-size:11px;font-weight:600;
+    color:var(--teal-deep);background:none;
+    border:1px dashed #9cd3cc;border-radius:999px;cursor:pointer;transition:.15s;
+  }
+  .pair-link-btn:hover{background:var(--teal-wash);border-style:solid;}
+  .pair-link-btn.is-linked{background:var(--teal-wash);border:1px solid #bfe2dd;}
+  .pair-link-btn:disabled{opacity:0.45;cursor:not-allowed;}
   .assay-item.locked{opacity:0.4;}
   .assay-item.locked label{cursor:not-allowed;}
   .assay-item.locked input[type=checkbox]{cursor:not-allowed;}
@@ -1664,7 +1676,7 @@
         <h1>FAS QX700 ddPCR WebApps & Calculators - Beta Build</h1>
       </div>
     </div>
-    <div class="version-badge">v1.08</div>
+    <div class="version-badge">v1.10</div>
   </header>
 
   <div class="tabs" id="tabs"></div>
@@ -1938,13 +1950,9 @@ const SHEETS = [
         rows.push(...tubes.rows);
         assaySum += tubes.assaySum;
       } else {
-        Object.keys(assays).forEach(name=>{
-          const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-          if(!assays[name]) return; // hide unselected channels from the recipe
-          const v = rv/fold;
-          assaySum += v;
-          rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
-        });
+        const pm = premixAssayRows(state, rv);
+        rows.push(...pm.rows);
+        assaySum += pm.sum;
       }
       const sample = sampleVolume;
       const water = rv - (supermix + enzymeMix + assaySum + sample);
@@ -1975,6 +1983,85 @@ function qxProbeProtocol(){
   ];
 }
 
+/* ---------- mutation detection pairs ---------- */
+// Each of these channel pairs can be linked individually into one duplex
+// mutation-detection assay (shared primer pair + two probes, typically
+// mutant + wild-type). Unlinked channels stay independent single assays,
+// so e.g. a FAM/HEX mutation assay can run alongside single-channel CNV assays.
+const MUTATION_PAIRS = [["FAM","HEX"],["ROX","Atto590"],["Cy5","Cy5.5"]];
+function isPairLinked(state, key){ return !!(state.mutationPairs && state.mutationPairs[key]); }
+function linkedPairs(state){ return MUTATION_PAIRS.filter(p=>p[0] in state.assays && isPairLinked(state, p[0])); }
+function isMutationMode(state){ return linkedPairs(state).length > 0; }
+
+// Every assay "unit" shown in the channel picker: a single channel, or a
+// linked pair (e.g. FAM/HEX) acting as one assay.
+function assayDisplayUnits(state){
+  const units = [];
+  const seen = new Set();
+  Object.keys(state.assays).forEach(name=>{
+    if(seen.has(name)) return;
+    const pair = MUTATION_PAIRS.find(p=>p.includes(name) && isPairLinked(state, p[0]));
+    const channels = pair ? pair.slice() : [name];
+    channels.forEach(c=>seen.add(c));
+    units.push({ name:channels.join("/"), channels, key:channels[0], checked:channels.some(c=>state.assays[c]) });
+  });
+  return units;
+}
+function assayUnits(state){ return assayDisplayUnits(state).filter(u=>u.checked); }
+function selectedChannelCount(state){ return assayUnits(state).reduce((a,u)=>a+u.channels.length, 0); }
+
+// Linking a pair: if either channel was selected, both become selected and
+// share one X-fold. If that would exceed the mix's channel limit, the pair is
+// left unselected instead so the user can choose what to drop.
+function setPairLinked(sheet, state, key, on){
+  if(!state.mutationPairs) state.mutationPairs = {};
+  state.mutationPairs[key] = on;
+  if(!on) return;
+  const [a,b] = MUTATION_PAIRS.find(p=>p[0]===key);
+  if(state.assays[a] || state.assays[b]){ state.assays[a] = true; state.assays[b] = true; }
+  if(!state.assayFolds) state.assayFolds = {};
+  state.assayFolds[b] = state.assayFolds[a] ?? 20;
+  if(sheet.maxAssays && selectedChannelCount(state) > sheet.maxAssays){
+    state.assays[a] = false; state.assays[b] = false;
+  }
+}
+
+// Premixed working-stock rows: one row per selected assay unit.
+function premixAssayRows(state, rv){
+  const rows = [];
+  let sum = 0;
+  assayUnits(state).forEach(u=>{
+    const fold = (state.assayFolds && state.assayFolds[u.key]) || 20;
+    const v = rv/fold;
+    sum += v;
+    if(u.channels.length === 2){
+      rows.push({label:`${fold}X ${u.name} Mutation Detection Assay`, finalConc:"900 nM/250 nM (each probe)", perRxn:v, inMastermix:true, assays:u.channels});
+    } else {
+      rows.push({label:`${fold}X Primer/Probe Mix ${u.name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assays:u.channels});
+    }
+  });
+  return {rows, sum};
+}
+
+function assayDotsHtml(r){
+  const list = r.assays || (r.assay ? [r.assay] : []);
+  return list.map(a=>`<span class="assay-dot" style="background:${ASSAY_COLORS[a]}"></span>`).join("") + (list.length ? " " : "");
+}
+
+function sheetProtocol(sheet, s){
+  const steps = sheet.protocol.slice();
+  if(sheet.hasAssays){
+    const pairs = assayUnits(s).filter(u=>u.channels.length===2);
+    if(pairs.length){
+      const names = pairs.map(u=>u.name);
+      const list = names.length === 1 ? names[0] : names.slice(0,-1).join(", ") + " and " + names[names.length-1];
+      const fold = (s.assayFolds && s.assayFolds[pairs[0].key]) || 20;
+      steps.push(`Mutation detection: ${list} ${pairs.length===1 ? "is a paired duplex assay \u2014 it shares" : "are paired duplex assays \u2014 each shares"} one primer set with two probes (typically mutant + wild-type) and is added as a single assay (e.g. one ${fold}X ${names[0]} assay), not as two separate channels. Any other selected channels are independent single-target assays.`);
+    }
+  }
+  return steps;
+}
+
 function individualTubeRows(state, rv, opts){
   opts = opts || {};
   const includeProbe = opts.includeProbe !== false;
@@ -1985,20 +2072,22 @@ function individualTubeRows(state, rv, opts){
     const stock = (stockUM > 0) ? stockUM : 0.0001;
     return round4((targetNM * rv) / (stock * 1000));
   };
+  const stockOf = n => (state.assayStocks && state.assayStocks[n]) || {fwd:100, rev:100, probe:100};
   const rows = [];
   let assaySum = 0;
-  Object.keys(state.assays).forEach(name=>{
-    if(!state.assays[name]) return;
-    const stock = (state.assayStocks && state.assayStocks[name]) || {fwd:100, rev:100, probe:100};
+  assayUnits(state).forEach(u=>{
+    const stock = stockOf(u.key);
     const fwdVol = tubeVol(targetFwd, stock.fwd);
     const revVol = tubeVol(targetRev, stock.rev);
     assaySum += fwdVol + revVol;
-    rows.push({label:`${name} Forward Primer`, finalConc:`${fmt(targetFwd,0)} nM`, perRxn:fwdVol, inMastermix:true, assay:name});
-    rows.push({label:`${name} Reverse Primer`, finalConc:`${fmt(targetRev,0)} nM`, perRxn:revVol, inMastermix:true, assay:name});
+    rows.push({label:`${u.name} Forward Primer`, finalConc:`${fmt(targetFwd,0)} nM`, perRxn:fwdVol, inMastermix:true, assays:u.channels});
+    rows.push({label:`${u.name} Reverse Primer`, finalConc:`${fmt(targetRev,0)} nM`, perRxn:revVol, inMastermix:true, assays:u.channels});
     if(includeProbe){
-      const probeVol = tubeVol(targetProbe, stock.probe);
-      assaySum += probeVol;
-      rows.push({label:`${name} Probe`, finalConc:`${fmt(targetProbe,0)} nM`, perRxn:probeVol, inMastermix:true, assay:name});
+      u.channels.forEach(c=>{
+        const probeVol = tubeVol(targetProbe, stockOf(c).probe);
+        assaySum += probeVol;
+        rows.push({label:`${c} Probe`, finalConc:`${fmt(targetProbe,0)} nM`, perRxn:probeVol, inMastermix:true, assays:[c]});
+      });
     }
   });
   return {rows, assaySum};
@@ -2037,13 +2126,9 @@ function probeMixComponents(opts){
       rows.push(...tubes.rows);
       assaySum += tubes.assaySum;
     } else {
-      Object.keys(assays).forEach(name=>{
-        const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-        if(!assays[name]) return; // hide unselected channels from the recipe
-        const v = rv/fold;
-        assaySum += v;
-        rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
-      });
+      const pm = premixAssayRows(state, rv);
+      rows.push(...pm.rows);
+      assaySum += pm.sum;
     }
     const enzymeVol = opts.enzymeVariable ? (state.enzymeVolume ?? round4(rv*opts.enzymeRatio)) : round4(rv*opts.enzymeRatio);
     const enzyme = state.digest ? enzymeVol : 0;
@@ -2072,13 +2157,9 @@ function naicaComponents(bufferFactor){
       rows.push(...tubes.rows);
       assaySum += tubes.assaySum;
     } else {
-      Object.keys(assays).forEach(name=>{
-        const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-        if(!assays[name]) return; // hide unselected channels from the recipe
-        const v = rv/fold;
-        assaySum += v;
-        rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
-      });
+      const pm = premixAssayRows(state, rv);
+      rows.push(...pm.rows);
+      assaySum += pm.sum;
     }
     const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
     const enzyme = state.digest ? enzymeVol : 0;
@@ -2294,7 +2375,7 @@ function buildMastermixSnapshot(sheet, s){
   const isError = waterRow && waterRow.perRxn < -0.0001;
   const snapshotRows = rows.map(r=>({
     label:r.label, finalConc:r.finalConc, perRxn:r.perRxn, total:r.perRxn * s.numReactions,
-    isSample: !!r.isSample, assay: r.assay || null
+    isSample: !!r.isSample, assays: r.assays || (r.assay ? [r.assay] : null)
   }));
   return {
     id:"mm"+Date.now()+Math.random().toString(36).slice(2,7),
@@ -2306,7 +2387,8 @@ function buildMastermixSnapshot(sheet, s){
     sampleLabel:sheet.sampleLabel,
     aliquotVolume, totalMastermix, isError,
     rows:snapshotRows,
-    protocol:sheet.protocol.slice(),
+    application: (sheet.hasAssays && assayUnits(s).some(u=>u.channels.length===2)) ? "mutation" : "standard",
+    protocol:sheetProtocol(sheet, s),
     notes:sheet.notes || ""
   };
 }
@@ -2760,7 +2842,7 @@ function renderContent(){
         </div>
         <div class="panel protocol">
           <h2>Protocol</h2>
-          <ol>${sheet.protocol.map(p=>`<li>${p}</li>`).join("")}</ol>
+          <ol>${sheetProtocol(sheet, s).map(p=>`<li>${p}</li>`).join("")}</ol>
         </div>
         ${sheet.notes ? `<div class="panel notes-panel">
           <h2>Notes</h2>
@@ -2799,7 +2881,7 @@ function componentsTable(rows, isError){
         const total = r.perRxn * state[activeTab].numReactions;
         const isWater = r.label.includes("Water");
         const errRow = isWater && isError;
-        const dot = r.assay ? `<span class="assay-dot" style="background:${ASSAY_COLORS[r.assay]}"></span> ` : "";
+        const dot = assayDotsHtml(r);
         return `<tr class="${errRow?'error-row':''}">
           <td class="label-cell">${dot}${r.label}${r.isSample? ' <span style="color:var(--ink-soft);font-weight:400;">(added after aliquoting)</span>':''}</td>
           <td>${r.finalConc}</td>
@@ -2917,67 +2999,91 @@ function renderInputs(sheet, s){
   }
 
   if(sheet.hasAssays){
+    const mutation = isMutationMode(s);
     const h = document.createElement("h2");
     h.style.marginTop = "18px";
     h.textContent = "Assay channels";
     panel.appendChild(h);
 
-    const checkedCount = Object.values(s.assays).filter(Boolean).length;
+    const pairIntro = document.createElement("div");
+    pairIntro.className = "info-note";
+    pairIntro.textContent = mutation
+      ? "Linked pairs run as one duplex mutation-detection assay \u2014 a shared primer pair with two probes (typically mutant + wild-type) \u2014 and are added to the recipe as a single assay. Unlinked channels stay independent single-target assays (e.g. CNV or reference assays)."
+      : "Running a mutation-detection assay? Link FAM/HEX, ROX/Atto590, or Cy5/Cy5.5 below to treat that pair as one duplex assay. Other channels stay independent.";
+    panel.appendChild(pairIntro);
+
+    const checkedCount = selectedChannelCount(s);
 
     if(sheet.maxAssays){
       const counter = document.createElement("div");
       counter.className = "assay-limit-note" + (checkedCount>=sheet.maxAssays ? " at-limit" : "");
-      counter.textContent = `${checkedCount} of ${sheet.maxAssays} fluorophores selected \u2014 this mix supports up to ${sheet.maxAssays} channels.`;
+      counter.textContent = `${checkedCount} of ${sheet.maxAssays} fluorophores selected — this mix supports up to ${sheet.maxAssays} channels${mutation ? " (each linked pair uses 2)" : ""}.`;
       panel.appendChild(counter);
     }
 
     const grid = document.createElement("div");
     grid.className = "assay-grid";
-    Object.keys(s.assays).forEach(name=>{
+    if(!s.assayFolds) s.assayFolds = {};
+    assayDisplayUnits(s).forEach(u=>{
       const item = document.createElement("div");
-      const checked = s.assays[name];
-      const locked = sheet.maxAssays && !checked && checkedCount >= sheet.maxAssays;
+      const checked = u.checked;
+      const locked = sheet.maxAssays && !checked && checkedCount + u.channels.length > sheet.maxAssays;
       item.className = "assay-item" + (locked ? " locked" : "");
-      const id = "assay-"+activeTab+"-"+name.replace(/[^a-zA-Z0-9]/g,"");
-      if(!s.assayFolds) s.assayFolds = {};
-      if(s.assayFolds[name] == null) s.assayFolds[name] = 20;
+      const id = "assay-"+activeTab+"-"+u.name.replace(/[^a-zA-Z0-9]/g,"");
+      if(s.assayFolds[u.key] == null) s.assayFolds[u.key] = 20;
       const showFold = !s.individualTubes;
       const foldId = id+"-fold";
       const foldHtml = showFold ? `
         <span class="assay-fold">
-          <input type="text" inputmode="decimal" id="${foldId}" value="${s.assayFolds[name]}" data-field-key="${foldId}">
+          <input type="text" inputmode="decimal" id="${foldId}" value="${s.assayFolds[u.key]}" data-field-key="${foldId}">
           <span class="assay-fold-suffix">X</span>
         </span>` : "";
+      const dots = u.channels.map(c=>`<span class="assay-dot" style="background:${ASSAY_COLORS[c]}"></span>`).join("");
+      const tag = u.channels.length===2 ? `<span class="assay-pair-tag">mutation assay</span>` : "";
       item.innerHTML = `<input type="checkbox" id="${id}" ${checked?'checked':''} ${locked?'disabled':''} data-field-key="${id}">
-        <span class="assay-dot" style="background:${ASSAY_COLORS[name]}"></span>
-        <label for="${id}">${name}</label>
+        ${dots}
+        <label for="${id}">${u.name}${tag}</label>
         ${foldHtml}`;
       item.querySelector("input[type=checkbox]").onchange = (e)=>{
-        if(e.target.checked && sheet.maxAssays){
-          const count = Object.values(s.assays).filter(Boolean).length;
-          if(count >= sheet.maxAssays){
-            e.target.checked = false;
-            return;
-          }
+        if(e.target.checked && sheet.maxAssays && selectedChannelCount(s) + u.channels.length > sheet.maxAssays){
+          e.target.checked = false;
+          return;
         }
-        s.assays[name]=e.target.checked;
+        u.channels.forEach(c=>{ s.assays[c] = e.target.checked; });
         renderAll();
       };
       const foldInput = item.querySelector(".assay-fold input");
       if(foldInput){
         foldInput.onchange = (e)=>{
           const v = parseFloat(e.target.value);
-          s.assayFolds[name] = (isFinite(v) && v > 0) ? v : 20;
+          const fold = (isFinite(v) && v > 0) ? v : 20;
+          u.channels.forEach(c=>{ s.assayFolds[c] = fold; });
           renderAll();
         };
       }
       grid.appendChild(item);
+
+      // After the last row of each pair group, offer a link/unlink toggle.
+      const pair = MUTATION_PAIRS.find(p=>p[1] === u.channels[u.channels.length-1]);
+      if(pair && pair[0] in s.assays){
+        const linked = isPairLinked(s, pair[0]);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "pair-link-btn" + (linked ? " is-linked" : "");
+        const icon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>${linked ? "" : ""}</svg>`;
+        btn.innerHTML = icon + (linked ? `${pair[0]}/${pair[1]} linked \u00b7 Unlink` : `Link ${pair[0]} + ${pair[1]} as mutation assay`);
+        btn.title = linked
+          ? `Split ${pair[0]} and ${pair[1]} back into two independent single-channel assays.`
+          : `Run ${pair[0]} and ${pair[1]} together as one duplex mutation-detection assay.`;
+        btn.onclick = ()=>{ setPairLinked(sheet, s, pair[0], !linked); renderAll(); };
+        grid.appendChild(btn);
+      }
     });
     panel.appendChild(grid);
     if(!s.individualTubes){
       const foldHint = document.createElement("div");
       foldHint.className = "info-note";
-      foldHint.textContent = "Each channel's premixed working stock can use its own dilution factor (X) \u2014 20X is the usual default, but 40X, 50X, or any other fold works too. Edit the X value next to a channel to match your actual stock.";
+      foldHint.textContent = "Each premixed working stock can use its own dilution factor (X) \u2014 20X is the usual default, but 40X, 50X, or any other fold works too. Edit the X value next to a channel (or linked pair) to match your actual stock.";
       panel.appendChild(foldHint);
     }
 
@@ -2990,7 +3096,9 @@ function renderInputs(sheet, s){
       const tubeNote = document.createElement("div");
       tubeNote.className = "info-note";
       tubeNote.style.marginTop = "-8px";
-      tubeNote.textContent = "Skip the pre-mixed working stock and pipette forward primer, reverse primer, and probe from separate tubes instead. Volumes are calculated from your own stock concentrations.";
+      tubeNote.textContent = isMutationMode(s)
+        ? "Skip the pre-mixed working stocks and pipette primers and probes from separate tubes instead \u2014 linked pairs share one forward and reverse primer with a probe for each channel. Volumes are calculated from your own stock concentrations."
+        : "Skip the pre-mixed working stock and pipette forward primer, reverse primer, and probe from separate tubes instead. Volumes are calculated from your own stock concentrations.";
       panel.appendChild(tubeNote);
 
       if(s.individualTubes){
@@ -3000,33 +3108,37 @@ function renderInputs(sheet, s){
         panel.appendChild(targetH);
         panel.appendChild(numField("Forward primer, final", "nM", s.targetFwd, v=>{ s.targetFwd=v; renderAll(); }, "Suggested: 900 nM. Applies to every selected channel."));
         panel.appendChild(numField("Reverse primer, final", "nM", s.targetRev, v=>{ s.targetRev=v; renderAll(); }, "Suggested: 900 nM. Applies to every selected channel."));
-        panel.appendChild(numField("Probe, final", "nM", s.targetProbe, v=>{ s.targetProbe=v; renderAll(); }, "Suggested: 250 nM. Applies to every selected channel."));
+        panel.appendChild(numField("Probe, final", "nM", s.targetProbe, v=>{ s.targetProbe=v; renderAll(); }, isMutationMode(s) ? "Suggested: 250 nM. Applies to every probe, including both probes of a linked pair." : "Suggested: 250 nM. Applies to every selected channel."));
 
         const stockH = document.createElement("h2");
         stockH.style.marginTop = "18px";
         stockH.textContent = "Tube stock concentrations";
         panel.appendChild(stockH);
 
-        const checkedAssays = Object.keys(s.assays).filter(name=>s.assays[name]);
-        if(checkedAssays.length === 0){
+        const units = assayUnits(s);
+        if(units.length === 0){
           const empty = document.createElement("div");
           empty.className = "info-note";
-          empty.textContent = "Select at least one assay channel above to enter its tube stock concentrations.";
+          empty.textContent = "Select at least one assay above to enter its tube stock concentrations.";
           panel.appendChild(empty);
         } else {
-          checkedAssays.forEach(name=>{
-            if(!s.assayStocks[name]) s.assayStocks[name] = {fwd:100, rev:100, probe:100};
-            const stock = s.assayStocks[name];
+          units.forEach(u=>{
+            u.channels.forEach(c=>{ if(!s.assayStocks[c]) s.assayStocks[c] = {fwd:100, rev:100, probe:100}; });
+            const stock = s.assayStocks[u.key];
             const sub = document.createElement("div");
             sub.style.display = "flex";
             sub.style.alignItems = "center";
             sub.style.gap = "6px";
             sub.style.margin = "10px 0 4px";
-            sub.innerHTML = `<span class="assay-dot" style="background:${ASSAY_COLORS[name]}"></span><span style="font-size:12.5px;font-weight:600;color:var(--ink);">${name}</span>`;
+            sub.innerHTML = u.channels.map(c=>`<span class="assay-dot" style="background:${ASSAY_COLORS[c]}"></span>`).join("")
+              + `<span style="font-size:12.5px;font-weight:600;color:var(--ink);">${u.name}${u.channels.length===2 ? " duplex assay" : ""}</span>`;
             panel.appendChild(sub);
-            panel.appendChild(numField(`${name} forward primer stock`, "µM", stock.fwd, v=>{ stock.fwd=v; renderAll(); }));
-            panel.appendChild(numField(`${name} reverse primer stock`, "µM", stock.rev, v=>{ stock.rev=v; renderAll(); }));
-            panel.appendChild(numField(`${name} probe stock`, "µM", stock.probe, v=>{ stock.probe=v; renderAll(); }));
+            panel.appendChild(numField(`${u.name} forward primer stock`, "µM", stock.fwd, v=>{ stock.fwd=v; renderAll(); }));
+            panel.appendChild(numField(`${u.name} reverse primer stock`, "µM", stock.rev, v=>{ stock.rev=v; renderAll(); }));
+            u.channels.forEach(c=>{
+              const cs = s.assayStocks[c];
+              panel.appendChild(numField(`${c} probe stock`, "µM", cs.probe, v=>{ cs.probe=v; renderAll(); }));
+            });
           });
         }
       }
@@ -4395,7 +4507,7 @@ const ppHeading = document.createElement("h2");
       const card = document.createElement("div");
       card.className = "exp-snapshot-card";
       card.innerHTML = `<div class="exp-snapshot-info">
-          <div class="title">${pmEscapeHtml(snap.productName)}</div>
+          <div class="title">${pmEscapeHtml(snap.productName)}${snap.application === "mutation" ? " (Mutation Detection)" : ""}</div>
           <div class="sub">${fmt(snap.reactionVolume)} µL \u00d7 ${snap.numReactions} rxns${snap.isError ? ' \u2014 check inputs (water negative)' : ' \u00b7 ' + fmt(snap.aliquotVolume) + ' µL/well'}</div>
         </div>`;
       const rmBtn = document.createElement("button");
@@ -4559,7 +4671,7 @@ function renderExpSnapshotBlock(snap){
       <div class="header-actions no-print" style="justify-content:flex-end;margin-bottom:8px;">
         <button class="btn small ghost" data-print-target="${blockId}" data-print-title="${pmEscapeAttr(snap.productName)}">Print This Recipe</button>
       </div>
-      <h3 class="exp-block-title">${pmEscapeHtml(snap.productName)}</h3>
+      <h3 class="exp-block-title">${pmEscapeHtml(snap.productName)}${snap.application === "mutation" ? " \u2014 Mutation Detection" : ""}</h3>
       <div class="exp-block-sub">${fmt(snap.reactionVolume)} µL reactions \u00d7 ${snap.numReactions} ${snap.isError
         ? '<span style="color:var(--red);">\u2014 water volume negative, check inputs before mixing</span>'
         : `\u2014 ${fmt(snap.totalMastermix)} µL total mastermix \u00b7 aliquot ${fmt(snap.aliquotVolume)} µL/well`}</div>
@@ -4567,7 +4679,7 @@ function renderExpSnapshotBlock(snap){
         <thead><tr><th>COMPONENT</th><th>FINAL CONC.</th><th class="num">µL / RXN</th><th class="num">TOTAL µL</th></tr></thead>
         <tbody>
           ${snap.rows.map(r=>{
-            const dot = r.assay ? `<span class="assay-dot" style="background:${ASSAY_COLORS[r.assay]}"></span> ` : "";
+            const dot = assayDotsHtml(r);
             return `<tr>
               <td class="label-cell">${dot}${r.label}${r.isSample ? ' <span style="color:var(--ink-soft);font-weight:400;">(added after aliquoting)</span>' : ''}</td>
               <td>${r.finalConc}</td>
@@ -4756,7 +4868,7 @@ function buildWordSnapshotHtml(snap, isFirst){
     : `\u2014 ${fmt(snap.totalMastermix)} \u00b5L total mastermix \u00b7 aliquot ${fmt(snap.aliquotVolume)} \u00b5L/well`;
   let html = isFirst ? "" : WORD_PAGE_BREAK;
   html += `<div>`;
-  html += `<h2>${pmEscapeHtml(snap.productName)}</h2>`;
+  html += `<h2>${pmEscapeHtml(snap.productName)}${snap.application === "mutation" ? " \u2014 Mutation Detection" : ""}</h2>`;
   html += `<p class="meta">${fmt(snap.reactionVolume)} \u00b5L reactions \u00d7 ${snap.numReactions} ${subLine}</p>`;
   html += `<table><thead><tr><th>Component</th><th>Final Conc.</th><th class="num">\u00b5L / Rxn</th><th class="num">Total \u00b5L</th></tr></thead><tbody>`;
   snap.rows.forEach(r=>{
