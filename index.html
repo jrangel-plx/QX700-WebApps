@@ -1664,13 +1664,13 @@
         <h1>FAS QX700 ddPCR WebApps & Calculators - Beta Build</h1>
       </div>
     </div>
-    <div class="version-badge">v1.05</div>
+    <div class="version-badge">v1.08</div>
   </header>
 
   <div class="tabs" id="tabs"></div>
   <div id="tabContent"></div>
 
-  <footer>These are unofficial apps, always double-check calculations. Please leave a feedback form if you encounter any issues/bugs or have a request.</footer>
+  <footer>These are unofficial apps — always double-check calculations. Please submit a feedback form if you encounter any issues or bugs, or have a request.</footer>
 </div>
 
 <div id="disclaimerOverlay"></div>
@@ -1701,7 +1701,6 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.03,
     digestNotValidatedNote:true,
-    sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
@@ -1715,7 +1714,7 @@ const SHEETS = [
       } },
     components: naicaComponents(5),
     protocol: naicaProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator, or edit each channel's X-fold (or individual-tube concentrations) in the Reaction Setup panel \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naica10x",
@@ -1732,7 +1731,6 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.03,
     digestNotValidatedNote:true,
-    sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, sampleConcentration:null, digest:false, enzymeVolume:null,
@@ -1746,7 +1744,7 @@ const SHEETS = [
       } },
     components: naicaComponents(10),
     protocol: naicaProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement, and not specified by the product insert. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator, or edit each channel's X-fold (or individual-tube concentrations) in the Reaction Setup panel \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naicaEvaGreen5x",
@@ -1763,14 +1761,13 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.03,
     digestNotValidatedNote:true,
-    sampleVolumeHint:"Template is typically up to 3.1 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
       individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components: naicaEvaGreenComponents(5),
     protocol: naicaEvaGreenProtocol(),
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator, or edit the primer mix X-fold (or individual-tube concentrations) in the Reaction Setup panel if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"naicaEvaGreen10x",
@@ -1787,14 +1784,13 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.03,
     digestNotValidatedNote:true,
-    sampleVolumeHint:"Template is typically up to 3.6 µL (indicative maximum \u2014 adjust based on your actual primer/buffer volumes).",
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:null, max:null },
     sampleFinalConcDisplay:"Variable",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, bufferBPercent:4, includeDextran:true, dextranVolume:null, sampleConcentration:null, digest:false, enzymeVolume:null,
       individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components: naicaEvaGreenComponents(10),
     protocol: naicaEvaGreenProtocol(),
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator, or edit the primer mix X-fold (or individual-tube concentrations) in the Reaction Setup panel if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"evagreen",
@@ -1808,7 +1804,7 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.2,
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:25 },
-    sampleFinalConcDisplay:"*Up to 25ng",
+    sampleFinalConcDisplay:"Up to 25 ng",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
       individualTubes:false, targetFwd:250, targetRev:250, stockFwd:100, stockRev:100, mixFold:20 },
     components(state){
@@ -1817,7 +1813,7 @@ const SHEETS = [
       const enzyme   = state.digest ? (state.enzymeVolume ?? round4(rv*0.2)) : 0;
       const sample   = sampleVolume;
       const rows = [
-        {label:"QX700 EvaGreen ddPCR Supermix", finalConc:"1X", perRxn:supermix, inMastermix:true},
+        {label:"QX700 ddPCR EvaGreen Supermix", finalConc:"1X", perRxn:supermix, inMastermix:true},
       ];
       let primerSum;
       if(state.individualTubes){
@@ -1831,7 +1827,7 @@ const SHEETS = [
         rows.push({label:`${fold}X Primer Mix`, finalConc:"250 nM (each)", perRxn:primer, inMastermix:true});
       }
       const water = rv - (supermix + primerSum + enzyme + sample);
-      rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+      if(state.digest) rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
       rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
       rows.push({label:"RNase-/DNase-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
       return rows;
@@ -1844,7 +1840,7 @@ const SHEETS = [
       "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
       "Add DNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading."
     ],
-    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"A final concentration of 250 nM per primer is a common EvaGreen dye-based ddPCR starting point (within Bio-Rad's documented 100\u2013250 nM range). Optimal concentration depends on amplicon design and can require empirical optimization \u2014 adjust your working stock in the Primer/Probe Mix Calculator, or edit the primer mix X-fold (or individual-tube concentrations) in the Reaction Setup panel if your assay calls for something different. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"probes",
@@ -1858,7 +1854,7 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.05,
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:82.5 },
-    sampleFinalConcDisplay:"*Up to 82.5ng",
+    sampleFinalConcDisplay:"Up to 82.5 ng",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
@@ -1870,12 +1866,12 @@ const SHEETS = [
       } },
     components: probeMixComponents({
       bufferFactor:5,
-      supermixLabel:"QX700 Supermix for Probes",
+      supermixLabel:"QX700 ddPCR Supermix for Probes",
       enzymeRatio:0.05,
       enzymeVariable:true
     }),
     protocol: qxProbeProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator, or edit each channel's X-fold (or individual-tube concentrations) in the Reaction Setup panel \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"rdq",
@@ -1890,7 +1886,7 @@ const SHEETS = [
     enzymeVariable:true,
     enzymeRatio:0.2,
     sampleMassRange:{ unit:"ng", min:0.00001, digestThreshold:16.5, max:85 },
-    sampleFinalConcDisplay:"*Up to 85ng",
+    sampleFinalConcDisplay:"Up to 85 ng",
     defaults:{ reactionVolume:5, numReactions:48, sampleVolume:1, digest:false, enzymeVolume:null, sampleConcentration:null,
       assays:{FAM:true,HEX:true,ROX:true,"Atto590":false,Cy5:false,"Cy5.5":false,"Atto550":false},
       individualTubes:false, targetFwd:900, targetRev:900, targetProbe:250,
@@ -1907,7 +1903,7 @@ const SHEETS = [
       enzymeVariable:true
     }),
     protocol: qxProbeProtocol(),
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator, or edit each channel's X-fold (or individual-tube concentrations) in the Reaction Setup panel \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration. These concentration guidelines are generally based on human genomic DNA — if you're working with plasmids, bacterial, viral, or plant DNA (or other non-human templates), your ideal input mass may differ, since genome size and complexity affect the appropriate copy-number range."
   },
   {
     id:"onestep",
@@ -1944,9 +1940,10 @@ const SHEETS = [
       } else {
         Object.keys(assays).forEach(name=>{
           const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-          const v = assays[name] ? rv/fold : 0;
+          if(!assays[name]) return; // hide unselected channels from the recipe
+          const v = rv/fold;
           assaySum += v;
-          rows.push({label:`${fold}X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+          rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
         });
       }
       const sample = sampleVolume;
@@ -1961,9 +1958,9 @@ const SHEETS = [
       "Vortex thoroughly for 15–30 s at max speed, then centrifuge briefly (30–60 s).",
       "Aliquot the mastermix into a PCR plate or 8-tube strips using the aliquot volume shown in the banner above.",
       "Add RNA to each well, then seal, vortex 15–30 s, and centrifuge briefly before loading.",
-      "Note: final primer/probe concentrations are 900 nM (fwd), 900 nM (rev), 250 nM (probe); RNA input up to 500 ng per reaction."
+      "Note: default final primer/probe concentrations are 900 nM (fwd), 900 nM (rev), and 250 nM (probe); RNA input is up to 500 ng per reaction."
     ],
-    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely-used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator tab, or edit the X-fold and concentration directly below \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration."
+    notes:"Final concentrations of 900 nM (primers) and 250 nM (probe) are widely used starting points for hydrolysis-probe ddPCR assays \u2014 not a hard requirement. Optimal concentrations vary by assay design; some perform better with primers up to ~1000 nM or probes as low as ~50\u2013150 nM. If you've validated different concentrations, adjust your working stock in the Primer/Probe Mix Calculator, or edit each channel's X-fold (or individual-tube concentrations) in the Reaction Setup panel \u2014 the volumes here scale correctly regardless, since they're based on total reaction volume rather than a specific target concentration."
   },
 ];
 
@@ -2042,16 +2039,17 @@ function probeMixComponents(opts){
     } else {
       Object.keys(assays).forEach(name=>{
         const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-        const v = assays[name] ? rv/fold : 0;
+        if(!assays[name]) return; // hide unselected channels from the recipe
+        const v = rv/fold;
         assaySum += v;
-        rows.push({label:`${fold}X Primers/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
+        rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
       });
     }
     const enzymeVol = opts.enzymeVariable ? (state.enzymeVolume ?? round4(rv*opts.enzymeRatio)) : round4(rv*opts.enzymeRatio);
     const enzyme = state.digest ? enzymeVol : 0;
     const sample = sampleVolume;
     const water = rv - (supermix + assaySum + enzyme + sample);
-    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+    if(state.digest) rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
     rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
     rows.push({label:"RNase-/DNase-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
     return rows;
@@ -2065,8 +2063,8 @@ function naicaComponents(bufferFactor){
     const bufferBPct = state.bufferBPercent ?? 4;
     const bufferB = round4(rv * (bufferBPct/100));
     const rows = [
-      {label:`naica ${bufferFactor}X Multiplex Supermix, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
-      {label:`naica ${bufferFactor}X Multiplex Supermix, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
+      {label:`naica ${bufferFactor}X Multiplex ddPCR Mix, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
+      {label:`naica ${bufferFactor}X Multiplex ddPCR Mix, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
     ];
     let assaySum = 0;
     if(state.individualTubes){
@@ -2076,7 +2074,8 @@ function naicaComponents(bufferFactor){
     } else {
       Object.keys(assays).forEach(name=>{
         const fold = (state.assayFolds && state.assayFolds[name]) || 20;
-        const v = assays[name] ? rv/fold : 0;
+        if(!assays[name]) return; // hide unselected channels from the recipe
+        const v = rv/fold;
         assaySum += v;
         rows.push({label:`${fold}X Primer/Probe Mix ${name}`, finalConc:"900 nM/250 nM", perRxn:v, inMastermix:true, assay:name});
       });
@@ -2085,7 +2084,7 @@ function naicaComponents(bufferFactor){
     const enzyme = state.digest ? enzymeVol : 0;
     const sample = sampleVolume;
     const water = rv - (bufferA + bufferB + assaySum + enzyme + sample);
-    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+    if(state.digest) rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
     rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
     rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
     return rows;
@@ -2099,8 +2098,8 @@ function naicaProtocol(){
     "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
     "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
     "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
-    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
-    "Primer/probe volumes assume each channel's working stock is 20X by default (editable per channel below) at 900 nM/250 nM final \u2014 the product insert doesn't specify an exact value (it gives a broader 0.125\u20131 \u00b5M typical range), so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator tab, or the X-fold and concentration directly below, if your assay is validated differently."
+    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% in the Reaction Setup panel.",
+    "Primer/probe volumes assume each channel's working stock is 20X by default (editable per channel in the Reaction Setup panel) at 900 nM/250 nM final \u2014 the product insert doesn't specify an exact value (it gives a broader 0.125\u20131 \u00b5M typical range), so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator, or the X-fold and concentrations in the Reaction Setup panel, if your assay is validated differently."
   ];
 }
 
@@ -2115,8 +2114,8 @@ function naicaEvaGreenComponents(bufferFactor){
     const dextran = state.includeDextran ? (state.dextranVolume ?? dextranDefault) : 0;
     const sample = sampleVolume;
     const rows = [
-      {label:`naica ${bufferFactor}X PCR MIX, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
-      {label:`naica ${bufferFactor}X PCR MIX, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
+      {label:`naica ${bufferFactor}X ddPCR Mix, Buffer A`, finalConc:"1X", perRxn:bufferA, inMastermix:true},
+      {label:`naica ${bufferFactor}X ddPCR Mix, Buffer B`, finalConc:`${fmt(bufferBPct)}%`, perRxn:bufferB, inMastermix:true},
       {label:"EvaGreen, 20X", finalConc:"1.5X", perRxn:evaGreen, inMastermix:true},
       {label:"Dextran Alexa Fluor 647 (reference dye)", finalConc: state.includeDextran ? "7.4 µg/mL" : "—", perRxn:dextran, inMastermix:true},
     ];
@@ -2134,7 +2133,7 @@ function naicaEvaGreenComponents(bufferFactor){
     const enzymeVol = state.enzymeVolume ?? round4(rv*0.03);
     const enzyme = state.digest ? enzymeVol : 0;
     const water = rv - (bufferA + bufferB + evaGreen + dextran + primerSum + enzyme + sample);
-    rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
+    if(state.digest) rows.push({label:"Diluted Restriction Enzyme", finalConc:"Variable", perRxn:enzyme, inMastermix:true});
     rows.push({label:"DNA", finalConc:null, perRxn:sample, inMastermix:false, isSample:true});
     rows.push({label:"Nuclease-Free Water", finalConc:"—", perRxn:water, inMastermix:true});
     return rows;
@@ -2148,9 +2147,9 @@ function naicaEvaGreenProtocol(){
     "Vortex Buffer A thoroughly (3x 5\u201310 s at max speed) and centrifuge briefly before use.",
     "Aliquot the mastermix into the plate or chip wells using the aliquot volume shown in the banner above.",
     "Add DNA to each well, then load directly \u2014 do not freeze the combined reaction mix.",
-    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% below.",
+    "Buffer B is supplied at 100% and diluted down \u2014 typical final concentration is 4%, adjustable from 2% up to 5% in the Reaction Setup panel.",
     "Dextran Alexa Fluor 647 is an optional reference dye, used as a backup for droplet detection in the Red/Infra-Red channel if EvaGreen's basal Blue-channel fluorescence isn't sufficient. Turn it off or set its volume to 0 to exclude it.",
-    "Primer volumes assume the working stock is 20X by default (editable below) at 250 nM final \u2014 the product insert gives a broader 0.125\u20131 \u00b5M typical range, so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator tab, or the X-fold and concentration directly below, if your assay is validated differently."
+    "Primer volumes assume the working stock is 20X by default (editable in the Reaction Setup panel) at 250 nM final \u2014 the product insert gives a broader 0.125\u20131 \u00b5M typical range, so this is our recommended default. Adjust your working stock in the Primer/Probe Mix Calculator, or the X-fold and concentrations in the Reaction Setup panel, if your assay is validated differently."
   ];
 }
 
@@ -2214,7 +2213,7 @@ let activeTab = getDefaultSheetId() || SHEETS[0].id; // which mastermix sheet is
 let placeholderKind = null; // "learning" | "support" | "feedback" — which dummy module is showing
 const PLACEHOLDER_META = {
   learning:{ title:"ddPCR Learning Resources", desc:"Links to useful resources about ddPCR." },
-  support:{ title:"ddPCR Support", desc:"Contact tech support, your local FAS, or Sales Rep for help." },
+  support:{ title:"ddPCR Support", desc:"Contact tech support, your local FAS, or your sales rep for help." },
   feedback:{ title:"Feedback / Suggestions", desc:"Report bugs, request features, or share any other feedback on these apps." },
 };
 
@@ -2336,7 +2335,9 @@ function primerPrepNotesList(st){
     "Thaw and vortex all primer/probe stocks thoroughly before diluting.",
     "Add each stock volume below, then bring to the total volume with nuclease-free water or TE buffer.",
     "Vortex the finished mix and store per your primer/probe manufacturer's instructions (typically \u201320\u00b0C, protected from light for dye-labeled probes).",
-    `Use this mix as the "${st.dilutionFactor}X Primer Mix" (or "${st.dilutionFactor}X Primers/Probe Mix") input on the mastermix tabs.`
+    st.chemistry === "probe"
+      ? `Use this mix as the "${st.dilutionFactor}X Primer/Probe Mix" for a channel in the Mastermix Calculator (set that channel's X-fold to ${st.dilutionFactor}).`
+      : `Use this mix as the "${st.dilutionFactor}X Primer Mix" in the Mastermix Calculator (set the primer mix dilution factor to ${st.dilutionFactor}).`
   ];
 }
 
@@ -2347,7 +2348,7 @@ function buildPrimerPrepSnapshot(){
   const chemLabel = st.chemistry === "probe" ? "Probe-based" : "EvaGreen (dye)";
   return {
     id:"pp"+Date.now()+Math.random().toString(36).slice(2,7),
-    title:`${chemLabel} ${fmt(st.dilutionFactor,0)}X Primer/Probe Mix`,
+    title:`${chemLabel} ${fmt(st.dilutionFactor,0)}X ${st.chemistry === "probe" ? "Primer/Probe Mix" : "Primer Mix"}`,
     chemistry:st.chemistry,
     dilutionFactor:st.dilutionFactor,
     totalMixVolume:st.totalMixVolume,
@@ -2669,7 +2670,7 @@ function renderHomeContent(){
       <button class="home-card" id="homeCardSupport">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.support}</svg>
         <div class="home-card-title">ddPCR Support</div>
-        <div class="home-card-desc">Contact tech support, your local FAS, or Sales Rep for help.</div>
+        <div class="home-card-desc">Contact tech support, your local FAS, or your sales rep for help.</div>
       </button>
       <button class="home-card" id="homeCardFeedback">
         <svg class="home-card-icon" viewBox="0 0 48 48" fill="none">${MODULE_ICONS.feedback}</svg>
@@ -2754,7 +2755,7 @@ function renderContent(){
           <h2>Per-well breakdown</h2>
           ${componentsTable(rows, isError)}
           <div class="warning ${isError?'show':''}">
-            DNA/RNA + mix components exceed the reaction volume — water volume is negative. Reduce sample volume, add more reaction volume, or trim assay count.
+            ${sheet.sampleLabel} + mix components exceed the reaction volume — water volume is negative. Reduce the ${sheet.sampleLabel} volume, increase the reaction volume, or trim the assay count.
           </div>
         </div>
         <div class="panel protocol">
@@ -2823,8 +2824,11 @@ function renderInputs(sheet, s){
   panel.appendChild(numField("Reaction volume", "µL", s.reactionVolume, v=>{ s.reactionVolume=v; renderAll(); }, "Standard is 5 µL; up to 6 µL for overage."));
   panel.appendChild(numField("Number of reactions", "wells", s.numReactions, v=>{ s.numReactions=v; renderAll(); }, "Add a few extra wells for pipetting overage."));
 
-  const sampleHint = `${sheet.sampleLabel} is added after aliquoting, not into the mastermix batch.`
-    + (sheet.sampleVolumeHint ? ` ${sheet.sampleVolumeHint}` : "");
+  const maxSample = maxSampleVolume(sheet, s);
+  const sampleHint = `${sheet.sampleLabel} is added after aliquoting, not into the mastermix batch. `
+    + (maxSample > 0.0001
+      ? `With your current setup, up to ${fmt(maxSample)} µL of ${sheet.sampleLabel} fits in a ${fmt(s.reactionVolume)} µL reaction.`
+      : `With your current setup, there's no room left for ${sheet.sampleLabel} \u2014 reduce other components or increase the reaction volume.`);
   panel.appendChild(numField(`${sheet.sampleLabel} volume`, "µL", s.sampleVolume, v=>{ s.sampleVolume=v; renderAll(); }, sampleHint));
 
   if(sheet.sampleMassRange){
@@ -3058,10 +3062,18 @@ function renderInputs(sheet, s){
       panel.appendChild(numField(
         "Primer mix dilution factor (X)", "fold", s.mixFold,
         v=>{ s.mixFold = (v && v > 0) ? v : 20; renderAll(); },
-        "How concentrated your premixed primer stock is. 20X is the usual default, but 40X, 50X, or any other fold works too \u2014 match it to your stock from the Primer/Probe Mix Calculator tab."
+        "How concentrated your premixed primer stock is. 20X is the usual default, but 40X, 50X, or any other fold works too \u2014 match it to your stock from the Primer/Probe Mix Calculator."
       ));
     }
   }
+}
+
+// Largest sample volume that still fits: the water volume the recipe would
+// need if no sample were added at all, given every other current setting.
+function maxSampleVolume(sheet, s){
+  const rows = sheet.components(Object.assign({}, s, {sampleVolume:0}));
+  const water = rows.find(r=>r.label.includes("Water"));
+  return water ? water.perRxn : 0;
 }
 
 function formatMass(ng){
@@ -3260,7 +3272,7 @@ function renderPrimerPrepContent(){
           <div class="aliquot-text">
             <div class="num">${result.hasError ? '—' : fmt(result.vol) + ' µL'}</div>
             <div class="label">Total ${st.dilutionFactor}X mix prepared, at a ${st.dilutionFactor}-fold dilution factor</div>
-            <div class="sub">Dilute 1 part mix into ${st.dilutionFactor} parts final reaction to hit your target concentrations.</div>
+            <div class="sub">Use 1 part mix per ${st.dilutionFactor} parts final reaction volume (e.g. ${fmt(5/st.dilutionFactor)} µL in a 5 µL reaction) to hit your target concentrations.</div>
           </div>
         </div>
         <div class="panel">
@@ -3328,7 +3340,7 @@ function renderPrimerPrepInputs(){
   ], st.chemistry, v=>{ st.chemistry=v; renderAll(); }));
 
   panel.appendChild(numField("Dilution factor (X)", "fold", st.dilutionFactor, v=>{ st.dilutionFactor=v; renderAll(); }, "How many-fold the mix will be diluted into the final reaction. Standard is 20X."));
-  panel.appendChild(numField("Total mix volume to prepare", "µL", st.totalMixVolume, v=>{ st.totalMixVolume=v; renderAll(); }, "How much of the 20X mix you want to make in total."));
+  panel.appendChild(numField("Total mix volume to prepare", "µL", st.totalMixVolume, v=>{ st.totalMixVolume=v; renderAll(); }, "How much of the working mix you want to make in total."));
 
   const h = document.createElement("h2");
   h.style.marginTop = "18px";
@@ -3453,7 +3465,7 @@ function renderAll(){
    PLACEHOLDER (dummy / coming-soon modules)
    ============================================================ */
 const LEARNING_RESOURCES = [
-  { title:"ddPCR Applications Guide", tag:"Learn about ddPCR, Primer/Probe design, and aplications such as Mutation Detection, Gene Expression, CNV Analysis and more.", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf" },
+  { title:"ddPCR Applications Guide", tag:"Learn about ddPCR, primer/probe design, and applications such as mutation detection, gene expression, CNV analysis, and more.", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6407.pdf" },
   { title:"Bio-Rad Academy | ddPCR", tag:"Free online courses led by Bio-Rad Life Science Research application scientists.", url:"https://academy.bio-rad.com/collections/digital-pcr" },
   { title:"Rare Mutation Detection | Best Practices Guidelines", tag:"Learn the best practices for detecting rare mutations and sequences.", url:"https://www.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/Bulletin_6628.pdf" },
 ];
@@ -4100,7 +4112,7 @@ function renderPlatemapContent(){
       <button class="btn" id="pmSendExpBtn">+ Send Platemap to Experiment Log</button>
     </div>
     <div class="info-note" style="margin-top:-10px;">Import your labeled plate directly into the QX700 System Control Software. <br>
-	In the Digital Experiments tab select "Get Sample from file" under Sample Settings and select your labeled .csv file.</div>
+	In the Digital Experiments tab, select "Get Sample from file" under Sample Settings, then choose your labeled .csv file.</div>
     <div class="summary-bar" id="pmSummaryBar"></div>
     <div class="main-grid">
       <div class="chips-row" id="pmChipsRow"></div>
@@ -4321,7 +4333,7 @@ function renderExpControlPanel(){
   const log = experimentLog;
   const panel = document.getElementById("expControlPanel");
   panel.innerHTML = `<h2>Manage Attachments</h2>
-    <div class="exp-empty-hint" style="margin-top:-6px;">Experiment name, date, operator, and notes are now edited directly at the top of the experiment module to the right \u2014 this panel is just for attaching and removing recipes and the platemap.</div>`;
+    <div class="exp-empty-hint" style="margin-top:-6px;">Edit the experiment name, date, operator, and notes directly at the top of the page to the right \u2014 this panel is just for attaching and removing recipes and the platemap.</div>`;
 
 const ppHeading = document.createElement("h2");
   ppHeading.style.marginTop = "18px";
@@ -4370,7 +4382,7 @@ const ppHeading = document.createElement("h2");
   if(log.mastermixSnapshots.length === 0){
     const empty = document.createElement("div");
     empty.className = "exp-empty-hint";
-    empty.textContent = "Nothing attached yet. Open a mastermix tab and use \u201c+ Send Recipe to Experiment Log\u201d to add one here.";
+    empty.textContent = "Nothing attached yet. Open the Mastermix Calculator and use \u201c+ Send Recipe to Experiment Log\u201d to add one here.";
     panel.appendChild(empty);
     const goBtn = document.createElement("button");
     goBtn.type = "button";
@@ -4397,7 +4409,7 @@ const ppHeading = document.createElement("h2");
     const hint = document.createElement("div");
     hint.className = "exp-empty-hint";
     hint.style.marginTop = "4px";
-    hint.textContent = "Add more recipes anytime from any mastermix tab.";
+    hint.textContent = "Add more recipes anytime from the Mastermix Calculator.";
     panel.appendChild(hint);
   }
 
@@ -4423,7 +4435,7 @@ const ppHeading = document.createElement("h2");
     card.className = "exp-snapshot-card";
     card.innerHTML = `<div class="exp-snapshot-info">
         <div class="title">Platemap snapshot</div>
-        <div class="sub">${filled} wells named \u00b7 captured ${new Date(log.platemapSnapshot.capturedAt).toLocaleString()}</div>
+        <div class="sub">${filled} well${filled===1?"":"s"} named \u00b7 captured ${new Date(log.platemapSnapshot.capturedAt).toLocaleString()}</div>
       </div>`;
     const rmBtn = document.createElement("button");
     rmBtn.type = "button";
@@ -4525,7 +4537,7 @@ function renderExpPrintPage(){
   const blocksWrap = document.createElement("div");
   let html = "";
   if(log.mastermixSnapshots.length === 0 && log.primerPrepSnapshots.length === 0 && !log.platemapSnapshot){
-    html += `<div class="empty-state">Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective tabs, then print or download this experiment for your lab notebook.</div>`;
+    html += `<div class="empty-state">Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective modules, then print or download this experiment for your lab notebook.</div>`;
   }
   log.primerPrepSnapshots.forEach(snap=>{ html += renderExpPrimerPrepBlock(snap); });
   log.mastermixSnapshots.forEach(snap=>{ html += renderExpSnapshotBlock(snap); });
@@ -4833,7 +4845,7 @@ function generateExperimentWordDoc(){
   body += `<div class="notes-block"><div class="notes-label">Notes</div><div class="notes-body">${notesText ? pmEscapeHtml(notesText) : "&nbsp;"}</div></div>`;
 
   if(log.mastermixSnapshots.length === 0 && log.primerPrepSnapshots.length === 0 && !log.platemapSnapshot){
-    body += `<p>Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective tabs, then download this Word document for your lab notebook.</p>`;
+    body += `<p>Nothing attached yet. Send a primer/probe mix, mastermix recipe, and/or your platemap here from their respective modules, then download this Word document for your lab notebook.</p>`;
   }
 
   let isFirst = true;
@@ -4926,10 +4938,10 @@ const DA101_ROWS = [
     scenarios:[
       { id:"contamNTC", title:"Contaminated NTC",
         data: daMakeWell(207, {nNeg:97, nPos:3}),
-        desc:"This no-template control should be entirely negative, but a few unexpected droplets cross the threshold. Even 1\u20133 positive droplets in an NTC is worth investigating \u2014 carryover, aerosol contamination, or a splashed well are common culprits." },
+        desc:"This no-template control should be entirely negative, but a few unexpected droplets cross the threshold. Even 1\u20133 positive droplets in an NTC are worth investigating \u2014 carryover, aerosol contamination, or a splashed well are common culprits." },
       { id:"rain", title:"Rain",
         data: daMakeWell(208, {nNeg:30, nRain:20, nPos:50}),
-        desc:"\u201cRain\u201d (shown in amber) is droplets that fall between the two clusters instead of resolving cleanly. It can come from partial probe hydrolysis, a suboptimal annealing temperature, incomplete droplet stabilization, or genuinely intermediate targets like degraded FFPE DNA. A little rain is normal; heavy rain makes thresholding subjective and may call for assay optimization." },
+        desc:"\u201cRain\u201d (shown in amber) refers to droplets that fall between the two clusters instead of resolving cleanly. It can come from partial probe hydrolysis, a suboptimal annealing temperature, incomplete droplet stabilization, or genuinely intermediate targets like degraded FFPE DNA. A little rain is normal; heavy rain makes thresholding subjective and may call for assay optimization." },
     ]
   },
 ];
